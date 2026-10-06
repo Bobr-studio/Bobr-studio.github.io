@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bobr games — 一根一根木头地搭建游戏</title>
+<meta name="description" content="Bobr games 是一家小型独立工作室，为手机打造温馨又烧脑的策略游戏。">
+<link rel="icon" href="../assets/dotsrpg-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Стиль студии: река, дерево, закат — бобр-строитель. Не зависит от стиля игр. */
+  :root {
+    --river: #0F2E3A; --river-2: #164452; --foam: #E8F1EE;
+    --wood: #8B5A2B; --wood-dark: #5D3A22; --cream: #F7F1E8;
+    --sunset: #F28C28; --ink: #1E2A2F; --muted: #5F6B70;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; color: var(--ink); background: var(--cream); font: 17px/1.6 Rubik, system-ui, sans-serif; }
+  a { color: inherit; }
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { font-family: Fredoka, Rubik, sans-serif; }
+
+  /* Первый экран: ночная река и плотина из брёвен */
+  .hero { position: relative; color: var(--cream); overflow: hidden;
+    background: radial-gradient(1200px 500px at 80% -10%, #2B6F7E 0%, transparent 60%),
+                linear-gradient(180deg, var(--river) 0%, var(--river-2) 100%); }
+  header { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; position: relative; z-index: 10; }
+  nav { display: flex; gap: 22px; align-items: center; font-weight: 500; }
+  nav a { text-decoration: none; opacity: .9; }
+  nav a.pill { padding: 6px 14px; border-radius: 999px; border: 2px solid rgba(247,241,232,.35); }
+
+  .bobr { position: relative; display: inline-block; font: 700 46px/1 Caveat, cursive; color: var(--cream); text-decoration: none; }
+  .bobr svg { position: absolute; left: 0; top: 42px; }
+  .bobr .teeth { position: absolute; left: 30px; top: 38px; }
+
+  .hero-inner { position: relative; z-index: 2; display: grid; grid-template-columns: 1.15fr .85fr; gap: 32px;
+    align-items: center; padding: 48px 0 150px; }
+  .hero h1 { font-size: 60px; line-height: 1.02; margin: 0 0 18px; font-weight: 700; letter-spacing: -1px; }
+  .hero h1 em { font-style: normal; color: var(--sunset); }
+  .hero p { font-size: 19px; color: rgba(247,241,232,.85); margin: 0 0 28px; max-width: 520px; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 14px 24px; border-radius: 999px;
+    font: 600 17px Fredoka, Rubik, sans-serif; text-decoration: none; }
+  .btn.primary { background: var(--sunset); color: #2a1606; box-shadow: 0 8px 22px rgba(242,140,40,.35); }
+  .btn.ghost { border: 2px solid rgba(247,241,232,.4); color: var(--cream); margin-left: 10px; }
+
+  .beaver { width: 100%; max-width: 380px; justify-self: center; filter: drop-shadow(0 18px 30px rgba(0,0,0,.35)); }
+  .dam { position: absolute; left: 0; right: 0; bottom: 0; z-index: 1; width: 100%; height: 130px; display: block; }
+
+  /* Разделы */
+  section { padding: 64px 0; }
+  .kicker { font: 600 14px Fredoka, sans-serif; letter-spacing: 2px; text-transform: uppercase; color: var(--wood); }
+  section h2 { font-size: 40px; margin: 6px 0 26px; color: var(--river); }
+
+  /* Карточки игр: внутри — стиль самой игры (её баннер), рамка — студийная */
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 26px; }
+  .card { background: #fff; border-radius: 24px; overflow: hidden; text-decoration: none; color: inherit;
+    box-shadow: 0 12px 30px rgba(15,46,58,.10); transition: transform .15s, box-shadow .15s; display: flex; flex-direction: column; }
+  a.card:hover { transform: translateY(-4px); box-shadow: 0 18px 40px rgba(15,46,58,.16); }
+  .card img.banner { width: 100%; aspect-ratio: 1024 / 500; object-fit: cover; display: block; }
+  .card .body { padding: 18px 22px 22px; display: flex; gap: 14px; }
+  .card img.icon { width: 58px; height: 58px; border-radius: 16px; box-shadow: 0 3px 10px rgba(0,0,0,.12); }
+  .card h3 { margin: 0; font-size: 23px; color: var(--river); }
+  .card p { margin: 4px 0 12px; color: var(--muted); font-size: 15px; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
+  .chip { font: 600 13px Fredoka, sans-serif; padding: 4px 12px; border-radius: 999px; background: #FFF0E0; color: #A85A0E; }
+  .more { font: 600 15px Fredoka, sans-serif; color: var(--sunset); }
+  .card.future { background: transparent; box-shadow: none; border: 2.5px dashed #D8C8B4; min-height: 270px;
+    align-items: center; justify-content: center; text-align: center; padding: 24px; color: var(--muted); }
+  .card.future h3 { color: var(--wood); }
+
+  /* О студии */
+  .about { background: #fff; }
+  .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .value { background: var(--cream); border-radius: 20px; padding: 24px; }
+  .value .ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; margin-bottom: 12px; }
+  .value h3 { margin: 0 0 6px; font-size: 20px; color: var(--river); }
+  .value p { margin: 0; color: #46545A; font-size: 15px; }
+
+  footer { background: var(--river); color: rgba(247,241,232,.75); padding: 30px 0 36px; font-size: 15px; }
+  footer .wrap { display: flex; flex-wrap: wrap; gap: 10px 24px; align-items: center; }
+  footer .bobr { font-size: 32px; }
+  footer .bobr svg { top: 30px; width: 104px; } footer .bobr .teeth { left: 21px; top: 27px; width: 13px; }
+  footer a { text-decoration: none; }
+
+  @media (max-width: 760px) {
+    nav a:not(.pill) { display: none; }
+    .hero-inner { grid-template-columns: 1fr; padding: 20px 0 120px; }
+    .hero h1 { font-size: 40px; }
+    .btn.ghost { margin: 12px 0 0; }
+    .beaver { max-width: 260px; }
+    .values { grid-template-columns: 1fr; }
+    section h2 { font-size: 32px; }
+  }
+</style>
+<link rel="alternate" hreflang="en" href="https://bobr-games.github.io/">
+<link rel="alternate" hreflang="ru" href="https://bobr-games.github.io/ru/">
+<link rel="alternate" hreflang="uk" href="https://bobr-games.github.io/uk/">
+<link rel="alternate" hreflang="pl" href="https://bobr-games.github.io/pl/">
+<link rel="alternate" hreflang="cs" href="https://bobr-games.github.io/cs/">
+<link rel="alternate" hreflang="de" href="https://bobr-games.github.io/de/">
+<link rel="alternate" hreflang="fr" href="https://bobr-games.github.io/fr/">
+<link rel="alternate" hreflang="es" href="https://bobr-games.github.io/es/">
+<link rel="alternate" hreflang="pt" href="https://bobr-games.github.io/pt/">
+<link rel="alternate" hreflang="tr" href="https://bobr-games.github.io/tr/">
+<link rel="alternate" hreflang="ja" href="https://bobr-games.github.io/ja/">
+<link rel="alternate" hreflang="ko" href="https://bobr-games.github.io/ko/">
+<link rel="alternate" hreflang="zh" href="https://bobr-games.github.io/zh/">
+<style>
+  .langs { position: relative; }
+  .langs summary { list-style: none; cursor: pointer; padding: 5px 14px; border-radius: 999px;
+    border: 2px solid rgba(247,241,232,.35); color: #F7F1E8; font: 500 15px Rubik, sans-serif; }
+  .langs summary::-webkit-details-marker { display: none; }
+  .langs[open] summary { background: rgba(247,241,232,.12); }
+  .langs .menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 10; background: #fff;
+    border-radius: 16px; padding: 8px; box-shadow: 0 14px 34px rgba(0,0,0,.25);
+    display: grid; grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: 2px; }
+  .langs .menu a { display: block; padding: 7px 12px; border-radius: 10px; color: #1E2A2F;
+    text-decoration: none; font: 500 15px Rubik, sans-serif; white-space: nowrap; }
+  .langs .menu a:hover { background: #F7F1E8; }
+  .langs .menu a.current { background: #FFF0E0; color: #A85A0E; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <header>
+      <a class="bobr" href="../zh/index.html">bobr
+        <svg width="150" height="30" viewBox="0 0 210 46" aria-hidden="true">
+          <path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/>
+          <g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/>
+            <path d="M162,8 L190,34 M170,6 L198,32 M178,6 L204,30 M158,16 L182,38" stroke="#5D3A22" stroke-opacity=".6" stroke-width="1.5"/></g>
+        </svg>
+        <svg class="teeth" width="18" height="14" viewBox="0 0 24 18" aria-hidden="true">
+          <rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+          <rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+        </svg>
+      </a>
+      <nav>
+        <a href="#games">游戏</a>
+        <a href="#about">工作室</a>
+        <details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../index.html">English</a><a href="../ru/index.html">Русский</a><a href="../uk/index.html">Українська</a><a href="../pl/index.html">Polski</a><a href="../cs/index.html">Čeština</a><a href="../de/index.html">Deutsch</a><a href="../fr/index.html">Français</a><a href="../es/index.html">Español</a><a href="../pt/index.html">Português</a><a href="../tr/index.html">Türkçe</a><a href="../ja/index.html">日本語</a><a href="../ko/index.html">한국어</a><a href="../zh/index.html" class="current">中文</a></div></details>
+      </nav>
+    </header>
+
+    <div class="hero-inner">
+      <div>
+        <h1>我们搭建游戏，<br><em>一根木头接一根。</em></h1>
+        <p><b>Bobr games</b> 是一家小型独立工作室。像河狸一样，我们慢慢地、认真地搭建 —— 上手容易、难以放下的温馨烧脑策略游戏。</p>
+        <a class="btn primary" href="#games">我们的游戏 ↓</a>
+        <a class="btn ghost" href="#about">关于我们</a>
+      </div>
+
+      <!-- Бобр-строитель: голова с зубками над водой и бревно -->
+      <svg class="beaver" viewBox="0 0 380 320" aria-hidden="true">
+        <ellipse cx="190" cy="270" rx="170" ry="26" fill="#0B2530" opacity=".55"/>
+        <g transform="translate(40 210) rotate(-8)">
+          <rect x="0" y="0" width="240" height="44" rx="22" fill="#9C6634"/>
+          <rect x="0" y="0" width="240" height="14" rx="7" fill="#B77B44"/>
+          <ellipse cx="240" cy="22" rx="20" ry="22" fill="#E6C08F"/>
+          <ellipse cx="240" cy="22" rx="12" ry="13" fill="none" stroke="#B9874F" stroke-width="3"/>
+          <circle cx="240" cy="22" r="4" fill="#B9874F"/>
+        </g>
+        <circle cx="120" cy="70" r="24" fill="#6E4524"/><circle cx="260" cy="70" r="24" fill="#6E4524"/>
+        <circle cx="120" cy="70" r="12" fill="#C98B4E"/><circle cx="260" cy="70" r="12" fill="#C98B4E"/>
+        <ellipse cx="190" cy="140" rx="104" ry="96" fill="#8B5A2B"/>
+        <ellipse cx="190" cy="178" rx="56" ry="44" fill="#D9A46A"/>
+        <circle cx="152" cy="122" r="11" fill="#1E120A"/><circle cx="228" cy="122" r="11" fill="#1E120A"/>
+        <circle cx="156" cy="118" r="3.5" fill="#fff"/><circle cx="232" cy="118" r="3.5" fill="#fff"/>
+        <ellipse cx="190" cy="158" rx="18" ry="12" fill="#2A1A10"/>
+        <rect x="176" y="182" width="13" height="26" rx="3" fill="#fff" stroke="#2A1A10" stroke-width="3"/>
+        <rect x="191" y="182" width="13" height="26" rx="3" fill="#fff" stroke="#2A1A10" stroke-width="3"/>
+        <path d="M120 236 Q190 268 260 236" stroke="#E8F1EE" stroke-width="4" fill="none" opacity=".5" stroke-linecap="round"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Плотина из брёвен на кромке воды -->
+  <svg class="dam" viewBox="0 0 1440 130" preserveAspectRatio="none" aria-hidden="true">
+    <path d="M0 60 C240 30 480 90 720 62 C960 34 1200 88 1440 58 L1440 130 L0 130Z" fill="#F7F1E8"/>
+    <g fill="#9C6634" opacity=".95">
+      <rect x="-20" y="48" width="380" height="18" rx="9" transform="rotate(2 0 0)"/>
+      <rect x="420" y="66" width="340" height="16" rx="8" transform="rotate(-2 600 70)"/>
+      <rect x="830" y="44" width="380" height="18" rx="9" transform="rotate(1.5 1000 50)"/>
+      <rect x="1220" y="60" width="260" height="16" rx="8"/>
+    </g>
+  </svg>
+</div>
+
+<section class="games" id="games">
+  <div class="wrap">
+    <div class="kicker">我们的游戏</div>
+    <h2>目前的作品</h2>
+    <div class="grid">
+      <!-- Новая игра = скопировать карточку и сделать папку /имя-игры/ -->
+      <a class="card" href="dots-rpg/index.html">
+        <img class="banner" src="../assets/dotsrpg-banner.png" alt="Dots RPG">
+        <div class="body">
+          <img class="icon" src="../assets/dotsrpg-icon.png" alt="">
+          <div>
+            <h3>Dots RPG</h3>
+            <p>在有山脉的地图上包围对手的点。纸笔间的战术。</p>
+            <div class="meta"><span class="chip">即将上线 · Google Play</span><span class="more">了解更多 →</span></div>
+          </div>
+        </div>
+      </a>
+      <div class="card future">
+        <div>
+          <h3>下一款游戏</h3>
+          <p>河狸们已经开始啃了。🪵</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="about" id="about">
+  <div class="wrap">
+    <div class="kicker">工作室</div>
+    <h2>小团队，好游戏</h2>
+    <div class="values">
+      <div class="value">
+        <div class="ic" style="background:#FFF0E0"><svg width="26" height="26" viewBox="0 0 26 26"><rect x="2" y="8" width="22" height="10" rx="5" fill="#9C6634"/><ellipse cx="22" cy="13" rx="3" ry="5" fill="#E6C08F"/></svg></div>
+        <h3>经久耐玩</h3>
+        <p>像河狸修筑水坝一样，一根一根地精心打磨每款游戏。</p>
+      </div>
+      <div class="value">
+        <div class="ic" style="background:#E5F1EF"><svg width="26" height="26" viewBox="0 0 26 26"><path d="M5 14 L11 20 L21 6" fill="none" stroke="#164452" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h3>公平对战</h3>
+        <p>凭实力取胜。没有付费变强，没有套路 —— 只有好游戏。</p>
+      </div>
+      <div class="value">
+        <div class="ic" style="background:#FDE8D2"><svg width="26" height="26" viewBox="0 0 26 26"><circle cx="13" cy="13" r="9" fill="none" stroke="#F28C28" stroke-width="3"/><path d="M13 8 V13 L17 15" stroke="#F28C28" stroke-width="3" fill="none" stroke-linecap="round"/></svg></div>
+        <h3>温馨离线</h3>
+        <p>短局适合喝咖啡时，长局适合下雨的夜晚 —— 无需联网。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <a class="bobr" href="../zh/index.html">bobr
+      <svg width="104" height="21" viewBox="0 0 210 46" aria-hidden="true">
+        <path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g>
+      </svg>
+      <svg class="teeth" width="13" height="10" viewBox="0 0 24 18" aria-hidden="true">
+        <rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+        <rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+      </svg>
+    </a>
+    <span>© 2026 Bobr games</span>
+    <a href="dots-rpg/index.html">Dots RPG</a>
+  </div>
+</footer>
+
+</body>
+</html>

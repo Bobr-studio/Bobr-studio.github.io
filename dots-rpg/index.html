@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dots RPG — Bobr games</title>
+<meta name="description" content="Dots RPG — the classic pen-and-paper game of dots with maps, mountains and a clever opponent.">
+<link rel="icon" href="../assets/dotsrpg-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700;800&display=swap" rel="stylesheet">
+<style>
+  /* Шапка и подвал — в стиле студии; содержимое — в стиле игры (тетрадь в клетку). */
+  :root {
+    --river: #0F2E3A; --river-2: #164452; --cream: #F7F1E8; --sunset: #F28C28;
+    --paper: #FDFCF7; --grid: #D3E2F2; --line: #B3CDE8; --margin: rgba(229,115,115,.45);
+    --blue: #1565C0; --red: #D32F2F; --ink: #222; --muted: #6b6b6b;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); font: 17px/1.6 Rubik, system-ui, sans-serif; background: var(--paper); }
+  a { color: var(--blue); }
+
+  .studio { background: linear-gradient(180deg, var(--river), var(--river-2)); color: var(--cream); }
+  .studio .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; }
+  .studio nav { display: flex; gap: 20px; align-items: center; font: 500 16px Rubik; }
+  .studio nav a { color: var(--cream); text-decoration: none; opacity: .9; }
+  .studio nav a.pill { padding: 5px 14px; border-radius: 999px; border: 2px solid rgba(247,241,232,.35); }
+  .bobr { position: relative; display: inline-block; font: 700 40px/1 Caveat, cursive; color: var(--cream); text-decoration: none; }
+  .bobr svg { position: absolute; left: 0; top: 37px; }
+  .bobr .teeth { position: absolute; left: 26px; top: 33px; }
+
+  .notebook {
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(90deg, transparent 47px, var(--margin) 47px, var(--margin) 49px, transparent 49px),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 100% 100%, 24px 24px, 24px 24px;
+  }
+  .wrap-game { max-width: 1040px; margin: 0 auto; padding: 0 24px 40px 72px; }
+  .hero { padding: 40px 0 10px; max-width: 680px; }
+  .hero h1 { font: 800 46px/1.1 Rubik; color: var(--blue); margin: 0 0 14px; letter-spacing: -1px; }
+  .hero h1 .hand { font: 700 52px/1 Caveat; color: var(--red); white-space: nowrap; }
+  .hero p { font-size: 19px; color: #333; margin: 0; }
+
+  .game { margin: 30px 0 10px; background: rgba(253,252,247,.95); border-radius: 22px;
+    box-shadow: 0 10px 34px rgba(0,0,0,.12); overflow: hidden; }
+  .game img.banner { display: block; width: 100%; height: auto; border-bottom: 1px solid #eee; }
+  .game .body { display: grid; grid-template-columns: 96px 1fr; gap: 20px; padding: 26px 28px 30px; }
+  .game img.icon { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 4px 12px rgba(0,0,0,.12); }
+  .title { position: relative; display: inline-block; font: 800 36px/1 Rubik; color: var(--blue); margin: 4px 0 6px; }
+  .title .rpg { position: absolute; right: -66px; top: -18px; transform: rotate(14deg);
+    font: 700 30px/1 Caveat; color: var(--blue); padding: 6px 12px; }
+  .title .rpg svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .tagline { color: var(--muted); margin: 0 0 14px; }
+  ul.features { margin: 0 0 22px; padding: 0; list-style: none; columns: 2; column-gap: 28px; }
+  ul.features li { break-inside: avoid; padding-left: 22px; position: relative; margin-bottom: 6px; }
+  ul.features li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 10px; height: 10px;
+    border-radius: 50%; background: var(--red); }
+  ul.features li:nth-child(even)::before { background: var(--blue); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 14px;
+    font-weight: 700; text-decoration: none; }
+  .btn.soon { background: #e8edf3; color: #7b8794; cursor: default; }
+  .btn.ghost { border: 2px solid var(--line); color: var(--blue); background: var(--paper); }
+
+  footer.studio .wrap { padding: 26px 24px 32px; justify-content: flex-start; flex-wrap: wrap; font-size: 15px;
+    color: rgba(247,241,232,.75); }
+  footer.studio a { color: rgba(247,241,232,.85); text-decoration: none; }
+  footer .bobr { font-size: 30px; } footer .bobr svg { top: 28px; width: 98px; }
+  footer .bobr .teeth { left: 20px; top: 25px; width: 12px; }
+
+  @media (max-width: 720px) {
+    .notebook { background-image:
+      linear-gradient(90deg, transparent 23px, var(--margin) 23px, var(--margin) 25px, transparent 25px),
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px); }
+    .wrap-game { padding: 0 16px 32px 36px; }
+    .hero h1 { font-size: 34px; } .hero h1 .hand { font-size: 38px; }
+    .game .body { grid-template-columns: 1fr; padding: 22px 18px 24px; }
+    ul.features { columns: 1; }
+    .studio nav a.back { display: none; }
+  }
+</style>
+<link rel="alternate" hreflang="en" href="https://bobr-games.github.io/dots-rpg/">
+<link rel="alternate" hreflang="ru" href="https://bobr-games.github.io/ru/dots-rpg/">
+<link rel="alternate" hreflang="uk" href="https://bobr-games.github.io/uk/dots-rpg/">
+<link rel="alternate" hreflang="pl" href="https://bobr-games.github.io/pl/dots-rpg/">
+<link rel="alternate" hreflang="cs" href="https://bobr-games.github.io/cs/dots-rpg/">
+<link rel="alternate" hreflang="de" href="https://bobr-games.github.io/de/dots-rpg/">
+<link rel="alternate" hreflang="fr" href="https://bobr-games.github.io/fr/dots-rpg/">
+<link rel="alternate" hreflang="es" href="https://bobr-games.github.io/es/dots-rpg/">
+<link rel="alternate" hreflang="pt" href="https://bobr-games.github.io/pt/dots-rpg/">
+<link rel="alternate" hreflang="tr" href="https://bobr-games.github.io/tr/dots-rpg/">
+<link rel="alternate" hreflang="ja" href="https://bobr-games.github.io/ja/dots-rpg/">
+<link rel="alternate" hreflang="ko" href="https://bobr-games.github.io/ko/dots-rpg/">
+<link rel="alternate" hreflang="zh" href="https://bobr-games.github.io/zh/dots-rpg/">
+<style>
+  .langs { position: relative; }
+  .langs summary { list-style: none; cursor: pointer; padding: 5px 14px; border-radius: 999px;
+    border: 2px solid rgba(247,241,232,.35); color: #F7F1E8; font: 500 15px Rubik, sans-serif; }
+  .langs summary::-webkit-details-marker { display: none; }
+  .langs[open] summary { background: rgba(247,241,232,.12); }
+  .langs .menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 10; background: #fff;
+    border-radius: 16px; padding: 8px; box-shadow: 0 14px 34px rgba(0,0,0,.25);
+    display: grid; grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: 2px; }
+  .langs .menu a { display: block; padding: 7px 12px; border-radius: 10px; color: #1E2A2F;
+    text-decoration: none; font: 500 15px Rubik, sans-serif; white-space: nowrap; }
+  .langs .menu a:hover { background: #F7F1E8; }
+  .langs .menu a.current { background: #FFF0E0; color: #A85A0E; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" href="../index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true">
+        <path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g>
+      </svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true">
+        <rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+        <rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+      </svg>
+    </a>
+    <nav>
+      <a class="back" href="../index.html#games">← All games</a>
+      <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../dots-rpg/index.html" class="current">English</a><a href="../ru/dots-rpg/index.html">Русский</a><a href="../uk/dots-rpg/index.html">Українська</a><a href="../pl/dots-rpg/index.html">Polski</a><a href="../cs/dots-rpg/index.html">Čeština</a><a href="../de/dots-rpg/index.html">Deutsch</a><a href="../fr/dots-rpg/index.html">Français</a><a href="../es/dots-rpg/index.html">Español</a><a href="../pt/dots-rpg/index.html">Português</a><a href="../tr/dots-rpg/index.html">Türkçe</a><a href="../ja/dots-rpg/index.html">日本語</a><a href="../ko/dots-rpg/index.html">한국어</a><a href="../zh/dots-rpg/index.html">中文</a></div></details>
+    </nav>
+  </div>
+</header>
+
+<main class="notebook">
+  <div class="wrap-game">
+    <section class="hero">
+      <h1>Dots RPG <span class="hand">pen-and-paper tactics</span></h1>
+      <p>The classic game of dots from the back of a school notebook — now with maps, mountains
+      and a clever opponent. Surround your rival's dots and conquer the map.</p>
+    </section>
+
+    <article class="game">
+      <img class="banner" src="../assets/dotsrpg-banner.png" alt="Dots RPG — surround, capture, conquer the map">
+      <div class="body">
+        <img class="icon" src="../assets/dotsrpg-icon.png" alt="Dots RPG icon">
+        <div>
+          <div class="title">Dots
+            <span class="rpg">RPG<svg viewBox="0 0 120 72" preserveAspectRatio="none" aria-hidden="true"><path d="M18,10 C60,-4 116,8 112,36 C108,64 30,72 10,46 C-4,28 22,10 52,8" stroke="#D32F2F" stroke-width="3" fill="none" stroke-linecap="round"/></svg></span>
+          </div>
+          <p class="tagline">Surround your rival's dots on maps with mountains. Pen-and-paper tactics game.</p>
+          <ul class="features">
+            <li>Classic Dots rules — chains in any direction</li>
+            <li>Play a bot or a friend on one phone</li>
+            <li>Maps with named mountain ridges</li>
+            <li>Boards from 10×14 up to 60×80</li>
+            <li>Tutorial, sounds and animations</li>
+            <li>Works offline · No ads</li>
+          </ul>
+          <div class="actions">
+            <!-- После выхода: <a class="btn" style="background:#1565C0;color:#fff" href="https://play.google.com/store/apps/details?id=com.bobr.dotsrpg">▶ Get it on Google Play</a> -->
+            <span class="btn soon">▶ Google Play — coming soon</span>
+            <a class="btn ghost" href="https://bobr-games.github.io/dotsrpg-legal/">Privacy policy</a>
+          </div>
+        </div>
+      </div>
+    </article>
+  </div>
+</main>
+
+<footer class="studio">
+  <div class="wrap">
+    <a class="bobr" href="../index.html">bobr
+      <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true">
+        <path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g>
+      </svg>
+      <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true">
+        <rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+        <rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+      </svg>
+    </a>
+    <span>© 2026 Bobr games</span>
+    <a href="../index.html#games">All games</a>
+    <a href="https://bobr-games.github.io/dotsrpg-legal/">Dots RPG privacy policy</a>
+  </div>
+</footer>
+
+</body>
+</html>
