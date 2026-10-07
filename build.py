@@ -38,7 +38,8 @@ TEASERS = {
     # Scrap Siege (рабочее название) — роботы, модификации, захват зданий.
     'teaser_next_game': {'percent': 5, 'image': 'assets/scrap-siege-teaser.png', 'style': 'dam',
                          'title': 'next_title', 'text': 'next_text'},
-    'teaser_first_app': {'percent': 10, 'image': 'assets/first-app-teaser.png', 'style': 'fog',
+    # Easer Life (~/IdeaProjects/Life) — вечерний ритуал паузы; % по реестру задач.
+    'teaser_first_app': {'percent': 23, 'image': 'assets/easer-life-teaser.png', 'style': 'fog',
                          'title': 'app_soon_title', 'text': 'app_soon_text'},
 }
 LOGS_TOTAL = 8  # брёвен в плотине при 0%
