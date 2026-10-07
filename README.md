@@ -1,6 +1,6 @@
-# Bobr games — сайт студии
+# Bobr Studio — сайт студии
 
-Сайт: https://bobr-games.github.io/ (GitHub Pages, репозиторий `Bobr-games.github.io`).
+Сайт: https://bobr-studio.github.io/ (GitHub Pages, репозиторий `Bobr-studio.github.io`).
 
 ## Как устроено
 

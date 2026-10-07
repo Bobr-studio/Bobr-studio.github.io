@@ -116,6 +116,7 @@
       </a>
       <nav>
         <a href="#games">{{nav_games}}</a>
+        <a href="#apps">{{nav_apps}}</a>
         <a href="#about">{{nav_studio}}</a>
         {{langmenu}}
       </nav>
@@ -192,6 +193,22 @@
   </div>
 </section>
 
+<section class="games" id="apps">
+  <div class="wrap">
+    <div class="kicker">{{kicker_apps}}</div>
+    <h2>{{apps_h2}}</h2>
+    <div class="grid">
+      <!-- Новое приложение = такая же карточка, как у игры -->
+      <div class="card future">
+        <div>
+          <h3>{{app_soon_title}}</h3>
+          <p>{{app_soon_text}}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="about" id="about">
   <div class="wrap">
     <div class="kicker">{{kicker_studio}}</div>
@@ -228,7 +245,7 @@
         <rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
       </svg>
     </a>
-    <span>© 2026 <span translate="no">Bobr games</span></span>
+    <span>© 2026 <span translate="no">Bobr Studio</span></span>
     <a href="{{game_url}}">Dots RPG</a>
   </div>
 </footer>

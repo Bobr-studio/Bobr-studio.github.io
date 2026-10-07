@@ -1,4 +1,4 @@
-"""Сборка сайта Bobr games из шаблонов и переводов.
+"""Сборка сайта Bobr Studio из шаблонов и переводов.
 
     python3 build.py
 
@@ -11,7 +11,7 @@ import json
 import pathlib
 import re
 
-SITE = 'https://bobr-games.github.io/'
+SITE = 'https://bobr-studio.github.io/'
 ROOT = pathlib.Path(__file__).parent
 
 # Код языка → название на самом языке. Первый — язык по умолчанию (в корне).
@@ -29,8 +29,8 @@ PAGES = {
 }
 
 # Политика конфиденциальности Dots RPG есть на английском и русском.
-PRIVACY = {'ru': 'https://bobr-games.github.io/dotsrpg-legal/ru/'}
-PRIVACY_DEFAULT = 'https://bobr-games.github.io/dotsrpg-legal/'
+PRIVACY = {'ru': 'https://bobr-studio.github.io/dotsrpg-legal/ru/'}
+PRIVACY_DEFAULT = 'https://bobr-studio.github.io/dotsrpg-legal/'
 
 LANG_CSS = """
   .langs { position: relative; }
