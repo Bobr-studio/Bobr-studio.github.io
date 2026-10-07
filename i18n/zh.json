@@ -43,5 +43,10 @@
   "kicker_apps": "我们的应用",
   "apps_h2": "经久耐用的实用工具",
   "app_soon_title": "第一款应用",
-  "app_soon_text": "已经在工作台上了，敬请期待！🪵"
+  "app_soon_text": "已经在工作台上了，敬请期待！🪵",
+  "ready": "完成",
+  "stage_early": "初步草图",
+  "stage_shape": "逐渐成形",
+  "stage_almost": "即将完成！",
+  "secret_project": "秘密项目"
 }

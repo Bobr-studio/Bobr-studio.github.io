@@ -43,5 +43,10 @@
   "kicker_apps": "Nasze aplikacje",
   "apps_h2": "Przydatne narzędzia na lata",
   "app_soon_title": "Pierwsza aplikacja",
-  "app_soon_text": "Już na warsztacie. Bądź na bieżąco! 🪵"
+  "app_soon_text": "Już na warsztacie. Bądź na bieżąco! 🪵",
+  "ready": "gotowe",
+  "stage_early": "Pierwsze szkice",
+  "stage_shape": "Nabiera kształtu",
+  "stage_almost": "Prawie gotowe!",
+  "secret_project": "Tajny projekt"
 }

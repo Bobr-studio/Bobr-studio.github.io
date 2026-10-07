@@ -32,6 +32,47 @@ PAGES = {
 PRIVACY = {'ru': 'https://bobr-studio.github.io/dotsrpg-legal/ru/'}
 PRIVACY_DEFAULT = 'https://bobr-studio.github.io/dotsrpg-legal/'
 
+# Тизеры будущих проектов: процент готовности и картинка (необязательно;
+# путь от корня сайта, например 'assets/next-game.png'). Без картинки — заглушка.
+TEASERS = {
+    # Scrap Siege (рабочее название) — роботы, модификации, захват зданий.
+    'teaser_next_game': {'percent': 5, 'image': 'assets/scrap-siege-teaser.png', 'style': 'dam',
+                         'title': 'next_title', 'text': 'next_text'},
+    'teaser_first_app': {'percent': 10, 'image': 'assets/first-app-teaser.png', 'style': 'fog',
+                         'title': 'app_soon_title', 'text': 'app_soon_text'},
+}
+LOGS_TOTAL = 8  # брёвен в плотине при 0%
+
+
+def teaser_html(cfg, t, root):
+    """Плитка будущего проекта на всю карточку. Снизу картинку закрывает
+    плотина из брёвен ('dam', для игр) или туман ('fog', для приложений) —
+    ровно на (100 - percent)%; надписи поверх."""
+    p = max(0, min(100, cfg['percent']))
+    cover = 100 - p
+    stage = t['stage_early'] if p < 50 else t['stage_shape'] if p < 80 else t['stage_almost']
+    img = f'<img src="{root}{cfg["image"]}" alt="">' if cfg['image'] else ''
+    big = ''
+    if cfg['style'] == 'dam':
+        logs = max(1 if cover else 0, round(LOGS_TOTAL * cover / 100))
+        # Внизу 72px заняты прогрессом: табличка — по центру плотины выше них,
+        # а на низкой плотине — над верхним бревном.
+        sign = (f'<div class="sign" style="top:calc((100% - 72px) / 2)">' if cover >= 45
+                else '<div class="sign top">') + f'{p}%<small>{t["ready"]}</small></div>'
+        # Почти закрытая плитка: бобр садится на бревно, а не уходит за край.
+        gnaw = '<span class="gnaw" style="transform:translateY(-10%)">🦫</span>' if cover > 88 else '<span class="gnaw">🦫</span>'
+        cover_html = (f'<div class="dam" style="height:{cover}%">{gnaw}'
+                      + '<div class="log"></div>' * logs + sign + '</div>') if logs else ''
+    else:
+        cover_html = f'<div class="fog" style="height:{cover}%"></div>' if cover else ''
+        big = f'<div class="big"><b>{p}%</b><span>{t["ready"]}</span></div>'
+    return (f'<div class="card teaser">{img}{cover_html}'
+            f'<div class="over"><div><small>{t["secret_project"]}</small><h3>{t[cfg["title"]]}</h3></div>'
+            f'{big or "<div></div>"}'
+            f'<div><div class="bar"><i style="width:{p}%"></i></div>'
+            f'<div class="pct"><span>{stage}</span><span>{p}% {t["ready"]}</span></div></div></div></div>')
+
+
 LANG_CSS = """
   .langs { position: relative; }
   .langs summary { list-style: none; cursor: pointer; padding: 5px 14px; border-radius: 999px;
@@ -72,6 +113,7 @@ def build():
                 game_url='dots-rpg/index.html',
                 privacy_url=PRIVACY.get(lang, PRIVACY_DEFAULT),
                 langcss=LANG_CSS,
+                **{key: teaser_html(cfg, strings[lang], root) for key, cfg in TEASERS.items()},
                 hreflang='\n'.join(
                     f'<link rel="alternate" hreflang="{code}" '
                     f'href="{SITE}{lang_dir(code)}{page.removesuffix("index.html")}">'

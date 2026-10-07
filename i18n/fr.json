@@ -43,5 +43,10 @@
   "kicker_apps": "Nos applis",
   "apps_h2": "Des outils utiles, faits pour durer",
   "app_soon_title": "Première appli",
-  "app_soon_text": "Déjà sur l'établi. Restez à l'écoute ! 🪵"
+  "app_soon_text": "Déjà sur l'établi. Restez à l'écoute ! 🪵",
+  "ready": "prêt",
+  "stage_early": "Premières esquisses",
+  "stage_shape": "Prend forme",
+  "stage_almost": "Presque prêt !",
+  "secret_project": "Projet secret"
 }

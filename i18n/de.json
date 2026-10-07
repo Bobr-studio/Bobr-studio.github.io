@@ -43,5 +43,10 @@
   "kicker_apps": "Unsere Apps",
   "apps_h2": "Nützliche Werkzeuge, gebaut für die Dauer",
   "app_soon_title": "Erste App",
-  "app_soon_text": "Schon auf der Werkbank. Bleib dran! 🪵"
+  "app_soon_text": "Schon auf der Werkbank. Bleib dran! 🪵",
+  "ready": "fertig",
+  "stage_early": "Erste Skizzen",
+  "stage_shape": "Nimmt Gestalt an",
+  "stage_almost": "Fast geschafft!",
+  "secret_project": "Geheimprojekt"
 }

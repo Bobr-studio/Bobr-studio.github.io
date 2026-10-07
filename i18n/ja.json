@@ -43,5 +43,10 @@
   "kicker_apps": "アプリ",
   "apps_h2": "長く使える便利なツール",
   "app_soon_title": "最初のアプリ",
-  "app_soon_text": "いま作業台の上で制作中です。お楽しみに！🪵"
+  "app_soon_text": "いま作業台の上で制作中です。お楽しみに！🪵",
+  "ready": "完成",
+  "stage_early": "ラフスケッチ中",
+  "stage_shape": "形になってきた",
+  "stage_almost": "もうすぐ完成！",
+  "secret_project": "シークレットプロジェクト"
 }

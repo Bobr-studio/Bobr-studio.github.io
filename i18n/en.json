@@ -43,5 +43,10 @@
   "kicker_apps": "Our apps",
   "apps_h2": "Handy tools, built to last",
   "app_soon_title": "First app",
-  "app_soon_text": "Already on the workbench. Stay tuned! 🪵"
+  "app_soon_text": "Already on the workbench. Stay tuned! 🪵",
+  "ready": "ready",
+  "stage_early": "Early sketches",
+  "stage_shape": "Taking shape",
+  "stage_almost": "Almost there!",
+  "secret_project": "Secret project"
 }

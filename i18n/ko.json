@@ -43,5 +43,10 @@
   "kicker_apps": "우리 앱",
   "apps_h2": "오래 쓰는 유용한 도구",
   "app_soon_title": "첫 번째 앱",
-  "app_soon_text": "이미 작업대 위에 있어요. 기대해 주세요! 🪵"
+  "app_soon_text": "이미 작업대 위에 있어요. 기대해 주세요! 🪵",
+  "ready": "완료",
+  "stage_early": "초기 스케치",
+  "stage_shape": "모양을 갖추는 중",
+  "stage_almost": "거의 다 됐어요!",
+  "secret_project": "비밀 프로젝트"
 }

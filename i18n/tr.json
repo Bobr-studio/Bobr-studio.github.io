@@ -43,5 +43,10 @@
   "kicker_apps": "Uygulamalarımız",
   "apps_h2": "Kalıcı, kullanışlı araçlar",
   "app_soon_title": "İlk uygulama",
-  "app_soon_text": "Tezgâhta hazırlanıyor. Takipte kalın! 🪵"
+  "app_soon_text": "Tezgâhta hazırlanıyor. Takipte kalın! 🪵",
+  "ready": "hazır",
+  "stage_early": "İlk eskizler",
+  "stage_shape": "Şekilleniyor",
+  "stage_almost": "Neredeyse hazır!",
+  "secret_project": "Gizli proje"
 }

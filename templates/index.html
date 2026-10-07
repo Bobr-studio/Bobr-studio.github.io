@@ -71,6 +71,47 @@
     align-items: center; justify-content: center; text-align: center; padding: 24px; color: var(--muted); }
   .card.future h3 { color: var(--wood); }
 
+
+  /* Тизер будущего проекта: вся плитка — картинка; снизу её закрывает плотина
+     (игры) или туман (приложения), надписи поверх. */
+  .teaser { position: relative; min-height: 380px; overflow: hidden; color: #fff;
+    background: radial-gradient(circle at 28% 30%, #FFD166 0 16%, transparent 17%),
+      radial-gradient(circle at 72% 58%, #06D6A0 0 22%, transparent 23%),
+      radial-gradient(circle at 60% 18%, #EF476F 0 10%, transparent 11%),
+      radial-gradient(circle at 25% 80%, #F28C28 0 12%, transparent 13%),
+      linear-gradient(160deg, #118AB2, #073B4C); }
+  .teaser > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .teaser .fog { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0;
+    /* как в варианте C: светлая дымка и пунктир по краю шторки */
+    backdrop-filter: blur(12px) saturate(.6); -webkit-backdrop-filter: blur(12px) saturate(.6);
+    background: rgba(247,241,232,.25); border-top: 2px dashed rgba(255,255,255,.8); }
+  .teaser .dam { position: absolute; z-index: 1; left: 0; right: 0; bottom: 0; display: flex; flex-direction: column; }
+  .teaser .log { flex: 1 1 0; min-height: 14px; margin: 0 -6px; border-radius: 14px; position: relative;
+    background: linear-gradient(180deg, #B77B44, #8B5A2B 60%, #6E4524); box-shadow: inset 0 -3px 0 rgba(0,0,0,.15); }
+  .teaser .log::after { content: ""; position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    width: 18px; height: 18px; border-radius: 50%; background: #E6C08F; box-shadow: inset 0 0 0 3px #C99A6B; }
+  .teaser .log:nth-child(even) { transform: translateX(10px); }
+  .teaser .gnaw { position: absolute; right: 12%; top: 0; transform: translateY(-75%); font-size: 30px; }
+  .teaser .sign { position: absolute; left: 50%; z-index: 3; transform: translate(-50%, -50%) rotate(-4deg);
+    background: linear-gradient(180deg, #F3DDB8, #E2C08E); border: 2px solid #9C6634; border-radius: 6px;
+    padding: 4px 16px 3px; font: 700 20px/1.1 Fredoka, Rubik, sans-serif; color: #5D3A22; text-shadow: none;
+    box-shadow: 0 4px 8px rgba(0,0,0,.3); white-space: nowrap; text-align: center; }
+  .teaser .sign.top { top: 0 !important; transform: translate(-50%, -115%) rotate(-4deg); }
+  .teaser .sign::before, .teaser .sign::after { content: ""; position: absolute; top: 50%; width: 7px; height: 7px;
+    margin-top: -3.5px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #EDEDED, #7A7A7A 70%); }
+  .teaser .sign::before { left: 5px; } .teaser .sign::after { right: 5px; }
+  .teaser .sign small { display: block; font: 600 10px Fredoka, Rubik, sans-serif; letter-spacing: 1px; text-transform: uppercase; color: #8B5A2B; }
+  .teaser .over { position: absolute; z-index: 4; inset: 0; display: flex; flex-direction: column; justify-content: space-between;
+    padding: 22px 22px 20px; text-shadow: 0 2px 10px rgba(15,46,58,.55); pointer-events: none; }
+  .teaser .over small { font: 600 12px Fredoka, Rubik, sans-serif; letter-spacing: 2px; text-transform: uppercase; opacity: .85; }
+  .teaser .over h3 { margin: 2px 0 0; font-size: 26px; color: #fff; }
+  .teaser .big { text-align: center; }
+  .teaser .big b { display: block; font: 700 64px/1 Fredoka, Rubik, sans-serif; }
+  .teaser .big span { font: 600 13px Fredoka, Rubik, sans-serif; letter-spacing: 3px; text-transform: uppercase; opacity: .9; }
+  .teaser .bar { height: 10px; border-radius: 99px; background: rgba(255,255,255,.3); overflow: hidden; }
+  .teaser .bar i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #F28C28, #FFB45E); }
+  .teaser .pct { display: flex; justify-content: space-between; gap: 10px; margin-top: 6px; font: 600 14px Fredoka, Rubik, sans-serif; }
+
   /* О студии */
   .about { background: #fff; }
   .values { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
@@ -183,11 +224,7 @@
           </div>
         </div>
       </a>
-      <div class="card future">
-        <div>
-          <h3>{{next_title}}</h3>
-          <p>{{next_text}}</p>
-        </div>
+      {{teaser_next_game}}
       </div>
     </div>
   </div>
@@ -199,11 +236,7 @@
     <h2>{{apps_h2}}</h2>
     <div class="grid">
       <!-- Новое приложение = такая же карточка, как у игры -->
-      <div class="card future">
-        <div>
-          <h3>{{app_soon_title}}</h3>
-          <p>{{app_soon_text}}</p>
-        </div>
+      {{teaser_first_app}}
       </div>
     </div>
   </div>
