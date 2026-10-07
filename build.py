@@ -40,7 +40,7 @@ TEASERS = {
                          'title': 'next_title', 'text': 'next_text'},
     # Easer Life (~/IdeaProjects/Life) — вечерний ритуал паузы; % по реестру задач.
     'teaser_first_app': {'percent': 23, 'image': 'assets/easer-life-teaser.png', 'style': 'fog',
-                         'title': None, 'text': 'app_soon_text'},
+                         'title': 'next_app_title', 'text': 'app_soon_text'},
 }
 LOGS_TOTAL = 8  # брёвен в плотине при 0%
 
