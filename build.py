@@ -41,7 +41,7 @@ TEASERS = {
                          'title': 'next_title', 'text': 'next_text'},
     # Chrono Blocks (~/IdeaProjects/BobrStudio/apps/chrono-blocks) — таймер по блокам.
     # Название уже не секрет: вместо «Секретный проект» — «Скоро».
-    'teaser_chrono': {'percent': 50, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
+    'teaser_chrono': {'percent': 80, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
                       'name': 'Chrono Blocks', 'label': 'chip_soon'},
     # Easer Life (~/IdeaProjects/BobrStudio/apps/easer-life) — вечерний ритуал паузы; % по реестру задач.
     'teaser_first_app': {'percent': 23, 'image': 'assets/easer-life-teaser.png', 'style': 'fog',
