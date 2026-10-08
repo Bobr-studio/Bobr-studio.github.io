@@ -28,9 +28,10 @@ PAGES = {
     'game-dots-rpg.html': 'dots-rpg/index.html',
 }
 
-# Политика конфиденциальности Dots RPG есть на английском и русском.
-PRIVACY = {'ru': 'https://bobr-studio.github.io/dotsrpg-legal/ru/'}
-PRIVACY_DEFAULT = 'https://bobr-studio.github.io/dotsrpg-legal/'
+# Политики конфиденциальности — в этом же репозитории: legal/<приложение>/ (en + ru/).
+# Ссылка с сайта — на политику Dots RPG.
+PRIVACY = {'ru': 'https://bobr-studio.github.io/legal/dots-rpg/ru/'}
+PRIVACY_DEFAULT = 'https://bobr-studio.github.io/legal/dots-rpg/'
 
 # Тизеры будущих проектов: процент готовности и картинка (необязательно;
 # путь от корня сайта, например 'assets/next-game.png'). Без картинки — заглушка.
