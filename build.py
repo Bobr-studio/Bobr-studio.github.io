@@ -38,7 +38,11 @@ TEASERS = {
     # Scrap Siege (рабочее название) — роботы, модификации, захват зданий.
     'teaser_next_game': {'percent': 5, 'image': 'assets/scrap-siege-teaser.png', 'style': 'fog',
                          'title': 'next_title', 'text': 'next_text'},
-    # Easer Life (~/IdeaProjects/Life) — вечерний ритуал паузы; % по реестру задач.
+    # Chrono Blocks (~/IdeaProjects/BobrStudio/apps/chrono-blocks) — таймер по блокам.
+    # Название уже не секрет: вместо «Секретный проект» — «Скоро».
+    'teaser_chrono': {'percent': 50, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
+                      'name': 'Chrono Blocks', 'label': 'chip_soon'},
+    # Easer Life (~/IdeaProjects/BobrStudio/apps/easer-life) — вечерний ритуал паузы; % по реестру задач.
     'teaser_first_app': {'percent': 23, 'image': 'assets/easer-life-teaser.png', 'style': 'fog',
                          'title': 'next_app_title', 'text': 'app_soon_text'},
 }
@@ -68,11 +72,19 @@ def teaser_html(cfg, t, root):
         cover_html = f'<div class="fog" style="height:{cover}%"></div>' if cover else ''
         big = f'<div class="big"><b>{p}%</b><span>{t["ready"]}</span></div>'
     return (f'<div class="card teaser">{img}{cover_html}'
-            f'<div class="over"><div><small>{t["secret_project"]}</small>'
-            + (f'<h3>{t[cfg["title"]]}</h3>' if cfg['title'] else '') + '</div>'
+            f'<div class="over"><div><small>{t[cfg.get("label", "secret_project")]}</small>'
+            + _teaser_title(cfg, t) + '</div>'
             f'{big or "<div></div>"}'
             f'<div><div class="bar"><i style="width:{p}%"></i></div>'
             f'<div class="pct"><span>{stage}</span><span>{p}% {t["ready"]}</span></div></div></div></div>')
+
+
+def _teaser_title(cfg, t):
+    """Заголовок плитки: имя проекта как есть ('name', не переводится)
+    или ключ перевода ('title')."""
+    if cfg.get('name'):
+        return f'<h3 translate="no">{cfg["name"]}</h3>'
+    return f'<h3>{t[cfg["title"]]}</h3>' if cfg.get('title') else ''
 
 
 LANG_CSS = """
