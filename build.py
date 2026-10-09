@@ -28,7 +28,8 @@ PAGES = {
     'game-dots-rpg.html': 'dots-rpg/index.html',
 }
 
-# Политики конфиденциальности — в этом же репозитории: legal/<приложение>/ (en + ru/).
+# Политики конфиденциальности — в этом же репозитории: legal/<приложение>/ (en в корне,
+# остальные языки приложения — в подпапках; Chrono Blocks — build_legal.py).
 # Ссылка с сайта — на политику Dots RPG.
 PRIVACY = {'ru': 'https://bobr-studio.github.io/legal/dots-rpg/ru/'}
 PRIVACY_DEFAULT = 'https://bobr-studio.github.io/legal/dots-rpg/'
