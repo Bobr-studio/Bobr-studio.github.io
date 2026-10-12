@@ -1,11 +1,18 @@
 #!/usr/bin/env python3
-"""Политика конфиденциальности Chrono Blocks на всех 13 языках приложения.
+"""Политики конфиденциальности приложений — на всех языках каждого приложения.
 
-Текст — ниже, по языкам; страницы: legal/chrono-blocks/index.html (en)
-и legal/chrono-blocks/<язык>/index.html. Запуск: python3 build_legal.py
+- Chrono Blocks (13 языков): текст — ниже, по языкам;
+  legal/chrono-blocks/index.html (en) и legal/chrono-blocks/<язык>/index.html.
+- Score Night (16 языков): текст — legal_score_night.py; legal/score-night/…
+
+Запуск: python3 build_legal.py
 """
 import html
 import pathlib
+import sys
+
+sys.dont_write_bytecode = True  # без __pycache__ в публичном репозитории
+import legal_score_night as sn  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent / 'legal' / 'chrono-blocks'
 BASE = 'https://bobr-studio.github.io/legal/chrono-blocks/'
@@ -494,3 +501,104 @@ for lang, t in T.items():
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(page(lang))
 print('ok', len(T), 'languages →', ROOT.relative_to(ROOT.parent.parent))
+
+
+# ---------------------------------------------------------------- Score Night
+SN_ROOT = ROOT.parent / 'score-night'
+SN_BASE = 'https://bobr-studio.github.io/legal/score-night/'
+# Язык страницы → код для hreflang и ссылки Google (zh-Hant → zh-TW).
+SN_HL = {'zh': 'zh-CN', 'zh-Hant': 'zh-TW'}
+
+
+def sn_url(lang):
+    return SN_BASE if lang == 'en' else f'{SN_BASE}{lang}/'
+
+
+def sn_page(lang):
+    t = sn.T[lang]
+    hl = SN_HL.get(lang, lang)
+    subs = {
+        'app': '<b translate="no">Score Night</b>',
+        'gp': '<b translate="no">Google Play</b>',
+        'mail': link(f'mailto:{MAIL}', MAIL),
+    }
+    f = lambda s: s.format(**subs)
+    langs = ' '.join(
+        f'<b lang="{code}">{name}</b>' if code == lang
+        else f'<a lang="{code}" href="{sn_url(code)}">{name}</a>'
+        for code, name in sn.LANGS.items())
+    alternates = '\n'.join(
+        f'<link rel="alternate" hreflang="{SN_HL.get(code, code)}" href="{sn_url(code)}">'
+        for code in sn.LANGS)
+    lis = lambda items: '\n'.join(f'  <li>{f(i)}</li>' for i in items)
+    short = t['short']
+    stored = t['stored']
+    nots = t['nots'] + [t['not_net']]
+    return f"""<!doctype html>
+<html lang="{lang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Score Night — {t['title']}</title>
+<link rel="canonical" href="{sn_url(lang)}">
+{alternates}
+<link rel="alternate" hreflang="x-default" href="{SN_BASE}">
+<style>
+{CSS}
+</style>
+</head>
+<body>
+<main>
+<p class="lang" translate="no">{langs}</p>
+<h1><span translate="no">Score Night</span> — {t['title']}</h1>
+<p class="meta">{t['dev']}: <span translate="no">Bobr Studio</span> · {t['date']}</p>
+
+<p>{f(t['intro'])}</p>
+
+<h2>{t['h_short']}</h2>
+<p>{f(short)}</p>
+
+<h2>{t['h_stored']}</h2>
+<ul>
+{lis(stored)}
+</ul>
+<p>{f(t['stored_p'])}</p>
+
+<h2>{t['h_perm']}</h2>
+<ul>
+{lis(t['perm'])}
+</ul>
+
+<h2>{t['h_not']}</h2>
+<ul>
+{lis(nots)}
+</ul>
+
+<h2>{t['h_unoff']}</h2>
+<p>{f(t['unoff'])}</p>
+
+<h2>{t['h_children']}</h2>
+<p>{f(t['children'])}</p>
+
+<h2>{t['h_changes']}</h2>
+<p>{f(t['changes'])}</p>
+
+<h2>{t['h_contact']}</h2>
+<p>{f(t['contact'])}</p>
+</main>
+</body>
+</html>
+"""
+
+
+assert list(sn.T) == list(sn.LANGS), 'Score Night: языки в T и LANGS должны совпадать'
+sn_keys = set(sn.T['en'])
+for lang, t in sn.T.items():
+    assert set(t) == sn_keys, (lang, sn_keys ^ set(t))
+    assert len(t['stored']) == len(sn.T['en']['stored']), lang
+    assert len(t['perm']) == len(sn.T['en']['perm']), lang
+    assert len(t['nots']) == len(sn.T['en']['nots']), lang
+    out = SN_ROOT / ('index.html' if lang == 'en' else f'{lang}/index.html')
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(sn_page(lang))
+print('ok', len(sn.T), 'languages →', SN_ROOT.relative_to(SN_ROOT.parent.parent))
