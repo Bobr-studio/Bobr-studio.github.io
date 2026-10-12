@@ -38,12 +38,15 @@ PRIVACY_DEFAULT = 'https://bobr-studio.github.io/legal/dots-rpg/'
 # путь от корня сайта, например 'assets/next-game.png'). Без картинки — заглушка.
 TEASERS = {
     # Scrap Siege (рабочее название) — роботы, модификации, захват зданий.
-    'teaser_next_game': {'percent': 5, 'image': 'assets/scrap-siege-teaser.png', 'style': 'fog',
+    'teaser_next_game': {'percent': 15, 'image': 'assets/scrap-siege-teaser.png', 'style': 'fog',
                          'title': 'next_title', 'text': 'next_text'},
     # Chrono Blocks (~/IdeaProjects/BobrStudio/apps/chrono-blocks) — таймер по блокам.
     # Название уже не секрет: вместо «Секретный проект» — «Скоро».
-    'teaser_chrono': {'percent': 80, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
+    'teaser_chrono': {'percent': 90, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
                       'name': 'Chrono Blocks', 'label': 'chip_soon'},
+    # Score Night (~/IdeaProjects/BobrStudio/apps/score-night) — калькуляторы очков настольных игр.
+    'teaser_score_night': {'percent': 35, 'image': 'assets/score-night-teaser.png', 'style': 'fog',
+                           'name': 'Score Night', 'label': 'chip_soon'},
     # Easer Life (~/IdeaProjects/BobrStudio/apps/easer-life) — вечерний ритуал паузы; % по реестру задач.
     'teaser_first_app': {'percent': 23, 'image': 'assets/easer-life-teaser.png', 'style': 'fog',
                          'title': 'next_app_title', 'text': 'app_soon_text'},
