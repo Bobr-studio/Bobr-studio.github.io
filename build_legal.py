@@ -4,6 +4,7 @@
 - Chrono Blocks (13 языков): текст — ниже, по языкам;
   legal/chrono-blocks/index.html (en) и legal/chrono-blocks/<язык>/index.html.
 - Score Night (16 языков): текст — legal_score_night.py; legal/score-night/…
+  Разделы про рекламу и покупку Plus — флаги SN_ADS и SN_PURCHASES (включены).
 
 Запуск: python3 build_legal.py
 """
@@ -504,6 +505,11 @@ print('ok', len(T), 'languages →', ROOT.relative_to(ROOT.parent.parent))
 
 
 # ---------------------------------------------------------------- Score Night
+# Реклама Yandex и покупка Plus (отключает рекламу) — с версии 0.1.0 (10).
+# При изменении — сменить дату во всех языках legal_score_night.py.
+SN_ADS = True
+SN_PURCHASES = True
+
 SN_ROOT = ROOT.parent / 'score-night'
 SN_BASE = 'https://bobr-studio.github.io/legal/score-night/'
 # Язык страницы → код для hreflang и ссылки Google (zh-Hant → zh-TW).
@@ -517,10 +523,17 @@ def sn_url(lang):
 def sn_page(lang):
     t = sn.T[lang]
     hl = SN_HL.get(lang, lang)
+    yandex = 'yandex.ru' if lang in ('ru', 'uk') else 'yandex.com'
     subs = {
         'app': '<b translate="no">Score Night</b>',
+        'plus': '<b translate="no">Score Night Plus</b>',
+        'ads': '<b translate="no">Yandex Mobile Ads</b>',
+        'sdk': '<b translate="no">Yandex Mobile Ads SDK</b>',
         'gp': '<b translate="no">Google Play</b>',
         'mail': link(f'mailto:{MAIL}', MAIL),
+        'ya_privacy': link(f'https://{yandex}/legal/confidential/', f'{yandex}/legal/confidential'),
+        'ya_terms': link(f'https://{yandex}/legal/mobileads_sdk_agreement/', f'{yandex}/legal/mobileads_sdk_agreement'),
+        'g_privacy': link(f'https://policies.google.com/privacy?hl={hl}', t['g_privacy']),
     }
     f = lambda s: s.format(**subs)
     langs = ' '.join(
@@ -531,9 +544,28 @@ def sn_page(lang):
         f'<link rel="alternate" hreflang="{SN_HL.get(code, code)}" href="{sn_url(code)}">'
         for code in sn.LANGS)
     lis = lambda items: '\n'.join(f'  <li>{f(i)}</li>' for i in items)
-    short = t['short']
-    stored = t['stored']
-    nots = t['nots'] + [t['not_net']]
+    short = t['short'] + (t['short_ads'] if SN_ADS else '')
+    stored = list(t['stored'])
+    if SN_PURCHASES:
+        # Последний пункт был концом списка («…видели.») — теперь за ним ещё один.
+        if stored[-1].endswith('.'):
+            stored[-1] = stored[-1][:-1] + ';'
+        stored.append(t['stored_purch'])
+    nots = list(t['nots'])
+    if SN_ADS:
+        # С рекламой SDK Яндекса (AppMetrica) собирает диагностику — «не используем
+        # аналитику» было бы неправдой; оставляем «не продаём данные».
+        nots[-1] = t['nots_sell_ads']
+    nots += [t['not_net_ads'] if SN_ADS else t['not_net']]
+    ads = f"""
+<h2>{t['h_ads']}</h2>
+<p>{f(t['ads1'])}</p>
+<p>{f(t['ads2'])}</p>
+""" if SN_ADS else ''
+    purch = f"""
+<h2>{t['h_purch']}</h2>
+<p>{f(t['purch'])}</p>
+""" if SN_PURCHASES else ''
     return f"""<!doctype html>
 <html lang="{lang}">
 <head>
@@ -568,7 +600,7 @@ def sn_page(lang):
 <ul>
 {lis(t['perm'])}
 </ul>
-
+{ads}{purch}
 <h2>{t['h_not']}</h2>
 <ul>
 {lis(nots)}
