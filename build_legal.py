@@ -507,7 +507,7 @@ print('ok', len(T), 'languages →', ROOT.relative_to(ROOT.parent.parent))
 
 
 # ---------------------------------------------------------------- Score Night
-# Реклама Yandex и покупка Plus (отключает рекламу) — с версии 0.1.0 (10).
+# Реклама (Yandex с 0.1.0 (10), Unity — основная с 1.2.1 (15)) и покупка Plus.
 # При изменении — сменить дату во всех языках legal_score_night.py.
 SN_ADS = True
 SN_PURCHASES = True
@@ -529,8 +529,11 @@ def sn_page(lang):
     subs = {
         'app': '<b translate="no">Score Night</b>',
         'plus': '<b translate="no">Score Night Plus</b>',
-        'ads': '<b translate="no">Yandex Mobile Ads</b>',
-        'sdk': '<b translate="no">Yandex Mobile Ads SDK</b>',
+        'ads': '<b translate="no">Unity Ads</b> / <b translate="no">Yandex Mobile Ads</b>',
+        # «…предоставляет {sdk} (YANDEX LLC …)» — Unity первой, Яндекс со своей скобкой.
+        'sdk': '<b translate="no">Unity Ads SDK</b> (Unity Technologies Inc.) / '
+               '<b translate="no">Yandex Mobile Ads SDK</b>',
+        'un_privacy': link('https://unity.com/legal/game-player-and-app-user-privacy-policy', 'unity.com/legal/game-player-and-app-user-privacy-policy'),
         'gp': '<b translate="no">Google Play</b>',
         'mail': link(f'mailto:{MAIL}', MAIL),
         'ya_privacy': link(f'https://{yandex}/legal/confidential/', f'{yandex}/legal/confidential'),
@@ -562,6 +565,7 @@ def sn_page(lang):
     ads = f"""
 <h2>{t['h_ads']}</h2>
 <p>{f(t['ads1'])}</p>
+<p>{f(t['ads3'])}</p>
 <p>{f(t['ads2'])}</p>
 """ if SN_ADS else ''
     purch = f"""
