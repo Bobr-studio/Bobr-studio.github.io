@@ -4,7 +4,7 @@
 - Chrono Blocks (13 языков): текст — ниже, по языкам;
   legal/chrono-blocks/index.html (en) и legal/chrono-blocks/<язык>/index.html.
 - Score Night (16 языков): текст — legal_score_night.py; legal/score-night/…
-  Разделы про рекламу и покупку Plus — флаги SN_ADS и SN_PURCHASES (включены).
+  Разделы про рекламу и покупки — флаги SN_ADS и SN_PURCHASES (включены; с 1.3.0 — игры по одной).
 - Dots RPG (en, ru): текст — legal_dots_rpg.py; legal/dots-rpg/…
   Раздел про рекламу за награду (Unity Ads) — флаг DR_ADS.
 
@@ -510,7 +510,8 @@ print('ok', len(T), 'languages →', ROOT.relative_to(ROOT.parent.parent))
 
 
 # ---------------------------------------------------------------- Score Night
-# Реклама (Yandex с 0.1.0 (10), Unity — основная с 1.2.1 (15)) и покупка Plus.
+# Реклама (Yandex с 0.1.0 (10), Unity — основная с 1.2.1 (15), за награду — с 1.3.0 (17))
+# и покупки (с 1.3.0 — игры по одной или все сразу; Plus больше нет).
 # При изменении — сменить дату во всех языках legal_score_night.py.
 SN_ADS = True
 SN_PURCHASES = True
@@ -531,7 +532,6 @@ def sn_page(lang):
     yandex = 'yandex.ru' if lang in ('ru', 'uk') else 'yandex.com'
     subs = {
         'app': '<b translate="no">Score Night</b>',
-        'plus': '<b translate="no">Score Night Plus</b>',
         'ads': '<b translate="no">Unity Ads</b> / <b translate="no">Yandex Mobile Ads</b>',
         # «…предоставляет {sdk} (YANDEX LLC …)» — Unity первой, Яндекс со своей скобкой.
         'sdk': '<b translate="no">Unity Ads SDK</b> (Unity Technologies Inc.) / '
