@@ -5,6 +5,8 @@
   legal/chrono-blocks/index.html (en) и legal/chrono-blocks/<язык>/index.html.
 - Score Night (16 языков): текст — legal_score_night.py; legal/score-night/…
   Разделы про рекламу и покупку Plus — флаги SN_ADS и SN_PURCHASES (включены).
+- Dots RPG (en, ru): текст — legal_dots_rpg.py; legal/dots-rpg/…
+  Раздел про рекламу за награду (Unity Ads) — флаг DR_ADS.
 
 Запуск: python3 build_legal.py
 """
@@ -14,6 +16,7 @@ import sys
 
 sys.dont_write_bytecode = True  # без __pycache__ в публичном репозитории
 import legal_score_night as sn  # noqa: E402
+import legal_dots_rpg as dr  # noqa: E402
 
 ROOT = pathlib.Path(__file__).resolve().parent / 'legal' / 'chrono-blocks'
 BASE = 'https://bobr-studio.github.io/legal/chrono-blocks/'
@@ -640,3 +643,112 @@ for lang, t in sn.T.items():
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(sn_page(lang))
 print('ok', len(sn.T), 'languages →', SN_ROOT.relative_to(SN_ROOT.parent.parent))
+
+
+# ---------------------------------------------------------------- Dots RPG
+# Реклама за награду (Unity Ads) — с версии, где появились ролики за награду.
+# При изменении — сменить дату во всех языках legal_dots_rpg.py.
+DR_ADS = True
+
+DR_ROOT = ROOT.parent / 'dots-rpg'
+DR_BASE = 'https://bobr-studio.github.io/legal/dots-rpg/'
+# Цвета игры (тетрадь, синяя ручка), а не оранжевый Chrono Blocks.
+DR_CSS = CSS.replace('#FAFAF8', '#FDFCF7').replace('#D9661C', '#1565C0')
+
+
+def dr_url(lang):
+    return DR_BASE if lang == 'en' else f'{DR_BASE}{lang}/'
+
+
+def dr_page(lang):
+    t = dr.T[lang]
+    subs = {
+        'app': '<b translate="no">Dots RPG</b>',
+        'unity': '<b translate="no">Unity Ads SDK</b>',
+        'mail': link(f'mailto:{MAIL}', MAIL),
+        'un_privacy': link('https://unity.com/legal/game-player-and-app-user-privacy-policy', 'unity.com/legal/game-player-and-app-user-privacy-policy'),
+        'fb_privacy': link('https://firebase.google.com/support/privacy', 'firebase.google.com/support/privacy'),
+    }
+    f = lambda s: s.format(**subs)
+    langs = ' '.join(
+        f'<b lang="{code}">{name}</b>' if code == lang
+        else f'<a lang="{code}" href="{dr_url(code)}">{name}</a>'
+        for code, name in dr.LANGS.items())
+    alternates = '\n'.join(
+        f'<link rel="alternate" hreflang="{code}" href="{dr_url(code)}">' for code in dr.LANGS)
+    lis = lambda items: '\n'.join(f'  <li>{f(i)}</li>' for i in items)
+    short = t['short'] + (t['short_ads'] if DR_ADS else '')
+    nots = list(t['nots'])
+    nots.insert(2, t['not_ads'] if DR_ADS else t['not_ads_noads'])
+    ads = f"""
+<h2>{t['h_ads']}</h2>
+<p>{f(t['ads1'])}</p>
+<p>{f(t['ads2'])}</p>
+<p>{f(t['ads3'])}</p>
+""" if DR_ADS else ''
+    return f"""<!doctype html>
+<html lang="{lang}">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Dots RPG — {t['title']}</title>
+<link rel="canonical" href="{dr_url(lang)}">
+{alternates}
+<link rel="alternate" hreflang="x-default" href="{DR_BASE}">
+<style>
+{DR_CSS}
+</style>
+</head>
+<body>
+<main>
+<p class="lang" translate="no">{langs}</p>
+<h1><span translate="no">Dots RPG</span> — {t['title']}</h1>
+<p class="meta">{t['dev']}: <span translate="no">Bobr Studio</span> · {t['date']}</p>
+
+<p>{f(t['intro'])}</p>
+
+<h2>{t['h_short']}</h2>
+<p>{f(short)}</p>
+
+<h2>{t['h_stored']}</h2>
+<ul>
+{lis(t['stored'])}
+</ul>
+<p>{f(t['stored_p'])}</p>
+
+<h2>{t['h_sent']}</h2>
+<p>{f(t['sent_intro'])}</p>
+<ul>
+{lis(t['sent'])}
+</ul>
+<p>{f(t['sent_p'])}</p>
+{ads}
+<h2>{t['h_not']}</h2>
+<ul>
+{lis(nots)}
+</ul>
+
+<h2>{t['h_children']}</h2>
+<p>{f(t['children'])}</p>
+
+<h2>{t['h_changes']}</h2>
+<p>{f(t['changes'])}</p>
+
+<h2>{t['h_contact']}</h2>
+<p>{f(t['contact'])}</p>
+</main>
+</body>
+</html>
+"""
+
+
+assert list(dr.T) == list(dr.LANGS), 'Dots RPG: языки в T и LANGS должны совпадать'
+dr_keys = set(dr.T['en'])
+for lang, t in dr.T.items():
+    assert set(t) == dr_keys, (lang, dr_keys ^ set(t))
+    for k in ('stored', 'sent', 'nots'):
+        assert len(t[k]) == len(dr.T['en'][k]), (lang, k)
+    out = DR_ROOT / ('index.html' if lang == 'en' else f'{lang}/index.html')
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(dr_page(lang))
+print('ok', len(dr.T), 'languages →', DR_ROOT.relative_to(DR_ROOT.parent.parent))
