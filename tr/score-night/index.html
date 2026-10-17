@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Score Night — Bobr Studio</title>
+<meta name="description" content="Masada ne varsa gir — Score Night kutu oyununun puanını senin için hesaplar.">
+<link rel="icon" href="../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Страница приложения — в стиле студии (вариант B, 2026-10-17); цвет приложения —
+     только акценты (--accent, --accent2) и картинки. Один шаблон на все приложения: APPS в build.py. */
+  :root {
+    --river: #0F2E3A; --river-2: #164452; --cream: #F7F1E8; --ink: #1E2A2F; --muted: #5d6b70;
+    --line: #E6DCCB; --wood: #9C6634; --accent: #B9561E; --accent2: #F2A23A;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; color: var(--ink); font: 17px/1.6 Rubik, system-ui, sans-serif; background: var(--cream); }
+  a { color: var(--river-2); }
+
+  .studio { background: linear-gradient(180deg, var(--river), var(--river-2)); color: var(--cream); }
+  .studio .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center;
+    justify-content: space-between; gap: 16px; }
+  .studio nav { display: flex; gap: 20px; align-items: center; font: 500 16px Rubik; }
+  .studio nav a { color: var(--cream); text-decoration: none; opacity: .9; }
+  .bobr { position: relative; display: inline-block; font: 700 40px/1 Caveat, cursive; color: var(--cream); text-decoration: none; }
+  .bobr svg { position: absolute; left: 0; top: 37px; }
+  .bobr .teeth { position: absolute; left: 26px; top: 33px; }
+
+  .page { max-width: 1040px; margin: 0 auto; padding: 0 24px 44px; }
+  .hero { padding: 44px 0 6px; max-width: 700px; }
+  .hero h1 { font: 700 48px/1.08 Fredoka, Rubik, sans-serif; color: var(--river); margin: 0 0 14px; }
+  .hero h1 .hand { display: block; font: 700 34px/1.1 Caveat, cursive; color: var(--accent); margin-top: 4px; }
+  .hero p { font-size: 19px; color: var(--muted); margin: 0; }
+
+  .app { margin: 30px 0 10px; background: #fff; border-radius: 22px; overflow: hidden;
+    box-shadow: 0 10px 34px rgba(15,46,58,.12); }
+  .app img.banner { display: block; width: 100%; height: auto; }
+  .app .body { display: grid; grid-template-columns: 96px 1fr; gap: 22px; padding: 26px 28px 30px; }
+  .app img.icon { width: 96px; height: 96px; border-radius: 22px; box-shadow: 0 4px 12px rgba(0,0,0,.16); }
+  .title { font: 700 34px/1.1 Fredoka, Rubik, sans-serif; color: var(--river); margin: 2px 0 6px; }
+  .tagline { color: var(--muted); margin: 0 0 14px; }
+  ul.features { margin: 0 0 22px; padding: 0; list-style: none; columns: 2; column-gap: 28px; }
+  ul.features li { break-inside: avoid; padding-left: 22px; position: relative; margin-bottom: 6px; }
+  ul.features li::before { content: ""; position: absolute; left: 2px; top: .55em; width: 10px; height: 10px;
+    border-radius: 3px; background: var(--accent); }
+  ul.features li:nth-child(even)::before { background: var(--accent2); }
+  .actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; gap: 10px; padding: 12px 20px; border-radius: 14px;
+    font-weight: 700; text-decoration: none; }
+  .btn.soon { background: #EDE4D6; color: #8a7a66; cursor: default; }
+  .btn.ghost { border: 2px solid var(--line); color: var(--river); background: #fff; }
+  .note { font-size: 14px; color: var(--muted); margin: 18px 0 0; }
+
+  .more h2 { font: 700 30px/1.1 Fredoka, Rubik, sans-serif; color: var(--river); margin: 44px 0 4px; }
+  .more .lead { color: var(--muted); margin: 0 0 18px; }
+  .video { position: relative; display: block; border-radius: 18px; overflow: hidden; aspect-ratio: 16/9;
+    background: #000; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+  .video img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .video .play { position: absolute; left: 22px; bottom: 22px; display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 18px 10px 14px; border-radius: 14px; background: var(--accent); color: #fff; font-weight: 700;
+    box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+  .video .play::before { content: ""; border-left: 16px solid #fff; border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent; }
+  .video:hover .play { filter: brightness(.9); }
+  .shots { display: grid; grid-template-columns: repeat(4, 1fr); gap: 26px; margin: 0; padding: 0; list-style: none; }
+  .shots img { display: block; width: 100%; height: auto; aspect-ratio: 540/960; border-radius: 18px;
+    box-shadow: 0 10px 26px rgba(0,0,0,.18); }
+
+  footer.studio .wrap { padding: 26px 24px 32px; justify-content: flex-start; flex-wrap: wrap; font-size: 15px;
+    color: rgba(247,241,232,.75); }
+  footer.studio a { color: rgba(247,241,232,.85); text-decoration: none; }
+  footer .bobr { font-size: 30px; } footer .bobr svg { top: 28px; width: 98px; }
+  footer .bobr .teeth { left: 20px; top: 25px; width: 12px; }
+
+  @media (max-width: 720px) {
+    .page { padding: 0 16px 32px; }
+    .hero h1 { font-size: 36px; } .hero h1 .hand { font-size: 28px; }
+    .app .body { grid-template-columns: 1fr; padding: 22px 18px 24px; }
+    ul.features { columns: 1; }
+    .studio nav a.back { display: none; }
+    .shots { grid-template-columns: repeat(2, 1fr); gap: 16px 14px; }
+    .video .play { left: 12px; bottom: 12px; padding: 7px 13px 7px 11px; font-size: 15px; }
+  }
+</style>
+<link rel="canonical" href="https://bobr-studio.github.io/tr/score-night/">
+<link rel="alternate" hreflang="en" href="https://bobr-studio.github.io/score-night/">
+<link rel="alternate" hreflang="ru" href="https://bobr-studio.github.io/ru/score-night/">
+<link rel="alternate" hreflang="uk" href="https://bobr-studio.github.io/uk/score-night/">
+<link rel="alternate" hreflang="pl" href="https://bobr-studio.github.io/pl/score-night/">
+<link rel="alternate" hreflang="cs" href="https://bobr-studio.github.io/cs/score-night/">
+<link rel="alternate" hreflang="de" href="https://bobr-studio.github.io/de/score-night/">
+<link rel="alternate" hreflang="fr" href="https://bobr-studio.github.io/fr/score-night/">
+<link rel="alternate" hreflang="es" href="https://bobr-studio.github.io/es/score-night/">
+<link rel="alternate" hreflang="pt" href="https://bobr-studio.github.io/pt/score-night/">
+<link rel="alternate" hreflang="tr" href="https://bobr-studio.github.io/tr/score-night/">
+<link rel="alternate" hreflang="ja" href="https://bobr-studio.github.io/ja/score-night/">
+<link rel="alternate" hreflang="ko" href="https://bobr-studio.github.io/ko/score-night/">
+<link rel="alternate" hreflang="zh" href="https://bobr-studio.github.io/zh/score-night/">
+<link rel="alternate" hreflang="x-default" href="https://bobr-studio.github.io/score-night/">
+<style>
+  .langs { position: relative; }
+  .langs summary { list-style: none; cursor: pointer; padding: 5px 14px; border-radius: 999px;
+    border: 2px solid rgba(247,241,232,.35); color: #F7F1E8; font: 500 15px Rubik, sans-serif; }
+  .langs summary::-webkit-details-marker { display: none; }
+  .langs[open] summary { background: rgba(247,241,232,.12); }
+  .langs .menu { position: absolute; right: 0; top: calc(100% + 8px); z-index: 10; background: #fff;
+    border-radius: 16px; padding: 8px; box-shadow: 0 14px 34px rgba(0,0,0,.25);
+    display: grid; grid-template-columns: repeat(2, minmax(120px, 1fr)); gap: 2px; }
+  .langs .menu a { display: block; padding: 7px 12px; border-radius: 10px; color: #1E2A2F;
+    text-decoration: none; font: 500 15px Rubik, sans-serif; white-space: nowrap; }
+  .langs .menu a:hover { background: #F7F1E8; }
+  .langs .menu a.current { background: #FFF0E0; color: #A85A0E; font-weight: 700; }
+</style>
+</head>
+<body>
+
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../tr/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true">
+        <path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g>
+      </svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true">
+        <rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+        <rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+      </svg>
+    </a>
+    <nav>
+      <a class="back" href="../../tr/index.html#apps">← Tüm uygulamalar</a>
+      <details class="langs"><summary>🌐 Türkçe</summary><div class="menu"><a href="../../score-night/index.html">English</a><a href="../../ru/score-night/index.html">Русский</a><a href="../../uk/score-night/index.html">Українська</a><a href="../../pl/score-night/index.html">Polski</a><a href="../../cs/score-night/index.html">Čeština</a><a href="../../de/score-night/index.html">Deutsch</a><a href="../../fr/score-night/index.html">Français</a><a href="../../es/score-night/index.html">Español</a><a href="../../pt/score-night/index.html">Português</a><a href="../../tr/score-night/index.html" class="current">Türkçe</a><a href="../../ja/score-night/index.html">日本語</a><a href="../../ko/score-night/index.html">한국어</a><a href="../../zh/score-night/index.html">中文</a></div></details>
+    </nav>
+  </div>
+</header>
+
+<main class="page">
+  <section class="hero">
+    <h1><span translate="no">Score Night</span> <span class="hand">kutu oyunu puanları senin yerine sayılır</span></h1>
+    <p>Score Night kutu oyunlarında puanları senin yerine sayar. Masada gördüğünü gir — bilim sembolleri, rotalar, karolar, seviyeler — uygulama oyunun puanlama kurallarını uygular ve kazananı gösterir.</p>
+  </section>
+
+  <article class="app">
+    <img class="banner" src="../../assets/score-night-banner-en.jpg" alt="Score Night" width="1024" height="500">
+    <div class="body">
+      <img class="icon" src="../../assets/score-night-icon.png" alt="Score Night icon">
+      <div>
+        <div class="title" translate="no">Score Night</div>
+        <p class="tagline">Masada ne varsa gir — Score Night kutu oyununun puanını senin için hesaplar.</p>
+        <ul class="features">
+          <li>7 Wonders: bilim puanı kendini sayar</li>
+          <li>Ticket to Ride, Wingspan, Carcassonne, Munchkin</li>
+          <li>Mafya: anlatıcıya yardımcı, eğlenceli hikâyelerle</li>
+          <li>Her oyunun kendi sayım araçları var</li>
+          <li>Beraberlikler oyunun kendi kuralıyla çözülür</li>
+          <li>Her oyunda 2 tam oyun ücretsiz · Hesap yok</li>
+        </ul>
+        <div class="actions">
+          <!-- После выхода: <a class="btn" style="background:var(--accent);color:#fff" href="https://play.google.com/store/apps/details?id=…">▶ Google Play</a> -->
+          <span class="btn soon">▶ Google Play — yakında</span>
+          <a class="btn ghost" href="https://bobr-studio.github.io/legal/score-night/tr/">Gizlilik politikası</a>
+        </div>
+        <p class="note">Score Night resmi olmayan bir uygulamadır ve bu oyunların yayıncılarıyla bağlantılı değildir. Oyun adları sahiplerine aittir.</p>
+      </div>
+    </div>
+  </article>
+
+  <section class="more">
+    <h2>Oyunda görün</h2>
+    <p class="lead">Gerçek uygulamadan yarım dakika: 7 Wonders, Ticket to Ride ve Mafya.</p>
+    <a class="video" href="https://youtu.be/VabiI_kATD4" target="_blank" rel="noopener">
+      <img src="../../assets/score-night-video.jpg" alt="Oyunda görün" loading="lazy" width="1280" height="720">
+      <span class="play">YouTube'da izle</span>
+    </a>
+    <h2>Uygulamanın içi</h2>
+    <p class="lead">Sekiz ekran — bilim sembollerinden Mafya gecesine.</p>
+    <ul class="shots">
+      <li><img src="../../assets/score-shots/en/1.jpg" alt="Score Night — Uygulamanın içi 1" loading="lazy" width="540" height="960"></li>
+      <li><img src="../../assets/score-shots/en/2.jpg" alt="Score Night — Uygulamanın içi 2" loading="lazy" width="540" height="960"></li>
+      <li><img src="../../assets/score-shots/en/3.jpg" alt="Score Night — Uygulamanın içi 3" loading="lazy" width="540" height="960"></li>
+      <li><img src="../../assets/score-shots/en/4.jpg" alt="Score Night — Uygulamanın içi 4" loading="lazy" width="540" height="960"></li>
+      <li><img src="../../assets/score-shots/en/5.jpg" alt="Score Night — Uygulamanın içi 5" loading="lazy" width="540" height="960"></li>
+      <li><img src="../../assets/score-shots/en/6.jpg" alt="Score Night — Uygulamanın içi 6" loading="lazy" width="540" height="960"></li>
+      <li><img src="../../assets/score-shots/en/7.jpg" alt="Score Night — Uygulamanın içi 7" loading="lazy" width="540" height="960"></li>
+      <li><img src="../../assets/score-shots/en/8.jpg" alt="Score Night — Uygulamanın içi 8" loading="lazy" width="540" height="960"></li>
+    </ul>
+  </section>
+</main>
+
+<footer class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../tr/index.html">bobr
+      <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true">
+        <path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/>
+        <g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g>
+      </svg>
+      <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true">
+        <rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+        <rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/>
+      </svg>
+    </a>
+    <span>© 2026 <span translate="no">Bobr Studio</span></span>
+    <a href="../../tr/index.html#apps">Tüm uygulamalar</a>
+    <a href="https://bobr-studio.github.io/legal/score-night/tr/">Gizlilik politikası · <span translate="no">Score Night</span></a>
+  </div>
+</footer>
+
+</body>
+</html>

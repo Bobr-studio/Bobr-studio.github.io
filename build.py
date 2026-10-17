@@ -6,6 +6,7 @@ templates/*.html — разметка с {{ключами}}; i18n/<язык>.jso
 Английский — в корне сайта, остальные языки — в папках /<язык>/.
 Новый язык: добавить i18n/<код>.json и строку в LANGS.
 Новая игра: шаблон templates/game-<имя>.html и строка в PAGES.
+Новое приложение: строка в PAGES (шаблон app.html) и в APPS, тексты <ключ>_… в i18n.
 """
 import json
 import pathlib
@@ -22,11 +23,35 @@ LANGS = {
 }
 DEFAULT = 'en'
 
-# Шаблон → путь страницы внутри языковой папки.
+# Путь страницы внутри языковой папки → шаблон.
 PAGES = {
     'index.html': 'index.html',
-    'game-dots-rpg.html': 'dots-rpg/index.html',
+    'dots-rpg/index.html': 'game-dots-rpg.html',
+    'chrono-blocks/index.html': 'app.html',
+    'score-night/index.html': 'app.html',
 }
+
+# Страницы приложений (один шаблон app.html, стиль студии — вариант B, 2026-10-17).
+# key — префикс текстов в i18n (cb_intro, sn_f1…); картинки — из магазина приложения
+# (docs/store/…), сжатые в JPG; где нет своего языка — английские.
+APPS = {
+    'chrono-blocks/index.html': {
+        'key': 'cb', 'name': 'Chrono Blocks', 'slug': 'chrono-blocks',
+        'accent': '#F07A2B', 'accent2': '#3FAF6E',
+        'banner': {}, 'banner_default': 'assets/chrono-blocks-banner.jpg',
+        'video': 'https://youtu.be/x7e0hL__VO8',
+        'shots': 'assets/chrono-shots/', 'shot_count': 6, 'cols': 3,
+    },
+    'score-night/index.html': {
+        'key': 'sn', 'name': 'Score Night', 'slug': 'score-night',
+        'accent': '#B9561E', 'accent2': '#F2A23A',
+        'banner': {l: f'assets/score-night-banner-{l}.jpg' for l in ('ru', 'de', 'es', 'fr', 'pl')},
+        'banner_default': 'assets/score-night-banner-en.jpg',
+        'video': 'https://youtu.be/VabiI_kATD4',
+        'shots': 'assets/score-shots/', 'shot_count': 8, 'cols': 4,
+    },
+}
+APP_TEXTS = ['h1_hand', 'intro', 'tagline', 'f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'video_lead', 'shots_lead']
 
 # Политики конфиденциальности — в этом же репозитории: legal/<приложение>/ (en в корне,
 # остальные языки приложения — в подпапках; Chrono Blocks — build_legal.py).
@@ -49,10 +74,10 @@ TEASERS = {
     # Chrono Blocks (~/IdeaProjects/BobrStudio/apps/chrono-blocks) — таймер по блокам.
     # Название уже не секрет: вместо «Секретный проект» — «Скоро».
     'teaser_chrono': {'percent': 95, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
-                      'name': 'Chrono Blocks', 'label': 'chip_soon'},
+                      'name': 'Chrono Blocks', 'label': 'chip_soon', 'href': 'chrono-blocks/index.html'},
     # Score Night (~/IdeaProjects/BobrStudio/apps/score-night) — калькуляторы очков настольных игр.
     'teaser_score_night': {'percent': 90, 'image': 'assets/score-night-teaser.png', 'style': 'fog',
-                           'name': 'Score Night', 'label': 'chip_soon'},
+                           'name': 'Score Night', 'label': 'chip_soon', 'href': 'score-night/index.html'},
     # Easer Life (~/IdeaProjects/BobrStudio/apps/easer-life) — вечерний ритуал паузы; % по реестру задач.
     'teaser_first_app': {'percent': 23, 'image': 'assets/easer-life-teaser.png', 'style': 'fog',
                          'title': 'next_app_title', 'text': 'app_soon_text'},
@@ -63,7 +88,7 @@ LOGS_TOTAL = 8  # брёвен в плотине при 0%
 def teaser_html(cfg, t, root):
     """Плитка будущего проекта на всю карточку. Снизу картинку закрывает
     плотина из брёвен ('dam', для игр) или туман ('fog', для приложений) —
-    ровно на (100 - percent)%; надписи поверх."""
+    ровно на (100 - percent)%; надписи поверх. С 'href' плитка — ссылка на страницу проекта."""
     p = max(0, min(100, cfg['percent']))
     cover = 100 - p
     stage = t['stage_early'] if p < 50 else t['stage_shape'] if p < 80 else t['stage_almost']
@@ -82,12 +107,13 @@ def teaser_html(cfg, t, root):
     else:
         cover_html = f'<div class="fog" style="height:{cover}%"></div>' if cover else ''
         big = f'<div class="big"><b>{p}%</b><span>{t["ready"]}</span></div>'
-    return (f'<div class="card teaser">{img}{cover_html}'
+    tag, href = ('a', f' href="{cfg["href"]}"') if cfg.get('href') else ('div', '')
+    return (f'<{tag} class="card teaser"{href}>{img}{cover_html}'
             f'<div class="over"><div><small>{t[cfg.get("label", "secret_project")]}</small>'
             + _teaser_title(cfg, t) + '</div>'
             f'{big or "<div></div>"}'
             f'<div><div class="bar"><i style="width:{p}%"></i></div>'
-            f'<div class="pct"><span>{stage}</span><span>{p}% {t["ready"]}</span></div></div></div></div>')
+            f'<div class="pct"><span>{stage}</span><span>{p}% {t["ready"]}</span></div></div></div></{tag}>')
 
 
 def _teaser_title(cfg, t):
@@ -114,6 +140,28 @@ LANG_CSS = """
 """
 
 
+def app_values(cfg, lang, t, root):
+    """Значения {{app_…}} для шаблона app.html: тексты приложения на языке и картинки."""
+    shots_dir = root + cfg['shots'] + (lang if (ROOT / cfg['shots'] / lang).is_dir() else DEFAULT) + '/'
+    key = cfg['key']
+    note = t.get(f'{key}_note')
+    values = {f'app_{name}': t[f'{key}_{name}'] for name in APP_TEXTS}
+    values.update(
+        app_name=cfg['name'], app_accent=cfg['accent'], app_accent2=cfg['accent2'], app_cols=str(cfg['cols']),
+        app_meta=t[f'{key}_tagline'],
+        app_icon=f'{root}assets/{cfg["slug"]}-icon.png',
+        app_banner=root + cfg['banner'].get(lang, cfg['banner_default']),
+        app_thumb=f'{root}assets/{cfg["slug"]}-video.jpg', app_video=cfg['video'],
+        app_privacy=f'{SITE}legal/{cfg["slug"]}/{lang_dir(lang)}',
+        app_note=f'<p class="note">{note}</p>' if note else '',
+        app_shots_h=t['app_shots_h'],
+        app_shots='\n      '.join(
+            f'<li><img src="{shots_dir}{i}.jpg" alt="{cfg["name"]} — {t["app_shots_h"]} {i}" '
+            f'loading="lazy" width="540" height="960"></li>' for i in range(1, cfg['shot_count'] + 1)),
+    )
+    return values
+
+
 def lang_dir(lang):
     return '' if lang == DEFAULT else f'{lang}/'
 
@@ -124,7 +172,7 @@ def build():
         for lang in LANGS
     }
     count = 0
-    for template, page in PAGES.items():
+    for page, template in PAGES.items():
         source = (ROOT / 'templates' / template).read_text('utf-8')
         for lang in LANGS:
             path = lang_dir(lang) + page
@@ -141,6 +189,7 @@ def build():
                 shots=root + SHOTS.get(lang, SHOTS_DEFAULT),
                 langcss=LANG_CSS,
                 **{key: teaser_html(cfg, strings[lang], root) for key, cfg in TEASERS.items()},
+                **(app_values(APPS[page], lang, strings[lang], root) if page in APPS else {}),
                 hreflang='\n'.join(
                     [f'<link rel="canonical" href="{url(lang, page)}">']
                     + [f'<link rel="alternate" hreflang="{code}" href="{url(code, page)}">' for code in LANGS]
@@ -179,7 +228,7 @@ def url(lang, page):
 
 def write_sitemap():
     """sitemap.xml (все страницы сайта и политики legal/) и robots.txt — для Google и Яндекса."""
-    urls = [url(lang, page) for page in PAGES.values() for lang in LANGS]
+    urls = [url(lang, page) for page in PAGES for lang in LANGS]
     urls += sorted(SITE + str(p.parent.relative_to(ROOT)) + '/' for p in (ROOT / 'legal').rglob('index.html'))
     (ROOT / 'sitemap.xml').write_text(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
