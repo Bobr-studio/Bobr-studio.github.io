@@ -49,5 +49,22 @@
   "stage_shape": "Tomando forma",
   "stage_almost": "¡Casi listo!",
   "secret_project": "Proyecto secreto",
-  "next_app_title": "Próxima app"
+  "next_app_title": "Próxima app",
+  "video_h": "Míralo en acción",
+  "video_lead": "Medio minuto de partida real: Clásico y Aventura.",
+  "video_play": "Ver en YouTube",
+  "shots_h": "Dentro del juego",
+  "shots_lead": "Seis pantallas — del primer punto a un gran mapa de Aventura.",
+  "s1t": "Aventura",
+  "s1d": "Oro, bosques y ríos: rodéalos para ganar",
+  "s2t": "Clásico",
+  "s2d": "El juego del cuaderno escolar: rodea los puntos del rival",
+  "s3t": "Niveles",
+  "s3d": "Las partidas contra el bot desbloquean trucos y construcciones",
+  "s4t": "Trucos",
+  "s4d": "Cada truco tiene un mini ejemplo",
+  "s5t": "Reglas",
+  "s5d": "Aprende a jugar en un minuto",
+  "s6t": "A tu manera",
+  "s6d": "Nombres de jugadores, sonidos, idioma"
 }

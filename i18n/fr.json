@@ -49,5 +49,22 @@
   "stage_shape": "Prend forme",
   "stage_almost": "Presque prêt !",
   "secret_project": "Projet secret",
-  "next_app_title": "Prochaine appli"
+  "next_app_title": "Prochaine appli",
+  "video_h": "Voyez-le en action",
+  "video_lead": "Trente secondes de vraie partie : Classique et Aventure.",
+  "video_play": "Voir sur YouTube",
+  "shots_h": "Dans le jeu",
+  "shots_lead": "Six écrans — du premier point à une grande carte d'Aventure.",
+  "s1t": "Aventure",
+  "s1d": "Or, forêts et rivières — encerclez-les pour récolter",
+  "s2t": "Classique",
+  "s2d": "Le jeu du cahier d'école : encerclez les points adverses",
+  "s3t": "Niveaux",
+  "s3d": "Les parties contre le bot débloquent astuces et constructions",
+  "s4t": "Astuces",
+  "s4d": "Chaque astuce a son mini-exemple",
+  "s5t": "Règles",
+  "s5d": "Apprenez à jouer en une minute",
+  "s6t": "À votre façon",
+  "s6d": "Noms des joueurs, sons, langue"
 }

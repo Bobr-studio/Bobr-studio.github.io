@@ -36,6 +36,9 @@ PRIVACY_DEFAULT = 'https://bobr-studio.github.io/legal/dots-rpg/'
 # Баннер Dots RPG: свой — где есть баннер магазина на языке игры (en, ru).
 BANNER = {'ru': 'assets/dotsrpg-banner-ru.png'}
 BANNER_DEFAULT = 'assets/dotsrpg-banner.png'
+# Скриншоты игры (как в Google Play): в игре только en и ru.
+SHOTS = {'ru': 'assets/dots-shots/ru/'}
+SHOTS_DEFAULT = 'assets/dots-shots/en/'
 
 # Тизеры будущих проектов: процент готовности и картинка (необязательно;
 # путь от корня сайта, например 'assets/next-game.png'). Без картинки — заглушка.
@@ -135,12 +138,13 @@ def build():
                 game_url='dots-rpg/index.html',
                 privacy_url=PRIVACY.get(lang, PRIVACY_DEFAULT),
                 banner=root + BANNER.get(lang, BANNER_DEFAULT),
+                shots=root + SHOTS.get(lang, SHOTS_DEFAULT),
                 langcss=LANG_CSS,
                 **{key: teaser_html(cfg, strings[lang], root) for key, cfg in TEASERS.items()},
                 hreflang='\n'.join(
-                    f'<link rel="alternate" hreflang="{code}" '
-                    f'href="{SITE}{lang_dir(code)}{page.removesuffix("index.html")}">'
-                    for code in LANGS
+                    [f'<link rel="canonical" href="{url(lang, page)}">']
+                    + [f'<link rel="alternate" hreflang="{code}" href="{url(code, page)}">' for code in LANGS]
+                    + [f'<link rel="alternate" hreflang="x-default" href="{url(DEFAULT, page)}">']
                 ),
                 langmenu=(
                     f'<details class="langs"><summary>🌐 {LANGS[lang]}</summary>'
@@ -166,6 +170,24 @@ def build():
             out.write_text(html, 'utf-8')
             count += 1
     print(f'Собрано страниц: {count} ({len(LANGS)} языков × {len(PAGES)} страниц)')
+    write_sitemap()
+
+
+def url(lang, page):
+    return SITE + lang_dir(lang) + page.removesuffix('index.html')
+
+
+def write_sitemap():
+    """sitemap.xml (все страницы сайта и политики legal/) и robots.txt — для Google и Яндекса."""
+    urls = [url(lang, page) for page in PAGES.values() for lang in LANGS]
+    urls += sorted(SITE + str(p.parent.relative_to(ROOT)) + '/' for p in (ROOT / 'legal').rglob('index.html'))
+    (ROOT / 'sitemap.xml').write_text(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n'
+        + ''.join(f'  <url><loc>{u}</loc></url>\n' for u in urls)
+        + '</urlset>\n', 'utf-8')
+    (ROOT / 'robots.txt').write_text(f'User-agent: *\nAllow: /\n\nSitemap: {SITE}sitemap.xml\n', 'utf-8')
+    print(f'sitemap.xml: {len(urls)} адресов')
 
 
 if __name__ == '__main__':

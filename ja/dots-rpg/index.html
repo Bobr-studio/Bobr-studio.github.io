@@ -63,6 +63,25 @@
   .btn.soon { background: #e8edf3; color: #7b8794; cursor: default; }
   .btn.ghost { border: 2px solid var(--line); color: var(--blue); background: var(--paper); }
 
+  .more { margin: 40px 0 10px; }
+  .more h2 { font: 800 30px/1.1 Rubik; color: var(--blue); margin: 0 0 4px; }
+  .more .lead { color: #555; margin: 0 0 18px; }
+  .video { position: relative; display: block; border-radius: 18px; overflow: hidden; margin-bottom: 44px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.18); aspect-ratio: 1920/1080; background: #000; }
+  .video img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .video .play { position: absolute; left: 22px; bottom: 22px; display: inline-flex; align-items: center; gap: 10px;
+    padding: 10px 18px 10px 14px; border-radius: 14px; background: var(--red); color: #fff; font-weight: 700;
+    box-shadow: 0 6px 16px rgba(0,0,0,.25); }
+  .video .play::before { content: ""; border-left: 16px solid #fff; border-top: 10px solid transparent;
+    border-bottom: 10px solid transparent; }
+  .video:hover .play { background: #b71c1c; }
+  .shots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px 26px; margin: 0; padding: 0; list-style: none; }
+  .shots .phone { border: 8px solid #2B2522; border-radius: 30px; overflow: hidden; background: #fff;
+    box-shadow: 0 10px 26px rgba(0,0,0,.16); }
+  .shots img { display: block; width: 100%; height: auto; aspect-ratio: 540/960; }
+  .shots b { display: block; font: 700 26px/1 Caveat; color: var(--red); margin-top: 12px; }
+  .shots span { display: block; font-size: 15px; color: #444; line-height: 1.35; margin-top: 2px; }
+
   footer.studio .wrap { padding: 26px 24px 32px; justify-content: flex-start; flex-wrap: wrap; font-size: 15px;
     color: rgba(247,241,232,.75); }
   footer.studio a { color: rgba(247,241,232,.85); text-decoration: none; }
@@ -79,8 +98,11 @@
     .game .body { grid-template-columns: 1fr; padding: 22px 18px 24px; }
     ul.features { columns: 1; }
     .studio nav a.back { display: none; }
+    .shots { grid-template-columns: repeat(2, 1fr); gap: 20px 14px; }
+    .video .play { left: 12px; bottom: 12px; padding: 7px 13px 7px 11px; font-size: 15px; }
   }
 </style>
+<link rel="canonical" href="https://bobr-studio.github.io/ja/dots-rpg/">
 <link rel="alternate" hreflang="en" href="https://bobr-studio.github.io/dots-rpg/">
 <link rel="alternate" hreflang="ru" href="https://bobr-studio.github.io/ru/dots-rpg/">
 <link rel="alternate" hreflang="uk" href="https://bobr-studio.github.io/uk/dots-rpg/">
@@ -94,6 +116,7 @@
 <link rel="alternate" hreflang="ja" href="https://bobr-studio.github.io/ja/dots-rpg/">
 <link rel="alternate" hreflang="ko" href="https://bobr-studio.github.io/ko/dots-rpg/">
 <link rel="alternate" hreflang="zh" href="https://bobr-studio.github.io/zh/dots-rpg/">
+<link rel="alternate" hreflang="x-default" href="https://bobr-studio.github.io/dots-rpg/">
 <style>
   .langs { position: relative; }
   .langs summary { list-style: none; cursor: pointer; padding: 5px 14px; border-radius: 999px;
@@ -162,6 +185,25 @@
         </div>
       </div>
     </article>
+
+    <section class="more">
+      <h2>プレイ動画</h2>
+      <p class="lead">30秒の実際のプレイ:クラシックとアドベンチャー。</p>
+      <a class="video" href="https://youtu.be/pz9p7ESJBLM" target="_blank" rel="noopener">
+        <img src="../../assets/dots-video.jpg" alt="プレイ動画" loading="lazy" width="1280" height="720">
+        <span class="play">YouTubeで見る</span>
+      </a>
+      <h2>ゲームの中身</h2>
+      <p class="lead">6つの画面 — 最初の点からアドベンチャーの大きなマップまで。</p>
+      <ul class="shots">
+        <li><div class="phone"><img src="../../assets/dots-shots/en/1-adventure.jpg" alt="アドベンチャー" loading="lazy" width="540" height="960"></div><b>アドベンチャー</b><span>金・森・川 — 囲んで手に入れよう</span></li>
+        <li><div class="phone"><img src="../../assets/dots-shots/en/2-classic.jpg" alt="クラシック" loading="lazy" width="540" height="960"></div><b>クラシック</b><span>ノートでおなじみ:相手の点を囲もう</span></li>
+        <li><div class="phone"><img src="../../assets/dots-shots/en/3-menu.jpg" alt="レベル" loading="lazy" width="540" height="960"></div><b>レベル</b><span>ボット対戦で新しい技と建物が解放</span></li>
+        <li><div class="phone"><img src="../../assets/dots-shots/en/4-card.jpg" alt="技" loading="lazy" width="540" height="960"></div><b>技</b><span>すべての技にミニ例つき</span></li>
+        <li><div class="phone"><img src="../../assets/dots-shots/en/5-rules.jpg" alt="ルール" loading="lazy" width="540" height="960"></div><b>ルール</b><span>1分で遊び方がわかる</span></li>
+        <li><div class="phone"><img src="../../assets/dots-shots/en/6-settings.jpg" alt="自分好みに" loading="lazy" width="540" height="960"></div><b>自分好みに</b><span>プレイヤー名、サウンド、言語</span></li>
+      </ul>
+    </section>
   </div>
 </main>
 

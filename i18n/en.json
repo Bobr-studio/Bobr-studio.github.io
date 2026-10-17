@@ -49,5 +49,22 @@
   "stage_shape": "Taking shape",
   "stage_almost": "Almost there!",
   "secret_project": "Secret project",
-  "next_app_title": "Next app"
+  "next_app_title": "Next app",
+  "video_h": "See it in action",
+  "video_lead": "Half a minute of real gameplay: Classic and Adventure.",
+  "video_play": "Watch on YouTube",
+  "shots_h": "Inside the game",
+  "shots_lead": "Six screens — from the first dot to a full Adventure map.",
+  "s1t": "Adventure",
+  "s1d": "Gold, forests and rivers — surround them to earn",
+  "s2t": "Classic",
+  "s2d": "The school notebook game: surround your rival’s dots",
+  "s3t": "Levels",
+  "s3d": "Games vs the bot unlock new tricks and buildings",
+  "s4t": "Tricks",
+  "s4d": "Every trick comes with a mini example",
+  "s5t": "Rules",
+  "s5d": "Learn to play in a minute",
+  "s6t": "Your way",
+  "s6d": "Player names, sounds, language"
 }

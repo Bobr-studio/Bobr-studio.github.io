@@ -49,5 +49,22 @@
   "stage_shape": "Dostává tvar",
   "stage_almost": "Skoro hotovo!",
   "secret_project": "Tajný projekt",
-  "next_app_title": "Další aplikace"
+  "next_app_title": "Další aplikace",
+  "video_h": "Podívejte se",
+  "video_lead": "Půl minuty skutečné hry: Klasika a Dobrodružství.",
+  "video_play": "Přehrát na YouTube",
+  "shots_h": "Uvnitř hry",
+  "shots_lead": "Šest obrazovek — od první tečky po velkou mapu Dobrodružství.",
+  "s1t": "Dobrodružství",
+  "s1d": "Zlato, lesy a řeky — obklič je a získej",
+  "s2t": "Klasika",
+  "s2d": "Hra ze školního sešitu: obklič soupeřovy tečky",
+  "s3t": "Úrovně",
+  "s3d": "Hry s botem odemykají nové triky a stavby",
+  "s4t": "Triky",
+  "s4d": "Každý trik má malý příklad",
+  "s5t": "Pravidla",
+  "s5d": "Naučíte se hrát za minutu",
+  "s6t": "Po svém",
+  "s6d": "Jména hráčů, zvuky, jazyk"
 }
