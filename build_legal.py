@@ -649,6 +649,8 @@ print('ok', len(sn.T), 'languages →', SN_ROOT.relative_to(SN_ROOT.parent.paren
 # Реклама за награду (Unity Ads) — с версии, где появились ролики за награду.
 # При изменении — сменить дату во всех языках legal_dots_rpg.py.
 DR_ADS = True
+# Покупки через Google Play (библиотека Billing в сборке с 1.1.0 (96)).
+DR_PURCHASES = True
 
 DR_ROOT = ROOT.parent / 'dots-rpg'
 DR_BASE = 'https://bobr-studio.github.io/legal/dots-rpg/'
@@ -668,6 +670,8 @@ def dr_page(lang):
         'mail': link(f'mailto:{MAIL}', MAIL),
         'un_privacy': link('https://unity.com/legal/game-player-and-app-user-privacy-policy', 'unity.com/legal/game-player-and-app-user-privacy-policy'),
         'fb_privacy': link('https://firebase.google.com/support/privacy', 'firebase.google.com/support/privacy'),
+        'gp': '<b translate="no">Google Play</b>',
+        'g_privacy': link('https://policies.google.com/privacy', 'policies.google.com/privacy'),
     }
     f = lambda s: s.format(**subs)
     langs = ' '.join(
@@ -677,9 +681,20 @@ def dr_page(lang):
     alternates = '\n'.join(
         f'<link rel="alternate" hreflang="{code}" href="{dr_url(code)}">' for code in dr.LANGS)
     lis = lambda items: '\n'.join(f'  <li>{f(i)}</li>' for i in items)
-    short = t['short'] + (t['short_ads'] if DR_ADS else '')
+    short = (t['short'] + (t['short_ads'] if DR_ADS else '')
+             + (t['short_purch'] if DR_PURCHASES else ''))
+    stored = list(t['stored'])
+    if DR_PURCHASES:
+        stored[-1] = stored[-1].rstrip('.') + ';'
+        stored.append(t['stored_purch'])
     nots = list(t['nots'])
+    if DR_PURCHASES:
+        nots.pop(2)  # «нет покупок внутри приложения»
     nots.insert(2, t['not_ads'] if DR_ADS else t['not_ads_noads'])
+    purch = f"""
+<h2>{t['h_purch']}</h2>
+<p>{f(t['purch'])}</p>
+""" if DR_PURCHASES else ''
     ads = f"""
 <h2>{t['h_ads']}</h2>
 <p>{f(t['ads1'])}</p>
@@ -712,7 +727,7 @@ def dr_page(lang):
 
 <h2>{t['h_stored']}</h2>
 <ul>
-{lis(t['stored'])}
+{lis(stored)}
 </ul>
 <p>{f(t['stored_p'])}</p>
 
@@ -722,7 +737,7 @@ def dr_page(lang):
 {lis(t['sent'])}
 </ul>
 <p>{f(t['sent_p'])}</p>
-{ads}
+{ads}{purch}
 <h2>{t['h_not']}</h2>
 <ul>
 {lis(nots)}

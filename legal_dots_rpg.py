@@ -1,7 +1,8 @@
 """Тексты политики конфиденциальности Dots RPG (языки игры: en, ru).
 
 Только данные; страницы собирает build_legal.py. Раздел про рекламу за награду
-(Unity Ads) — флаг DR_ADS в build_legal.py. При изменениях данных — обновить
+(Unity Ads) — флаг DR_ADS, про покупки через Google Play — DR_PURCHASES
+в build_legal.py. При изменениях данных — обновить
 все языки и дату.
 """
 
@@ -11,11 +12,12 @@ LANGS = {'en': 'English', 'ru': 'Русский'}
 # {app} {unity} {mail} {un_privacy} {fb_privacy} — подставляются.
 T = {
 'en': dict(
-    title='Privacy Policy', dev='Developer', date='Effective October 16, 2026',
+    title='Privacy Policy', dev='Developer', date='Effective October 17, 2026',
     intro='This policy explains how the mobile game {app} (the “Game”) handles user information.',
     h_short='In short',
     short='<b>The Game does not collect personal data</b> such as your name, e-mail, contacts or location. With your permission it sends <b>anonymous statistics</b> and <b>crash reports</b> so we can improve the Game and fix bugs. Without an internet connection nothing is sent and the Game works as usual.',
     short_ads=' The Game can show a <b>short video ad</b>, but only when you tap a button to get a reward (for example, double experience); the ad network may process technical data about your device as described below.',
+    short_purch=' Optional purchases are made through <b>Google Play</b>; we never receive your payment details.',
     h_stored='What is stored on your device',
     stored=['settings (language, sound, vibration, on-board hints, your statistics and crash-report choices) and player names, if you entered them;',
             'an unfinished game, so you can continue it later;',
@@ -31,6 +33,9 @@ T = {
     ads1='The Game has no banners and no ads between games. A video ad is shown <b>only when you choose to watch it</b> by tapping a button with a reward: double experience after a win, replaying the last moves after losing to the computer, or a move hint. Ads are never shown in a game for two players on one phone, and refusing an ad changes nothing else in the Game.',
     ads2='Ads are served by {unity} (Unity Technologies Inc. and its affiliates). We ask Unity to show only <b>non-personalized</b> ads to all users. To show and measure ads and to prevent fraud, the SDK may still collect: the device advertising identifier (Google Advertising ID) and other device identifiers, device model and OS version, language, IP address and approximate location derived from it, information about ad views and clicks, and technical diagnostics. This data is processed by Unity under its privacy policy: {un_privacy}.',
     ads3='You can reset or delete your advertising ID or opt out of ad personalization in your Android settings (<i>Settings → Google → Ads</i> or <i>Settings → Privacy → Ads</i>).',
+    stored_purch='a mark that you have bought an item in the Game (for example, “Master’s Notebook”), so it stays unlocked.',
+    h_purch='Purchases',
+    purch='The Game may offer optional one-time purchases (for example, “Master’s Notebook” with paper styles and pens), sold through {gp}. Payment is processed entirely by Google; we never receive your card or other payment details — only a confirmation from Google Play that the item was bought. Purchases are restored through Google Play on a new phone or after reinstalling. Google processes payment data under its own policy: {g_privacy}. Everything needed to play is free: purchases never give an advantage over another player.',
     h_not='What the Game does not do',
     nots=['no registration; it never asks for your name, e-mail or other contact details;',
           'no access to location (GPS), camera, microphone, contacts or files;',
@@ -40,15 +45,16 @@ T = {
     h_children='Children',
     children='The Game is not directed at children under 13 and does not knowingly collect data about them.',
     h_changes='Changes',
-    changes='If future versions add features involving data (for example, in-app purchases), we will update this page before such a version is released and change the effective date.',
+    changes='If future versions add features involving data (for example, online games), we will update this page before such a version is released and change the effective date.',
     h_contact='Contact', contact='Questions about this policy: {mail}.',
 ),
 'ru': dict(
-    title='Политика конфиденциальности', dev='Разработчик', date='Действует с 16 октября 2026 г.',
+    title='Политика конфиденциальности', dev='Разработчик', date='Действует с 17 октября 2026 г.',
     intro='Эта политика описывает, как мобильная игра {app} («Игра») обращается с информацией пользователей.',
     h_short='Коротко',
     short='<b>Игра не собирает личные данные</b> — имя, e-mail, контакты, местоположение. С вашего разрешения она отправляет <b>анонимную статистику</b> и <b>отчёты о сбоях</b>, чтобы мы могли улучшать Игру и исправлять ошибки. Без интернета ничего не отправляется, а Игра работает как обычно.',
     short_ads=' Игра может показать <b>короткий рекламный ролик</b>, но только когда вы сами нажали кнопку, чтобы получить награду (например, двойной опыт); рекламная сеть может обрабатывать технические данные об устройстве, как описано ниже.',
+    short_purch=' Покупки по желанию проходят через <b>Google Play</b>; данные об оплате мы не получаем.',
     h_stored='Что хранится на устройстве',
     stored=['настройки (язык, звук, вибрация, подсказки на поле, ваш выбор о статистике и отчётах о сбоях) и имена игроков, если вы их указали;',
             'незаконченная партия, чтобы её можно было продолжить;',
@@ -64,6 +70,9 @@ T = {
     ads1='В Игре нет баннеров и рекламы между партиями. Рекламный ролик показывается <b>только если вы сами решили его посмотреть</b>, нажав кнопку с наградой: двойной опыт после победы, переиграть последние ходы после проигрыша компьютеру или подсказка хода. В игре вдвоём на одном телефоне реклама не показывается никогда, а отказ от ролика больше ничего в Игре не меняет.',
     ads2='Рекламу предоставляет {unity} (Unity Technologies Inc. и аффилированные лица). Мы просим Unity показывать всем пользователям только <b>неперсонализированную</b> рекламу. Чтобы показывать и учитывать рекламу и защищаться от мошенничества, SDK всё же может собирать: рекламный идентификатор устройства (Google Advertising ID) и другие идентификаторы устройства, модель устройства и версию ОС, язык, IP-адрес и примерное местоположение, определённое по нему, сведения о показах и нажатиях на рекламу, а также техническую диагностику. Эти данные обрабатывает Unity согласно своей политике конфиденциальности: {un_privacy}.',
     ads3='Сбросить или удалить рекламный идентификатор либо отключить персонализацию рекламы можно в настройках Android (<i>Настройки → Google → Реклама</i> или <i>Настройки → Конфиденциальность → Реклама</i>).',
+    stored_purch='отметка о том, что вы купили товар в Игре (например, «Тетрадь мастера»), чтобы он оставался открытым.',
+    h_purch='Покупки',
+    purch='В Игре могут продаваться разовые покупки по желанию (например, «Тетрадь мастера» — стили бумаги и ручки) через {gp}. Оплату полностью обрабатывает Google; мы не получаем данные карты и платежей — только подтверждение от Google Play, что товар куплен. На новом телефоне или после переустановки покупки восстанавливаются через Google Play. Данные об оплате Google обрабатывает согласно своей политике: {g_privacy}. Всё нужное для игры — бесплатно: покупки не дают преимущества над другим игроком.',
     h_not='Чего Игра не делает',
     nots=['не требует регистрации и не просит имя, e-mail или другие контакты;',
           'не определяет местоположение (GPS) и не обращается к камере, микрофону, контактам и файлам;',
@@ -73,7 +82,7 @@ T = {
     h_children='Дети',
     children='Игра не предназначена для детей младше 13 лет и сознательно не собирает о них данные.',
     h_changes='Изменения',
-    changes='Если в будущих версиях появятся функции, связанные с данными (например, покупки внутри приложения), мы обновим эту страницу до выхода такой версии и изменим дату вступления в силу.',
+    changes='Если в будущих версиях появятся функции, связанные с данными (например, игра через интернет), мы обновим эту страницу до выхода такой версии и изменим дату вступления в силу.',
     h_contact='Контакты', contact='Вопросы по этой политике: {mail}.',
 ),
 }
