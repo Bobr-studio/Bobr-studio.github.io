@@ -33,6 +33,9 @@ PAGES = {
 # Ссылка с сайта — на политику Dots RPG.
 PRIVACY = {'ru': 'https://bobr-studio.github.io/legal/dots-rpg/ru/'}
 PRIVACY_DEFAULT = 'https://bobr-studio.github.io/legal/dots-rpg/'
+# Баннер Dots RPG: свой — где есть баннер магазина на языке игры (en, ru).
+BANNER = {'ru': 'assets/dotsrpg-banner-ru.png'}
+BANNER_DEFAULT = 'assets/dotsrpg-banner.png'
 
 # Тизеры будущих проектов: процент готовности и картинка (необязательно;
 # путь от корня сайта, например 'assets/next-game.png'). Без картинки — заглушка.
@@ -42,10 +45,10 @@ TEASERS = {
                          'title': 'next_title', 'text': 'next_text'},
     # Chrono Blocks (~/IdeaProjects/BobrStudio/apps/chrono-blocks) — таймер по блокам.
     # Название уже не секрет: вместо «Секретный проект» — «Скоро».
-    'teaser_chrono': {'percent': 90, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
+    'teaser_chrono': {'percent': 95, 'image': 'assets/chrono-blocks-teaser.png', 'style': 'fog',
                       'name': 'Chrono Blocks', 'label': 'chip_soon'},
     # Score Night (~/IdeaProjects/BobrStudio/apps/score-night) — калькуляторы очков настольных игр.
-    'teaser_score_night': {'percent': 35, 'image': 'assets/score-night-teaser.png', 'style': 'fog',
+    'teaser_score_night': {'percent': 90, 'image': 'assets/score-night-teaser.png', 'style': 'fog',
                            'name': 'Score Night', 'label': 'chip_soon'},
     # Easer Life (~/IdeaProjects/BobrStudio/apps/easer-life) — вечерний ритуал паузы; % по реестру задач.
     'teaser_first_app': {'percent': 23, 'image': 'assets/easer-life-teaser.png', 'style': 'fog',
@@ -131,6 +134,7 @@ def build():
                 home=root + lang_dir(lang) + 'index.html',
                 game_url='dots-rpg/index.html',
                 privacy_url=PRIVACY.get(lang, PRIVACY_DEFAULT),
+                banner=root + BANNER.get(lang, BANNER_DEFAULT),
                 langcss=LANG_CSS,
                 **{key: teaser_html(cfg, strings[lang], root) for key, cfg in TEASERS.items()},
                 hreflang='\n'.join(
