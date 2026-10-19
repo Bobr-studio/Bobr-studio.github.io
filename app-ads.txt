@@ -1,4 +1,4 @@
-# app-ads.txt — Bobr Studio (https://bobr-studio.github.io)
+# app-ads.txt — Bobr Studio (https://bobrstudio.dev)
 # Кто имеет право продавать рекламу в наших приложениях (Dots RPG, Chrono Blocks,
 # Score Night). Unity Ads: Organization core ID 5774140494527; остальное —
 # список Unity (cloud.unity.com → Organization settings → App-ads.txt), 2026-10-17.
