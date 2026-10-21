@@ -26,12 +26,12 @@
 <main>
 <p class="lang" translate="no"><b lang="en">English</b> <a lang="ru" href="https://bobrstudio.dev/legal/dots-rpg/ru/">Русский</a></p>
 <h1><span translate="no">Dots RPG</span> — Privacy Policy</h1>
-<p class="meta">Developer: <span translate="no">Bobr Studio</span> · Effective October 17, 2026</p>
+<p class="meta">Developer: <span translate="no">Bobr Studio</span> · Effective October 21, 2026</p>
 
 <p>This policy explains how the mobile game <b translate="no">Dots RPG</b> (the “Game”) handles user information.</p>
 
 <h2>In short</h2>
-<p><b>The Game does not collect personal data</b> such as your name, e-mail, contacts or location. With your permission it sends <b>anonymous statistics</b> and <b>crash reports</b> so we can improve the Game and fix bugs. Without an internet connection nothing is sent and the Game works as usual. The Game can show a <b>short video ad</b>, but only when you tap a button to get a reward (for example, double experience); the ad network may process technical data about your device as described below. Optional purchases are made through <b>Google Play</b>; we never receive your payment details.</p>
+<p><b>The Game does not collect personal data</b> such as your name, e-mail, contacts or location. With your permission it sends <b>anonymous statistics</b> and <b>crash reports</b> so we can improve the Game and fix bugs. Without an internet connection nothing is sent and the Game works as usual. The Game can show a <b>short video ad</b>, but only when you tap a button to get a reward (for example, double experience); the ad network may process technical data about your device as described below. Optional purchases are made through <b>Google Play</b>; we never receive your payment details. If you play with a friend on two phones, the moves and the name you entered go to the other phone — over Bluetooth / Wi-Fi directly, or through Google’s Firebase server for an online game; nothing is kept after the game.</p>
 
 <h2>What is stored on your device</h2>
 <ul>
@@ -51,6 +51,13 @@
 </ul>
 <p>This data is encrypted in transit, used only to improve the Game, never sold and never used for advertising. Google keeps it for a limited time under its own rules: <a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a>.</p>
 
+<h2>Playing on two phones</h2>
+<ul>
+  <li><b>“Nearby”</b> — the phones connect directly over Bluetooth and Wi-Fi (Google Nearby Connections). The Game sends the other phone only what is needed for the game: the name you entered (or “You”), the game settings and the moves. Nothing goes through our servers. To find nearby phones Android asks for Bluetooth permission, and on Android 12 and older also for location permission: that is how those Android versions name Bluetooth search. The Game does not determine or store your location.</li>
+  <li><b>“Online”</b> — a game room with a 6-digit code on Google’s <b translate="no">Firebase</b> server (Firebase Realtime Database, servers in the EU) with anonymous sign-in (Firebase Authentication) — no registration, e-mail or phone number. The room holds a random anonymous player ID, the time it was created, whether each player is online, the name you entered, the game settings and the moves. Only the two players in the room can read it. The room is deleted when the players leave; a room left behind can no longer be joined after 2 hours, and we do not use its data for anything.</li>
+</ul>
+<p>Do not use your real full name as your player name if you do not want the other player to see it. Firebase processes this data on our behalf under its rules: <a href="https://firebase.google.com/support/privacy">firebase.google.com/support/privacy</a>.</p>
+
 <h2>Ads for a reward</h2>
 <p>The Game has no banners and no ads between games. A video ad is shown <b>only when you choose to watch it</b> by tapping a button with a reward: double experience after a win, replaying the last moves after losing to the computer, a move hint, or taking back a move the computer refused to return. Ads are never shown in a game for two players on one phone, and refusing an ad changes nothing else in the Game.</p>
 <p>Ads are served by <b translate="no">Unity Ads SDK</b> (Unity Technologies Inc. and its affiliates). We ask Unity to show only <b>non-personalized</b> ads to all users. To show and measure ads and to prevent fraud, the SDK may still collect: the device advertising identifier (Google Advertising ID) and other device identifiers, device model and OS version, language, IP address and approximate location derived from it, information about ad views and clicks, and technical diagnostics. This data is processed by Unity under its privacy policy: <a href="https://unity.com/legal/game-player-and-app-user-privacy-policy">unity.com/legal/game-player-and-app-user-privacy-policy</a>.</p>
@@ -62,7 +69,7 @@
 <h2>What the Game does not do</h2>
 <ul>
   <li>no registration; it never asks for your name, e-mail or other contact details;</li>
-  <li>no access to location (GPS), camera, microphone, contacts or files;</li>
+  <li>it does not determine your location (GPS) and has no access to the camera, microphone, contacts or files;</li>
   <li>we do not sell your data;</li>
 </ul>
 
@@ -70,7 +77,7 @@
 <p>The Game is not directed at children under 13 and does not knowingly collect data about them.</p>
 
 <h2>Changes</h2>
-<p>If future versions add features involving data (for example, online games), we will update this page before such a version is released and change the effective date.</p>
+<p>If future versions add features involving data, we will update this page before such a version is released and change the effective date.</p>
 
 <h2>Contact</h2>
 <p>Questions about this policy: <a href="mailto:bobrstudio.dev@gmail.com">bobrstudio.dev@gmail.com</a>.</p>
