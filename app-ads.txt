@@ -165,3 +165,5 @@ loopme.com, 9621, RESELLER, 6c8d5f95897a5a3b
 odeeo.io, 118848844, RESELLER, 36cfd73091d5c3fc
 pokkt.com, 6246, RESELLER, c45702d9311e25fd
 unity.com, 156207040, DIRECT, 96cabb5fbdde37a7
+monetrix.ai, 10761, RESELLER
+start.io, 131192070, RESELLER
