@@ -68,6 +68,9 @@
   .meta { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: center; }
   .chip { font: 600 13px Fredoka, sans-serif; padding: 4px 12px; border-radius: 999px; background: #FFF0E0; color: #A85A0E; }
   .more { font: 600 15px Fredoka, sans-serif; color: var(--sunset); }
+  .gp { font: 600 15px Fredoka, sans-serif; padding: 9px 16px; border-radius: 999px; background: #F07A2B; color: #fff; text-decoration: none; }
+  .gp:hover { filter: brightness(.92); }
+  .card a.more { text-decoration: none; }
   .card.future { background: transparent; box-shadow: none; border: 2.5px dashed #D8C8B4; min-height: 270px;
     align-items: center; justify-content: center; text-align: center; padding: 24px; color: var(--muted); }
   .card.future h3 { color: var(--wood); }
@@ -264,7 +267,18 @@
     <h2>Корисні інструменти, зроблені надовго</h2>
     <div class="grid">
       <!-- Новое приложение = такая же карточка, как у игры -->
-      <a class="card teaser" href="chrono-blocks/index.html"><img src="../assets/chrono-blocks-teaser.png" alt=""><div class="fog" style="height:5%"></div><div class="over"><div><small>Незабаром · Google Play</small><h3 translate="no">Chrono Blocks</h3></div><div class="big"><b>95%</b><span>готово</span></div><div><div class="bar"><i style="width:95%"></i></div><div class="pct"><span>Майже готово!</span><span>95% готово</span></div></div></div></a>
+      <!-- Вышедшее приложение: картинка ведёт на страницу, кнопка — сразу в Google Play -->
+      <div class="card">
+        <a href="chrono-blocks/index.html"><img class="banner" src="../assets/chrono-blocks-banner.jpg" alt="Chrono Blocks"></a>
+        <div class="body">
+          <img class="icon" src="../assets/chrono-blocks-icon.png" alt="">
+          <div>
+            <h3 translate="no">Chrono Blocks</h3>
+            <p>Діліть доповідь, зустріч чи тренування на блоки за часом і тримайте темп.</p>
+            <div class="meta"><a class="gp" href="https://play.google.com/store/apps/details?id=com.bobr.chronoblocks">▶ Google Play</a><a class="more" href="chrono-blocks/index.html">Детальніше →</a></div>
+          </div>
+        </div>
+      </div>
       <a class="card teaser" href="score-night/index.html"><img src="../assets/score-night-teaser.png" alt=""><div class="fog" style="height:10%"></div><div class="over"><div><small>Незабаром · Google Play</small><h3 translate="no">Score Night</h3></div><div class="big"><b>90%</b><span>готово</span></div><div><div class="bar"><i style="width:90%"></i></div><div class="pct"><span>Майже готово!</span><span>90% готово</span></div></div></div></a>
       <div class="card teaser"><img src="../assets/easer-life-teaser.png" alt=""><div class="fog" style="height:77%"></div><div class="over"><div><small>Секретний проєкт</small><h3>Наступний застосунок</h3></div><div class="big"><b>23%</b><span>готово</span></div><div><div class="bar"><i style="width:23%"></i></div><div class="pct"><span>Перші начерки</span><span>23% готово</span></div></div></div></div>
       </div>
