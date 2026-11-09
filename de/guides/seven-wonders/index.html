@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7 Wonders Forschung berechnen — Bobr Studio</title>
+<meta name="description" content="Die Forschung ist der Teil der 7-Wonders-Wertung, bei dem jeder vergisst, wie man ihn zählt.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .92; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .growth { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 2px; }
+  .growth span { background: #FFF6EC; border-radius: 10px; padding: 4px 10px; font-size: 15px; }
+  .tip { background: #FFF6EC; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEDEA; border-left: 4px solid #C8452F; border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F3F6F7; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «античность» для страницы 7 чудес: свои цвета (песок, терракота, бронза), не цвета коробки и логотипа. */
+:root { --river: #3A2617; --river-2: #5A3A22; --cream: #F3E9D6; --ink: #2B1E14; --muted: #6E5A48; --line: #E2D2B6; --accent: #A6462A; --accent2: #C99A3E; }
+body { background: var(--cream) radial-gradient(circle at 20% 0, #F8F0E0, transparent 60%); }
+.studio { background: linear-gradient(180deg, #3A2617, #5A3A22); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent2); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #EADBC0; }
+.result { background: linear-gradient(135deg, #3A2617, #5A3A22); }
+.tip { background: #FBF1DE; }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/de/guides/seven-wonders/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/seven-wonders/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/seven-wonders/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/seven-wonders/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../de/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Anleitungen</a><details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../de/guides/seven-wonders/" class="current">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Wertungsanleitungen</a> › 7 Wonders</div>
+  <h1>7 Wonders Forschung berechnen <span class="hand">und wie du alles andere zählst</span></h1>
+  <p class="lead">Die Forschung ist der Teil der 7-Wonders-Wertung, bei dem jeder vergisst, wie man ihn zählt. Sag dem Rechner, welche Symbole auf deinen grünen Karten zu sehen sind, und er zählt die Punkte zusammen und zeigt dir, wie er darauf kommt. Weiter unten wird jede andere Punkteart Schritt für Schritt erklärt, mit Beispielen und den Fehlern, die am häufigsten passieren.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Deine grünen Karten</h3>
+      <p>Sortiere deine grünen Karten nach dem Symbol, das darauf abgebildet ist, und zähle jeden Stapel.</p>
+      <div class="row"><span class="sym t">T</span><span class="name">Steintafeln<small>grüne Karten mit einer Steintafel</small></span><div class="step"><button data-k="t" data-d="-1">−</button><output id="t">3</output><button data-k="t" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym c">C</span><span class="name">Zirkel<small>grüne Karten mit einem Zirkel</small></span><div class="step"><button data-k="c" data-d="-1">−</button><output id="c">2</output><button data-k="c" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym g">G</span><span class="name">Zahnräder<small>grüne Karten mit einem Zahnrad</small></span><div class="step"><button data-k="g" data-d="-1">−</button><output id="g">1</output><button data-k="g" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym w">?</span><span class="name">Du wählst das Symbol<small>eine Gilden-Karte oder eine Wunderstufe, bei der du am Ende ein Symbol aussuchen darfst</small></span><div class="step"><button data-k="w" data-d="-1">−</button><output id="w">0</output><button data-k="w" data-d="1">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts">21 Punkte</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Die ganze Runde auf einmal zählen</b><p>Score Night zählt Forschung, Münzen, Militär und alles andere für jeden Mitspieler und zeigt, wer gewonnen hat.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dseven-wonders">▶ Bei Google Play laden</a></div>
+      <ul><li>Funktioniert ohne Internet, für 3 bis 7 Spieler</li><li>Zwei Spiele kannst du kostenlos ausprobieren</li></ul>
+      <div class="toc"><b>Auf dieser Seite</b><ol><li><a href="#when-to-count">Wann gezählt wird</a></li><li><a href="#science-step-by-step">Forschung Schritt für Schritt</a></li><li><a href="#science-examples">Beispiele zur Forschung</a></li><li><a href="#military">Militär</a></li><li><a href="#coins">Münzen</a></li><li><a href="#wonder">Wunder</a></li><li><a href="#blue-cards">Blaue Karten</a></li><li><a href="#yellow-cards">Gelbe Karten</a></li><li><a href="#guilds">Gilden</a></li><li><a href="#who-wins">Wer gewinnt</a></li><li><a href="#whole-game">Ein ganzes Spiel, durchgezählt</a></li><li><a href="#common-questions">Häufige Fragen</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Wann gezählt wird</h2>
+  <p>Gezählt wird nur ein einziges Mal, ganz am Ende. Das Spiel endet nach dem dritten Zeitalter: Die letzten Karten sind gespielt, der letzte Kampf mit deinen Nachbarn ist ausgetragen und die Militärmarker sind verteilt. Dann legt jeder seine Karten nach Farben aus und zählt nacheinander sieben Arten von Punkten. Am einfachsten geht es, wenn einer die Zeilen vorliest und jeder für sich seine eigenen Punkte zählt.</p>
+  <div class="tip">Manche Karten bringen dir am Ende nichts: <b>Braune und graue Karten</b> haben dir nur während des Spiels Rohstoffe geliefert, und <b>rote Karten</b> haben ihre Arbeit schon in den Kämpfen getan. Du musst sie nicht zählen, lass sie aber auf dem Tisch liegen, denn manche Gilden und gelbe Karten zählen sie mit.</div>
+
+  <h2 id="science-step-by-step">So wird die Forschung gezählt, Schritt für Schritt</h2>
+  <ol class="steps">
+    <li><b>Sortiere deine grünen Karten in drei Stapel</b> nach Symbol: Steintafeln, Zirkel und Zahnräder. Nur das Symbol zählt, nicht der Name der Karte und auch nicht, aus welchem Zeitalter sie stammt. Jede grüne Karte hat genau ein Symbol.</li>
+    <li><b>Werte jeden Stapel für sich.</b> Multipliziere die Anzahl der Karten im Stapel mit sich selbst. Eine Karte ist 1 Punkt wert, aber jede weitere Karte mit demselben Symbol bringt mehr als die davor. Darum lohnt es sich, ein Symbol zu sammeln:
+      <div class="growth num"><span>1 Karte → 1 Punkt</span><span>2 Karten → 4</span><span>3 Karten → 9</span><span>4 Karten → 16</span><span>5 Karten → 25</span><span>6 Karten → 36</span></div></li>
+    <li><b>Suche nach vollständigen Sets.</b> Eine Steintafel, ein Zirkel und ein Zahnrad zusammen bilden ein Set, und jedes Set bringt dir 7 Punkte extra. Du kannst mehrere Sets haben: Schau, wie viele Karten in deinem kleinsten Stapel liegen, genau so viele Sets hast du. Ist einer der Stapel leer, hast du gar kein Set.</li>
+    <li><b>Zähle beide Teile zusammen.</b> Die Punkte für die Stapel und die Punkte für die Sets werden addiert. Nichts wird doppelt gezählt: Eine Karte zählt in ihrem Stapel und kann trotzdem Teil eines Sets sein.</li>
+  </ol>
+  <div class="tip"><b>Wenn du ein Symbol wählen darfst</b> (eine Gilden-Karte oder eine Wunderstufe, auf der das steht), suchst du es dir ganz am Ende aus, wenn du deine Stapel schon siehst. Meistens ist es am besten, entweder ein weiteres Set zu vervollständigen oder deinen größten Stapel zu verlängern. Wenn du unsicher bist, probiere alle drei Symbole aus und nimm das beste. Genau das macht der Rechner oben.</div>
+  <div class="warn"><b>Typische Fehler bei der Forschung</b><ul>
+    <li>7 Punkte für jede grüne Karte geben. Die 7 gibt es nur für ein vollständiges Set aus drei verschiedenen Symbolen.</li>
+    <li>Die Karten addieren statt multiplizieren: 3 Steintafeln sind 9 Punkte wert, nicht 3.</li>
+    <li>Nur ein Set zählen, obwohl es mehrere gibt. Je zwei Karten von jedem Symbol sind zwei Sets und 14 Punkte.</li>
+    <li>Die grünen Karten der Nachbarn mitzählen. Bei der Forschung zählen nur deine eigenen Karten.</li>
+  </ul></div>
+
+  <h2 id="science-examples">Beispiele zur Forschung</h2>
+  <div class="examples num">
+    <div class="card"><b>Alles auf ein Symbol</b><p>4 Zahnräder, sonst nichts. Der Zahnrad-Stapel bringt 4 × 4 = 16. Es gibt keine Steintafeln und keine Zirkel, also auch keine Sets.</p><div class="big">16 Punkte</div></div>
+    <div class="card"><b>Gleichmäßig verteilt</b><p>2 Steintafeln, 2 Zirkel, 2 Zahnräder. Jeder Stapel bringt 2 × 2 = 4, das sind zusammen 12. Der kleinste Stapel hat 2 Karten, also gibt es 2 Sets für weitere 14.</p><div class="big">26 Punkte</div></div>
+    <div class="card"><b>Von allem etwas</b><p>3 Steintafeln, 2 Zirkel, 1 Zahnrad. Stapel: 9 + 4 + 1 = 14. Der kleinste Stapel hat 1 Karte, also gibt es 1 Set für weitere 7.</p><div class="big">21 Punkte</div></div>
+  </div>
+
+  <h2 id="everything-else">Alles andere, in der Reihenfolge, in der du es zählst</h2>
+  <div class="line"><div class="card"><h3 id="military">1. Militär</h3>
+    <p>Am Ende jedes Zeitalters hast du deine Armee mit der deines linken und deines rechten Nachbarn verglichen. Die Stärke deiner Armee ist die Zahl der Schilde auf deinen roten Karten und auf deinem Wunder. Hattest du mehr als ein Nachbar, hast du einen Siegmarker bekommen; hattest du weniger, einen Niederlagenmarker; bei Gleichstand hat niemand etwas bekommen.</p>
+    <p>Jetzt zählst du einfach die Zahlen auf deinen Markern zusammen. Ein Siegmarker ist im ersten Zeitalter 1 Punkt wert, im zweiten 3 und im dritten 5. Jeder Niederlagenmarker zieht dir 1 Punkt ab, egal aus welchem Zeitalter.</p>
+    <p class="where">Wo du nachschaust: bei den Markern neben deinem Spielertableau. Das Militär kann eine negative Zahl sein.</p>
+    <div class="ex"><b>Beispiel:</b> Du hast im ersten und im dritten Zeitalter gegen deinen linken Nachbarn gewonnen (1 + 5), im zweiten gegen deinen rechten (3) und einmal gegen ihn verloren (−1). Das sind 1 + 5 + 3 − 1 = 8 Punkte.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="coins">2. Münzen</h3>
+    <p>Zähle alle deine Münzen, teile sie durch drei und vergiss den Rest. Je drei volle Münzen ergeben einen Punkt, eine oder zwei übrige Münzen bringen nichts.</p>
+    <p class="where">Wo du nachschaust: bei deinen Münzen. Münzen entscheiden auch bei Gleichstand, also pack sie nicht zu früh in die Schachtel.</p>
+    <div class="ex"><b>Beispiel:</b> 10 Münzen sind dreimal drei und eine übrige, also 3 Punkte. 2 Münzen reichen nicht einmal für einen Punkt.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="wonder">3. Wunder</h3>
+    <p>Jede Stufe deines Wunders, die du gebaut hast (unter ihr steckt eine Karte), kann Punkte aufgedruckt haben. Zähle nur die Punkte der gebauten Stufen zusammen. Manche Stufen geben stattdessen Münzen, Schilde oder etwas anderes: Die haben ihre Arbeit schon während des Spiels erledigt und bringen jetzt nichts.</p>
+    <p class="where">Wo du nachschaust: auf deinem Wundertableau.</p>
+    <div class="ex"><b>Beispiel:</b> Du hast zwei Stufen gebaut, auf der einen stehen 3 Punkte, auf der anderen 7. Das sind 10 Punkte.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="blue-cards">4. Blaue Karten</h3>
+    <p>Die einfachste Zeile: Auf jeder blauen Karte steht, wie viele Punkte sie wert ist. Du addierst sie einfach.</p>
+    <p class="where">Wo du nachschaust: bei deinen blauen Karten.</p>
+    <div class="ex"><b>Beispiel:</b> Blaue Karten mit 3, 4, 5 und 6 Punkten ergeben 18 Punkte.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="yellow-cards">5. Gelbe Karten</h3>
+    <p>Die meisten gelben Karten haben dir nur während des Spiels geholfen (günstigerer Handel, zusätzliche Rohstoffe, Münzen) und bringen jetzt nichts. Nur einige Karten aus dem dritten Zeitalter geben am Ende Punkte. Auf jeder steht, was sie in deiner eigenen Stadt zählt, zum Beispiel deine Karten einer bestimmten Farbe oder deine gebauten Wunderstufen. Zähle diese Dinge bei dir am Tisch und addiere die Punkte.</p>
+    <p class="where">Wo du nachschaust: bei den gelben Karten aus dem dritten Zeitalter. Steht auf einer gelben Karte kein Punktewert, lässt du sie aus.</p>
+    <div class="ex"><b>Beispiel:</b> Eine gelbe Karte gibt 1 Punkt für jede braune Karte in deiner Stadt, und du hast 4 braune Karten. Das sind 4 Punkte.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="guilds">6. Gilden</h3>
+    <p>Lila Karten gibt es nur im dritten Zeitalter, und jede zählt etwas anderes. Lies genau nach, <b>wessen</b> Karten sie zählt: Die meisten Gilden zählen die Karten deiner Nachbarn, manche deine eigenen und manche beides. Zähle, was die Karte verlangt, und addiere die Punkte. Eine Gilde gibt keine Punkte direkt: Sie gibt dir ein Forschungssymbol deiner Wahl, und das zählst du bei der Forschung mit.</p>
+    <p class="where">Wo du nachschaust: bei deinen lila Karten, dann bei den Auslagen deiner Nachbarn.</p>
+    <div class="ex"><b>Beispiel:</b> Eine Gilde gibt 1 Punkt für jede blaue Karte deiner beiden Nachbarn. Dein linker Nachbar hat 4, der rechte 2. Das sind 6 Punkte.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="science">7. Forschung</h3>
+    <p>Zähle sie so, wie es oben auf der Seite erklärt ist, oder nimm einfach den Rechner.</p></div></div>
+
+  <h2 id="who-wins">Wer gewinnt</h2>
+  <p>Addiere alle sieben Zeilen. Wer die meisten Punkte hat, gewinnt. Haben zwei Spieler gleich viele Punkte, gewinnt der mit mehr übrigen Münzen. Sind auch die Münzen gleich, teilen sie sich den Sieg.</p>
+
+  <h2 id="whole-game">Ein ganzes Spiel, durchgezählt</h2>
+  <div class="card walk"><ol>
+    <li><b>Militär:</b> zwei Siegmarker mit 1 und 5, einer mit 3, ein Niederlagenmarker. 1 + 5 + 3 − 1 = 8.</li>
+    <li><b>Münzen:</b> 10 Münzen, dreimal drei. 3.</li>
+    <li><b>Wunder:</b> zwei gebaute Stufen mit 3 und 7. 10.</li>
+    <li><b>Blaue Karten:</b> 3 + 4 + 5 + 6. 18.</li>
+    <li><b>Gelbe Karten:</b> eine Karte aus dem dritten Zeitalter, 1 Punkt für jede von 4 braunen Karten. 4.</li>
+    <li><b>Gilden:</b> 1 Punkt für jede der 6 blauen Karten der Nachbarn. 6.</li>
+    <li><b>Forschung:</b> 3 Steintafeln, 2 Zirkel, 1 Zahnrad: 9 + 4 + 1 für die Stapel und 7 für ein Set. 21.</li>
+  </ol><div class="sum num">8 + 3 + 10 + 18 + 4 + 6 + 21 = 70 Punkte</div></div>
+
+  <h2 id="common-questions">Häufige Fragen</h2>
+  <div class="faq">
+    <details open><summary>Geben braune und graue Karten Punkte?</summary><p>Nein. Sie haben dir nur während des Spiels Rohstoffe geliefert. Lass sie aber auf dem Tisch liegen: Manche gelben Karten und Gilden zählen sie mit.</p></details>
+    <details><summary>Bekomme ich einen Marker, wenn meine Armee so stark ist wie die meines Nachbarn?</summary><p>Nein. Bei gleicher Stärke bekommt niemand einen Marker.</p></details>
+    <details><summary>Sind übrige Münzen etwas wert?</summary><p>Ein oder zwei Münzen, die nach dem Teilen durch drei übrig bleiben, geben keine Punkte, aber bei Gleichstand sind sie trotzdem wichtig.</p></details>
+    <details><summary>Zählen die grünen Karten meiner Nachbarn für meine Forschung?</summary><p>Nein. Bei der Forschung zählen nur deine eigenen grünen Karten und die Symbole, die du selbst gewählt hast.</p></details>
+    <details><summary>Kann ich mein gewähltes Forschungssymbol später noch ändern?</summary><p>Du wählst es ganz am Ende beim Zählen, also nimm das Symbol, das dir die meisten Punkte bringt.</p></details>
+    <details><summary>Was ist mit den Erweiterungen?</summary><p>Diese Anleitung behandelt das Grundspiel. Erweiterungen bringen eigene Karten und manchmal eine ganz neue Punktezeile mit; die erklären wir auf eigenen Seiten.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Keine Lust, das alles von Hand zu zählen?</b><p>In Score Night gibst du ein, was auf dem Tisch liegt, und jede Zeile, auch die Forschung, rechnet sich für jeden Spieler von selbst.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dseven-wonders">▶ Google Play</a></div>
+
+  <p class="disclaimer">Inoffizielle Anleitung in unseren eigenen Worten. Nicht mit dem Verlag von 7 Wonders verbunden. Spielnamen gehören ihren Inhabern. Die vollständigen Regeln stehen in der Anleitung des Verlags.</p>
+<script>
+  const v = { t: 3, c: 2, g: 1, w: 0 };
+  const sci = (t, c, g) => t*t + c*c + g*g + 7*Math.min(t, c, g);
+  const names = ['Steintafel', 'Zirkel', 'Zahnrad'];
+  function best(t, c, g, w, picks) {
+    if (!w) return { p: sci(t, c, g), t, c, g, picks };
+    return [best(t+1, c, g, w-1, [...picks, 0]), best(t, c+1, g, w-1, [...picks, 1]), best(t, c, g+1, w-1, [...picks, 2])].reduce((a, b) => b.p > a.p ? b : a);
+  }
+  const plural = { tablet: 'Steintafeln', compass: 'Zirkel', gear: 'Zahnräder' };
+  const single = { tablet: 'Steintafel', compass: 'Zirkel', gear: 'Zahnrad' };
+  const pile = (n, w) => n === 0 ? `Keine ${plural[w]}: 0 Punkte`
+    : `${n} ${n === 1 ? single[w] : plural[w]}: ${n} × ${n} = ${n*n} Punkt${n*n === 1 ? '' : 'e'}`;
+  function draw() {
+    for (const k in v) document.getElementById(k).textContent = v[k];
+    const r = best(v.t, v.c, v.g, v.w, []), s = Math.min(r.t, r.c, r.g);
+    document.getElementById('pts').textContent = `${r.p} Punkt${r.p === 1 ? '' : 'e'}`;
+    const lines = [];
+    if (r.picks.length) lines.push((r.picks.length > 1 ? 'Deine gewählten Symbole gehen an: ' : 'Dein gewähltes Symbol geht an: ') + r.picks.map(i => names[i]).join(', ') + ' (das bringt am meisten)');
+    lines.push(pile(r.t, 'tablet'), pile(r.c, 'compass'), pile(r.g, 'gear'));
+    lines.push(s ? `${s} vollständige${s > 1 ? ' Sets' : 's Set'} aus allen drei Symbolen: ${s} × 7 = ${7*s} Punkte` : 'Noch kein vollständiges Set: Für die 7 Bonuspunkte brauchst du von jedem Symbol mindestens eine Karte');
+    document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+  }
+  document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(0, Math.min(k === 'w' ? 3 : 20, v[k] + +b.dataset.d)); draw(); });
+  draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../de/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../de/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/de/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../de/guides/seven-wonders/" class="current">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>

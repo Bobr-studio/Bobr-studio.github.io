@@ -1,0 +1,65 @@
+/* Shared scoring guide styles, based on the site's app page design. */
+:root {
+  --river: #0F2E3A; --river-2: #164452; --cream: #F7F1E8; --ink: #1E2A2F; --muted: #5d6b70;
+  --line: #E6DCCB; --wood: #9C6634; --accent: #B9561E; --accent2: #F2A23A;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); font: 17px/1.6 Rubik, system-ui, sans-serif; background: var(--cream); }
+a { color: var(--river-2); }
+.studio { background: linear-gradient(180deg, var(--river), var(--river-2)); color: var(--cream); }
+.studio .wrap { max-width: 1100px; margin: 0 auto; padding: 18px 24px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.studio nav { display: flex; gap: 20px; font: 500 16px Rubik; }
+.studio nav a { color: var(--cream); text-decoration: none; opacity: .9; }
+.bobr { position: relative; display: inline-block; font: 700 40px/1 Caveat, cursive; color: var(--cream); text-decoration: none; }
+.bobr svg { position: absolute; left: 0; top: 37px; }
+.bobr .teeth { left: 26px; top: 33px; }
+.page { max-width: 1040px; margin: 0 auto; padding: 0 24px 44px; }
+.crumbs { font-size: 14px; color: var(--muted); padding-top: 22px; }
+.crumbs a { color: var(--muted); }
+h1 { font: 700 46px/1.08 Fredoka, Rubik, sans-serif; color: var(--river); margin: 10px 0 12px; }
+h1 .hand { display: block; font: 700 32px/1.1 Caveat, cursive; color: var(--accent); margin-top: 4px; }
+h2 { font: 700 28px/1.15 Fredoka, Rubik, sans-serif; color: var(--river); margin: 38px 0 8px; }
+h3 { font: 600 20px/1.2 Fredoka, Rubik, sans-serif; color: var(--river); margin: 0 0 4px; }
+.lead { font-size: 19px; color: var(--muted); margin: 0; max-width: 720px; }
+.card { background: #fff; border-radius: 20px; box-shadow: 0 10px 30px rgba(15,46,58,.10); padding: 24px 26px; }
+.num { font-variant-numeric: tabular-nums; }
+.sym { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px;
+  font: 700 15px Fredoka, sans-serif; color: #fff; vertical-align: middle; }
+.sym.t { background: #6B7F8C; } .sym.c { background: #3E7C59; } .sym.g { background: #A0632E; } .sym.w { background: linear-gradient(135deg,#6B7F8C,#3E7C59 50%,#A0632E); }
+.cta { display: grid; grid-template-columns: 72px 1fr auto; gap: 18px; align-items: center; background: #fff; border-radius: 20px;
+  padding: 20px 24px; box-shadow: 0 10px 30px rgba(15,46,58,.10); border: 2px solid var(--accent2); }
+.cta img { width: 72px; height: 72px; border-radius: 18px; }
+.cta b { font: 600 20px Fredoka, sans-serif; color: var(--river); display: block; }
+.cta p { margin: 2px 0 0; color: var(--muted); font-size: 16px; }
+.btn { display: inline-flex; align-items: center; gap: 8px; padding: 13px 20px; border-radius: 14px; font-weight: 700; text-decoration: none;
+  background: var(--accent); color: #fff; white-space: nowrap; }
+.btn.ghost { background: #fff; color: var(--river); border: 2px solid var(--line); }
+.disclaimer { font-size: 13px; color: var(--muted); margin-top: 26px; border-top: 1px solid var(--line); padding-top: 14px; }
+footer.studio .wrap { padding: 24px; font-size: 14px; color: rgba(247,241,232,.75); justify-content: flex-start; flex-wrap: wrap; gap: 24px; }
+footer.studio a { color: rgba(247,241,232,.85); text-decoration: none; }
+footer .bobr { font-size: 30px; }
+footer .bobr svg { top: 28px; width: 98px; }
+footer .bobr .teeth { left: 20px; top: 25px; width: 12px; }
+@media (max-width: 720px) {
+  .page { padding: 0 16px 32px; } h1 { font-size: 34px; } h1 .hand { font-size: 26px; }
+  .cta { grid-template-columns: 56px 1fr; } .cta img { width: 56px; height: 56px; } .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .studio nav a.hide-m { display: none; }
+}
+
+/* Поля калькуляторов — один вид на всех страницах правил (Даша, 2026-11-09): как кнопки ±, цвета — из палитры игры. */
+.calc label { display: block; margin: 12px 0 6px; }
+.calc select, .calc input[type=number], .calc input[type=text] {
+  min-height: 48px; padding: 10px 14px; border: 2px solid var(--line); border-radius: 14px; background: #fff;
+  font: 500 17px Rubik, system-ui, sans-serif; color: var(--ink); max-width: 100%; }
+.calc select { padding-right: 40px; appearance: none; -webkit-appearance: none; cursor: pointer;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 20px) 50%, calc(100% - 14px) 50%; background-size: 6px 6px; background-repeat: no-repeat; }
+.calc input[type=number] { width: 7em; }
+.calc select:focus, .calc input:focus, .calc button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 1px; }
+.calc button:not(.step button) { min-height: 48px; padding: 10px 20px; border-radius: 14px; border: 0; background: var(--accent);
+  color: #fff; font: 700 17px Rubik, system-ui, sans-serif; cursor: pointer; }
+.calc button:not(.step button):active { filter: brightness(.9); }
+.calc input[type=checkbox] { width: 22px; height: 22px; accent-color: var(--accent); vertical-align: middle; margin-right: 8px; }
+.calc .ticket-entry { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.calc .bonus-check { display: flex; align-items: center; min-height: 48px; margin-top: 6px; }
+@media (max-width: 720px) { .calc select { width: 100%; } }

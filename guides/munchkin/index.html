@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to count levels and combat in Munchkin — Bobr Studio</title>
+<meta name="description" content="How levels, gear and combat strength work in base Munchkin, with a combat calculator that explains who wins.">
+<link rel="icon" href="../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/munchkin/" class="current">English</a><a href="../../de/guides/munchkin/">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../guides/">Scoring guides</a> › Munchkin</div>
+  <h1>How to count levels and combat in Munchkin <span class="hand">who's stronger, and who wins</span></h1>
+  <p class="lead">Munchkin isn't scored at the end. Instead, you keep an eye on two numbers the whole game: your level and your combat strength. The calculator below settles any fight in a second and says in plain words why you won or lost. Further down, levels, gear, fights and the race to level 10 are explained step by step, with examples and the mix-ups that happen at almost every table.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Who wins this fight?</h3>
+      <p>Enter both sides of the fight. Your strength is your level plus your gear, and the monster's is its level plus any bonuses it got.</p>
+      <h4>Your side</h4>
+      <div class="row"><span class="name">Your level<small>from 1 to 10</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="Level down">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="Level up">+</button></div></div>
+      <div class="row"><span class="name">Your gear bonus<small>all bonuses from the gear you're using; can be below zero</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="Less gear bonus">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="More gear bonus">+</button></div></div>
+      <div class="row"><span class="name">One-shot bonuses<small>potions and other one-fight bonuses for your side</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="Less one-shot bonus">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="More one-shot bonus">+</button></div></div>
+      <div class="row"><span class="name">Helper's strength<small>their level plus their gear; leave 0 if nobody helps</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="Less helper strength">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="More helper strength">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> A Warrior is fighting on our side (you or your helper)</label>
+      <h4>The monster</h4>
+      <div class="row"><span class="name">Monster's level<small>the number printed on the monster; for two monsters, add their levels</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="Lower monster level">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="Higher monster level">+</button></div></div>
+      <div class="row"><span class="name">Monster's bonuses<small>anything played to make it stronger (or weaker)</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="Less monster bonus">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="More monster bonus">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">You win!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../assets/score-night-icon.png" alt=""><div><b>Keep the whole table's levels in one place</b><p>Score Night tracks every player's level, gear and strength, settles fights with helpers and bonuses, and even rolls the die when you run away.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Get it on Google Play</a></div>
+      <ul><li>Works without internet, for 3 to 6 players</li><li>Two games free to try</li></ul>
+      <div class="toc"><b>On this page</b><ol><li><a href="#what-you-track">What you keep track of</a></li><li><a href="#level">Your level</a></li><li><a href="#strength">Gear and strength</a></li><li><a href="#fight">A fight, step by step</a></li><li><a href="#run-away">Losing and running away</a></li><li><a href="#who-wins">How you win</a></li><li><a href="#mistakes">Common mistakes</a></li><li><a href="#examples">Examples</a></li><li><a href="#whole-turn">A whole fight, counted</a></li><li><a href="#common-questions">Common questions</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">What you keep track of</h2>
+  <p>There's no score sheet in Munchkin and no counting at the end. Throughout the game every player keeps a few things up to date, and they change all the time: after every fight, every curse and every new piece of gear. It helps if each player keeps their own numbers somewhere everyone can see them.</p>
+  <ol class="steps">
+    <li><b>Your level.</b> Everyone starts at level 1. Level is what you win with: the first player to reach level 10 wins the game.</li>
+    <li><b>Your gear bonus.</b> Each item you're using gives a bonus. Add all of them up and you get one number, your gear bonus.</li>
+    <li><b>Your combat strength.</b> This is the number you fight with. It's your level plus your gear bonus, and you don't keep it separately: it changes whenever either of the two changes.</li>
+    <li><b>Your sex and your class.</b> Some cards only work on male or female characters, so everyone should know which one you are. And if your character is a Warrior, remember it: Warriors win fights that end in a tie.</li>
+  </ol>
+  <div class="tip"><b>Level and strength are not the same thing.</b> Level is how close you are to winning. Strength is how hard you hit. A level 4 hero with a gear bonus of 6 fights with a strength of 10, but is still 6 levels away from victory.</div>
+
+  <h2 id="level">Your level: up and down</h2>
+  <div class="line"><div class="card"><h3>How your level changes</h3>
+    <p>You start at level 1. The main way up is to beat a monster: it gives you 1 level, and some bigger monsters give 2. The monster card says how many. Some cards can also raise or lower your level directly, and losing a fight can cost you a level too, if the monster's card says so.</p>
+    <p>There are two limits. Your level <b>never goes below 1</b>: if you're at level 1 and something takes a level away, you simply stay at 1. And it <b>never goes above 10</b>, because 10 is the end of the game.</p>
+    <p class="where">Where to look: the number you keep for your level. Only your level counts towards winning, never your strength.</p>
+    <div class="ex"><b>Example:</b> you're at level 1 and lose a level to a monster. You stay at level 1. Next turn you beat a monster that gives 2 levels, so you go up to level 3.</div></div></div>
+
+  <h2 id="strength">Your gear and combat strength</h2>
+  <div class="line"><div class="card"><h3>Strength is level plus gear</h3>
+    <p>To get your combat strength, take your level and add the bonuses of all the gear you're using. That's your strength for every fight until something changes.</p>
+    <p>Gear bonuses are usually positive, but the total can drop below zero. That's allowed, and it simply makes you weaker: a level 2 hero with a gear bonus of −3 has a combat strength of −1. Yes, minus one. Time to hide.</p>
+    <p class="where">Where to look: your level, plus the bonus number on each piece of gear in front of you.</p>
+    <div class="ex"><b>Example:</b> level 4 and gear worth 2 + 3 + 1. The gear bonus is 6, so your strength is 4 + 6 = 10.</div></div></div>
+
+  <div class="line"><div class="card"><h3>One-shot bonuses</h3>
+    <p>Potions and similar cards give a bonus for one fight only. Add them to your side's strength during that fight, and when the fight is over, they're gone. They don't change your gear bonus and they don't carry over to your next fight.</p>
+    <div class="ex"><b>Example:</b> your strength is 10 and you throw a potion worth 3 into a fight. For this fight your side has 13. Next fight, you're back to 10.</div></div></div>
+
+  <h2 id="fight">A fight, step by step</h2>
+  <ol class="steps">
+    <li><b>Count your side.</b> Your strength (level plus gear), plus any one-shot bonuses played for you.</li>
+    <li><b>Add a helper, if you have one.</b> One other player can join your fight. Their whole strength, their level plus their gear, is added to yours.</li>
+    <li><b>Count the monster.</b> Take the level printed on the monster and add any bonuses it got during the fight (bonuses can also be negative and make it weaker). If there are two monsters, add both of them together.</li>
+    <li><b>Compare.</b> If your side is <b>stronger</b> than the monster, you win. Being equal is not enough: <b>a tie goes to the monster</b>, unless a Warrior is fighting on your side (you or your helper). Then the tie is yours.</li>
+    <li><b>Collect your levels.</b> If you win, you go up by the number of levels the monster gives, usually 1, sometimes 2. With two monsters, you get the levels for both. Your helper doesn't get any levels for helping, with one exception: an Elf goes up a level for every monster they help someone else kill. Then the one-shot bonuses are discarded.</li>
+  </ol>
+  <div class="tip"><b>The tie rule in one line:</b> equal numbers mean the monster wins, unless there's a Warrior on your side. That's the rule people forget most often, and it decides a surprising number of fights.</div>
+
+  <h2 id="run-away">Losing and running away</h2>
+  <p>If the monster is stronger, or it's a tie without a Warrior, you lose the fight. But you're not caught yet: you get to run away. Roll a die. On a <b>5 or 6</b> you escape. On a 1, 2, 3 or 4 you don't get away, and the monster does whatever its card says it does to losers. That can cost you a level, some of your gear or something worse, so update your numbers right away.</p>
+  <p>The worst outcome is that your character dies. In the base game nobody is knocked out: you lose your gear, so your gear bonus drops to 0, but <b>your level stays where it was</b>. Then you carry on.</p>
+  <div class="tip">After a lost fight, check two numbers: your level and your gear bonus. Your strength will fix itself, since it's just the two added together.</div>
+
+  <h2 id="who-wins">How you win</h2>
+  <p>The first player to reach <b>level 10</b> wins. There's one catch: the last level, from 9 to 10, can normally <b>only be won by killing a monster</b>. A card that just gives you a level won't take you from 9 to 10, unless the card says it can.</p>
+  <p>Your level never goes past 10. If you're at level 9 and beat a monster that gives 2 levels, you reach level 10, not 11, and you win all the same.</p>
+  <div class="warn"><b>Mistakes people make at the finish</b><ul>
+    <li>Going from 9 to 10 with a card instead of a fight. The 10th level needs a dead monster, unless the card explicitly allows it.</li>
+    <li>Giving the helper a level (only an Elf gets one). If you help someone kill a monster while you're at level 9, you don't go up: only the player who fought gets the levels.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Common mistakes</h2>
+  <div class="warn"><ul>
+    <li>Mixing up level and strength. You fight with strength, but you win the game with level.</li>
+    <li>Calling a tie a win. Equal strength means the monster wins, unless a Warrior is on your side.</li>
+    <li>Keeping a potion's bonus after the fight. One-shot bonuses last for one fight only.</li>
+    <li>Adding only the helper's level. The helper brings their level and their gear, their whole strength.</li>
+    <li>Dropping below level 1. Level 1 is the floor; losing a level there changes nothing.</li>
+    <li>Losing your level when you die. Death takes your gear, not your level.</li>
+  </ul></div>
+
+  <h2 id="examples">Examples</h2>
+  <div class="examples num">
+    <div class="card"><b>Plain strength</b><p>Level 4 with a gear bonus of 6. Your strength is 4 + 6.</p><div class="big">Strength 10</div></div>
+    <div class="card"><b>A tie</b><p>Strength 10 against a monster with 10. Without a Warrior, the monster wins. If you're a Warrior, you win.</p><div class="big">Monster, or Warrior</div></div>
+    <div class="card"><b>Gear below zero</b><p>Level 2 with a gear bonus of −3. Your strength is 2 − 3.</p><div class="big">Strength −1</div></div>
+    <div class="card"><b>With a helper</b><p>Your 10, plus a helper at level 3 with gear 2 (that's 5), against a monster with 10. 15 is more than 10.</p><div class="big">You win</div></div>
+    <div class="card"><b>The big finish</b><p>You're level 9 and kill a monster that gives 2 levels. You stop at 10, not 11.</p><div class="big">Level 10, you win the game</div></div>
+    <div class="card"><b>Running away</b><p>You lost and roll a 4: no luck, do what the monster card says. A 5 or a 6 would have got you out.</p><div class="big">5 or 6 to escape</div></div>
+  </div>
+
+  <h2 id="whole-turn">A whole fight, counted</h2>
+  <div class="card walk"><ol>
+    <li><b>Your strength:</b> you're level 6 with a gear bonus of 4. 6 + 4 = 10.</li>
+    <li><b>The monster:</b> it's level 12, and it gets a +3 bonus during the fight. 12 + 3 = 15. You're 5 short.</li>
+    <li><b>A potion:</b> you use one worth 2. Your side now has 10 + 2 = 12. Still 3 short.</li>
+    <li><b>A helper:</b> another player at level 3 with gear 2 joins you. Their strength is 3 + 2 = 5, so your side has 12 + 5 = 17.</li>
+    <li><b>Compare:</b> 17 against 15. Your side is stronger, so you win. (Had it been 15 against 15, you'd need a Warrior on your side to win it.)</li>
+    <li><b>Levels:</b> the monster gives 1 level, so you go from 6 to 7. Your helper stays at level 3.</li>
+    <li><b>Clean up:</b> the potion is gone. Your strength is back to your level plus your gear: 7 + 4 = 11.</li>
+  </ol><div class="sum num">17 against 15: you win, level 6 → 7, strength now 11</div></div>
+
+  <h2 id="common-questions">Common questions</h2>
+  <div class="faq">
+    <details open><summary>Who wins a tie?</summary><p>The monster, unless a Warrior is fighting on your side. If you or your helper is a Warrior, a tie is a win for you.</p></details>
+    <details><summary>Is my strength the same as my level?</summary><p>No. Strength is your level plus your gear bonus, and it's what you fight with. Only your level counts towards winning.</p></details>
+    <details><summary>Can my strength be negative?</summary><p>Yes. If your gear bonus is below zero, your strength can drop below zero too: level 2 with gear −3 is strength −1.</p></details>
+    <details><summary>Can my level go below 1?</summary><p>No. Level 1 is the lowest. If you lose a level at level 1, you just stay at 1.</p></details>
+    <details><summary>Does my helper go up a level too?</summary><p>No. Only the player who fought the monster gets the levels. The helper adds their strength and that's it.</p></details>
+    <details><summary>Can I reach level 10 with a card?</summary><p>Normally not: the 10th level comes only from killing a monster. The only exception is a card that says outright it can get you there.</p></details>
+    <details><summary>What happens when I die?</summary><p>You lose your gear, so your gear bonus goes to 0. Your level stays the same, and you keep playing.</p></details>
+    <details><summary>What if I fight two monsters at once?</summary><p>Add both monsters together: their levels and their bonuses. If you win, you get the levels from both.</p></details>
+    <details><summary>What about the expansions?</summary><p>This guide covers the base game only; expansions and other Munchkin sets add their own races, classes and rules (one even plays all the way to level 20), so check their rulebooks.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../assets/score-night-icon.png" alt=""><div><b>Rather keep your eyes on the monsters?</b><p>In Score Night everyone's level, gear and strength sit on one screen, fights add up by themselves, and the app won't let anyone sneak to level 10 without a kill.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">Unofficial guide written in our own words. Not affiliated with the publisher of Munchkin. Game names belong to their owners. The full rules are in the rulebook from the publisher.</p>
+<script>
+  const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+  const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+  const n = x => x < 0 ? '−' + (-x) : String(x);
+  const term = (name, x) => ` + ${name} ${n(x)}`;
+  function fight(s, warrior) {
+    const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+    let side = `level ${s.lvl}` + term('gear', s.gear);
+    if (s.once) side += term('one-shot', s.once);
+    if (s.help) side += term('helper', s.help);
+    const lines = [`Your side: ${side} = ${n(you)}`,
+      s.mbon ? `Monster: level ${s.mlvl}${term('bonuses', s.mbon)} = ${n(mon)}` : `Monster: level ${s.mlvl}`];
+    const won = you > mon || (you === mon && warrior);
+    if (you > mon) lines.push(`${n(you)} is more than ${n(mon)}, so you kill the monster.`);
+    else if (you === mon && warrior) lines.push(`${n(you)} against ${n(mon)} is a tie. Ties go to the monster, but a Warrior is fighting on your side, so you win.`);
+    else if (you === mon) lines.push(`${n(you)} against ${n(mon)} is a tie, and a tie goes to the monster. 1 more strength, or a Warrior on your side, would win it.`);
+    else lines.push(`${n(you)} is less than ${n(mon)}, so the monster wins. You need ${mon - you + (warrior ? 0 : 1)} more strength to win.`);
+    if (won) {
+      lines.push(s.lvl >= 9 ? 'You go up to level 10 and win the game!'
+        : s.lvl === 8 ? 'You go up a level, to 9. If the monster gives 2 levels, you reach 10 and win the game!'
+        : `You go up a level, to ${s.lvl + 1} (or to ${s.lvl + 2} if the monster gives 2 levels).`);
+      if (s.help) lines.push("Your helper doesn't get a level (unless the helper is an Elf).");
+    } else lines.push('Roll a die to run away: a 5 or a 6 gets you out. Otherwise, do what the monster card says.');
+    return { won, head: won ? 'You win!' : 'The monster wins', lines };
+  }
+  function draw() {
+    for (const k in v) document.getElementById(k).textContent = n(v[k]);
+    const r = fight(v, document.getElementById('warrior').checked);
+    document.getElementById('pts').textContent = r.head;
+    document.getElementById('box').classList.toggle('lost', !r.won);
+    document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+  }
+  document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+  document.getElementById('warrior').onchange = draw;
+  draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/munchkin/" class="current">English</a><a href="../../de/guides/munchkin/">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>

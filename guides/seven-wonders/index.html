@@ -1,0 +1,230 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>7 Wonders science calculator — Bobr Studio</title>
+<meta name="description" content="Science is the part of 7 Wonders scoring that everyone forgets how to count.">
+<link rel="icon" href="../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .92; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .growth { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 2px; }
+  .growth span { background: #FFF6EC; border-radius: 10px; padding: 4px 10px; font-size: 15px; }
+  .tip { background: #FFF6EC; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEDEA; border-left: 4px solid #C8452F; border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F3F6F7; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «античность» для страницы 7 чудес: свои цвета (песок, терракота, бронза), не цвета коробки и логотипа. */
+:root { --river: #3A2617; --river-2: #5A3A22; --cream: #F3E9D6; --ink: #2B1E14; --muted: #6E5A48; --line: #E2D2B6; --accent: #A6462A; --accent2: #C99A3E; }
+body { background: var(--cream) radial-gradient(circle at 20% 0, #F8F0E0, transparent 60%); }
+.studio { background: linear-gradient(180deg, #3A2617, #5A3A22); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent2); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #EADBC0; }
+.result { background: linear-gradient(135deg, #3A2617, #5A3A22); }
+.tip { background: #FBF1DE; }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/guides/seven-wonders/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/seven-wonders/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/seven-wonders/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/seven-wonders/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/seven-wonders/" class="current">English</a><a href="../../de/guides/seven-wonders/">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../guides/">Scoring guides</a> › 7 Wonders</div>
+  <h1>7 Wonders science calculator <span class="hand">and how to count everything else</span></h1>
+  <p class="lead">Science is the part of 7 Wonders scoring that everyone forgets how to count. Tell the calculator which symbols are on your green cards, and it will count the points and explain how it got them. Below, every other kind of points is explained step by step, with examples and the mistakes people make most often.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Your green cards</h3>
+      <p>Sort your green cards by the symbol on them and count each pile.</p>
+      <div class="row"><span class="sym t">T</span><span class="name">Tablets<small>green cards with a stone tablet</small></span><div class="step"><button data-k="t" data-d="-1">−</button><output id="t">3</output><button data-k="t" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym c">C</span><span class="name">Compasses<small>green cards with a drawing compass</small></span><div class="step"><button data-k="c" data-d="-1">−</button><output id="c">2</output><button data-k="c" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym g">G</span><span class="name">Gears<small>green cards with a cogwheel</small></span><div class="step"><button data-k="g" data-d="-1">−</button><output id="g">1</output><button data-k="g" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym w">?</span><span class="name">You choose the symbol<small>a guild card or a wonder stage that lets you pick one at the end</small></span><div class="step"><button data-k="w" data-d="-1">−</button><output id="w">0</output><button data-k="w" data-d="1">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts">21 points</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../assets/score-night-icon.png" alt=""><div><b>Count the whole table at once</b><p>Score Night counts science, coins, military and everything else for every player and shows who won.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dseven-wonders">▶ Get it on Google Play</a></div>
+      <ul><li>Works without internet, for 3 to 7 players</li><li>Two games free to try</li></ul>
+      <div class="toc"><b>On this page</b><ol><li><a href="#when-to-count">When to count</a></li><li><a href="#science-step-by-step">Science step by step</a></li><li><a href="#science-examples">Science examples</a></li><li><a href="#military">Military</a></li><li><a href="#coins">Coins</a></li><li><a href="#wonder">Wonder</a></li><li><a href="#blue-cards">Blue cards</a></li><li><a href="#yellow-cards">Yellow cards</a></li><li><a href="#guilds">Guilds</a></li><li><a href="#who-wins">Who wins</a></li><li><a href="#whole-game">A whole game, counted</a></li><li><a href="#common-questions">Common questions</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">When to count</h2>
+  <p>You count points only once, at the very end. The game ends after the third age: the last cards are played, the last battle with your neighbours is fought and the military tokens are handed out. Then everyone lays out their cards by colour and counts seven kinds of points, one after another. It's easiest if one person reads the lines aloud and everyone counts their own.</p>
+  <div class="tip">Some cards give you nothing at the end: <b>brown and grey cards</b> only gave you resources during the game, and <b>red cards</b> already did their job in the battles. You don't need to count them, but keep them on the table: some guilds and yellow cards count them.</div>
+
+  <h2 id="science-step-by-step">How science is counted, step by step</h2>
+  <ol class="steps">
+    <li><b>Sort your green cards into three piles</b> by symbol: tablets, compasses and gears. Only the symbol matters, not the name of the card or which age it came from. Each green card has exactly one symbol.</li>
+    <li><b>Score each pile on its own.</b> Multiply the number of cards in the pile by itself. One card is worth 1 point, but every extra card of the same symbol is worth more than the last one, which is why collecting one symbol pays off:
+      <div class="growth num"><span>1 card → 1 point</span><span>2 cards → 4</span><span>3 cards → 9</span><span>4 cards → 16</span><span>5 cards → 25</span><span>6 cards → 36</span></div></li>
+    <li><b>Look for full sets.</b> Take one tablet, one compass and one gear together: that's a set, and each set gives you 7 more points. You can have several sets: count how many cards are in your smallest pile, and that's the number of sets. If one of the piles is empty, you have no sets at all.</li>
+    <li><b>Add both parts together.</b> The points for the piles and the points for the sets are added up. Nothing is counted twice: a card counts in its pile and can also be part of a set.</li>
+  </ol>
+  <div class="tip"><b>If you can choose a symbol</b> (a guild card or a wonder stage that says so), you pick it at the end, when you already see your piles. Usually it's best either to complete one more set or to add to your biggest pile. If you're not sure, try each of the three and keep the best one. The calculator above does exactly that.</div>
+  <div class="warn"><b>Mistakes people make with science</b><ul>
+    <li>Giving 7 points for every green card. The 7 is only for a complete set of three different symbols.</li>
+    <li>Adding the cards instead of multiplying: 3 tablets are worth 9 points, not 3.</li>
+    <li>Counting only one set when there are more. Two of each symbol means two sets and 14 points.</li>
+    <li>Counting the neighbours' green cards. Science only counts your own cards.</li>
+  </ul></div>
+
+  <h2 id="science-examples">Science examples</h2>
+  <div class="examples num">
+    <div class="card"><b>All on one symbol</b><p>4 gears, nothing else. The gear pile gives 4 × 4 = 16. There are no tablets or compasses, so no sets.</p><div class="big">16 points</div></div>
+    <div class="card"><b>Evenly spread</b><p>2 tablets, 2 compasses, 2 gears. Each pile gives 2 × 2 = 4, that's 12. The smallest pile has 2 cards, so 2 sets for 14 more.</p><div class="big">26 points</div></div>
+    <div class="card"><b>A bit of everything</b><p>3 tablets, 2 compasses, 1 gear. Piles: 9 + 4 + 1 = 14. The smallest pile has 1 card, so 1 set for 7 more.</p><div class="big">21 points</div></div>
+  </div>
+
+  <h2 id="everything-else">Everything else, in the order you count it</h2>
+  <div class="line"><div class="card"><h3 id="military">1. Military</h3>
+    <p>At the end of each age you compared your army with your left and your right neighbour. The army strength is the number of shields on your red cards and wonder. If you had more than a neighbour, you took a victory token; if you had less, you took a defeat token; if you were equal, nobody took anything.</p>
+    <p>Now just add up the numbers on your tokens. A victory token is worth 1 point in the first age, 3 in the second and 5 in the third, and every defeat token takes away 1 point, whatever the age.</p>
+    <p class="where">Where to look: the tokens next to your board. Military can be a negative number.</p>
+    <div class="ex"><b>Example:</b> you won against your left neighbour in the first and third age (1 + 5), won against your right neighbour in the second (3), and lost to him once (−1). That's 1 + 5 + 3 − 1 = 8 points.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="coins">2. Coins</h3>
+    <p>Count all your coins, divide by three and drop whatever is left over. Every full three coins is worth one point, and one or two extra coins give nothing.</p>
+    <p class="where">Where to look: your coins. Coins are also the tie-breaker, so don't put them back in the box too early.</p>
+    <div class="ex"><b>Example:</b> 10 coins are three full threes and one coin left over, so 3 points. 2 coins are not enough for even one point.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="wonder">3. Wonder</h3>
+    <p>Each stage of your wonder that you've built (it has a card tucked under it) may have points printed on it. Add up the points of the built stages only. Some stages give coins, shields or something else instead of points: those already did their job during the game and give nothing now.</p>
+    <p class="where">Where to look: your wonder board.</p>
+    <div class="ex"><b>Example:</b> you built two stages, one shows 3 points and the other 7. That's 10 points.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="blue-cards">4. Blue cards</h3>
+    <p>The simplest line: each blue card shows how many points it is worth. Just add them up.</p>
+    <p class="where">Where to look: your blue cards.</p>
+    <div class="ex"><b>Example:</b> blue cards worth 3, 4, 5 and 6 points give 18 points.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="yellow-cards">5. Yellow cards</h3>
+    <p>Most yellow cards only helped you during the game (cheaper trading, extra resources, coins) and give nothing now. Only some cards from the third age give points at the end. Each of them tells you what it counts in your own city, for example your cards of a certain colour or your built wonder stages. Count those things on your own table and add the points.</p>
+    <p class="where">Where to look: yellow cards from the third age. If a yellow card shows no points, skip it.</p>
+    <div class="ex"><b>Example:</b> a yellow card gives 1 point for each brown card in your city, and you have 4 brown cards. That's 4 points.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="guilds">6. Guilds</h3>
+    <p>Purple cards only appear in the third age, and each of them counts something different. Read carefully <b>whose</b> cards it counts: most guilds count your neighbours' cards, some count your own, and some count both. Count what the card asks for and add the points. One guild doesn't give points directly: it gives you a science symbol of your choice, and you count it with science.</p>
+    <p class="where">Where to look: your purple cards, then your neighbours' tables.</p>
+    <div class="ex"><b>Example:</b> a guild gives 1 point for each blue card your two neighbours have. Your left neighbour has 4, the right one 2. That's 6 points.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="science">7. Science</h3>
+    <p>Count it as explained at the top of the page, or just use the calculator.</p></div></div>
+
+  <h2 id="who-wins">Who wins</h2>
+  <p>Add all seven lines together. The player with the most points wins. If two players have the same total, the one with more coins left wins. If the coins are also equal, they share the victory.</p>
+
+  <h2 id="whole-game">A whole game, counted</h2>
+  <div class="card walk"><ol>
+    <li><b>Military:</b> two victory tokens worth 1 and 5, one worth 3, one defeat token. 1 + 5 + 3 − 1 = 8.</li>
+    <li><b>Coins:</b> 10 coins, three full threes. 3.</li>
+    <li><b>Wonder:</b> two built stages worth 3 and 7. 10.</li>
+    <li><b>Blue cards:</b> 3 + 4 + 5 + 6. 18.</li>
+    <li><b>Yellow cards:</b> one third-age card, 1 point for each of 4 brown cards. 4.</li>
+    <li><b>Guilds:</b> 1 point for each of the neighbours' 6 blue cards. 6.</li>
+    <li><b>Science:</b> 3 tablets, 2 compasses, 1 gear: 9 + 4 + 1 for the piles and 7 for one set. 21.</li>
+  </ol><div class="sum num">8 + 3 + 10 + 18 + 4 + 6 + 21 = 70 points</div></div>
+
+  <h2 id="common-questions">Common questions</h2>
+  <div class="faq">
+    <details open><summary>Do brown and grey cards give points?</summary><p>No. They only gave you resources during the game. But keep them on the table: some yellow cards and guilds count them.</p></details>
+    <details><summary>Do I get a token if my army is as strong as my neighbour's?</summary><p>No. With equal strength nobody takes a token.</p></details>
+    <details><summary>Are leftover coins worth anything?</summary><p>One or two coins left after dividing by three give no points, but they still matter in a tie.</p></details>
+    <details><summary>Do my neighbours' green cards count for my science?</summary><p>No. Science only counts your own green cards and the symbols you chose yourself.</p></details>
+    <details><summary>Can I change my chosen science symbol later?</summary><p>You choose it at the very end, when counting, so pick whatever gives you the most points.</p></details>
+    <details><summary>What about the expansions?</summary><p>This guide covers the base game. Expansions add their own cards and sometimes a whole new line of points; we'll explain them on separate pages.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../assets/score-night-icon.png" alt=""><div><b>Rather not count all this by hand?</b><p>In Score Night you enter what's on the table, and every line, science included, adds up by itself for every player.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dseven-wonders">▶ Google Play</a></div>
+
+  <p class="disclaimer">Unofficial guide written in our own words. Not affiliated with the publisher of 7 Wonders. Game names belong to their owners. The full rules are in the rulebook from the publisher.</p>
+<script>
+  const v = { t: 3, c: 2, g: 1, w: 0 };
+  const sci = (t, c, g) => t*t + c*c + g*g + 7*Math.min(t, c, g);
+  const names = ['tablet', 'compass', 'gear'];
+  function best(t, c, g, w, picks) {
+    if (!w) return { p: sci(t, c, g), t, c, g, picks };
+    return [best(t+1, c, g, w-1, [...picks, 0]), best(t, c+1, g, w-1, [...picks, 1]), best(t, c, g+1, w-1, [...picks, 2])].reduce((a, b) => b.p > a.p ? b : a);
+  }
+  const plural = { tablet: 'tablets', compass: 'compasses', gear: 'gears' };
+  const pile = (n, w) => n === 0 ? `No ${plural[w]}: 0 points`
+    : `${n} ${n === 1 ? w : plural[w]}: ${n} × ${n} = ${n*n} point${n*n === 1 ? '' : 's'}`;
+  function draw() {
+    for (const k in v) document.getElementById(k).textContent = v[k];
+    const r = best(v.t, v.c, v.g, v.w, []), s = Math.min(r.t, r.c, r.g);
+    document.getElementById('pts').textContent = `${r.p} point${r.p === 1 ? '' : 's'}`;
+    const lines = [];
+    if (r.picks.length) lines.push('Your chosen symbol' + (r.picks.length > 1 ? 's go' : ' goes') + ' to: ' + r.picks.map(i => names[i]).join(', ') + ' (that gives the most)');
+    lines.push(pile(r.t, 'tablet'), pile(r.c, 'compass'), pile(r.g, 'gear'));
+    lines.push(s ? `${s} full set${s > 1 ? 's' : ''} of all three symbols: ${s} × 7 = ${7*s} points` : 'No full set yet: you need at least one of each symbol for the 7 bonus points');
+    document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+  }
+  document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(0, Math.min(k === 'w' ? 3 : 20, v[k] + +b.dataset.d)); draw(); });
+  draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/seven-wonders/" class="current">English</a><a href="../../de/guides/seven-wonders/">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,295 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to host Mafia — Bobr Studio</title>
+<meta name="description" content="A step-by-step guide for the Mafia host: how many of each role, the first night, a full night in order, the day vote, ties and who wins.">
+<link rel="icon" href="../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #2A2E37; font: 700 24px Rubik; color: var(--cream); cursor: pointer; }
+  .step button:disabled { opacity: .4; cursor: default; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; color: var(--cream); }
+  .result { margin-top: 14px; color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 34px/1.1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; }
+  .result p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: #D9CFBF; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; border-radius: 16px; padding: 14px 20px; }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .say { display: block; margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: #262A32; font-style: italic; font-size: 15px; }
+  .tip { border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { border-left: 4px solid #D0645A; border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; } .warn li, .tip li { margin: 4px 0; }
+  .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+  .roles .card { padding: 16px 18px; } .roles p { margin: 6px 0 0; font-size: 15px; }
+  .roles .team { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  table.rules { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; }
+  table.rules th, table.rules td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.rules th { color: var(--river); font-weight: 500; } table.rules td:first-child { color: var(--river); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .ex { background: #262A32; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { border-radius: 14px; padding: 12px 18px; margin-top: 10px; }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 8px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--accent2); margin-top: 10px; }
+  @media (max-width: 720px) { .top { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } table.rules th, table.rules td { padding: 8px 6px; } }
+
+/* Настроение «нуар» для страницы Мафии: ночной город, приглушённый красный, латунь. Тёмная тема — контраст текста проверен (AA). */
+:root { --river: #F2E8D5; --river-2: #E3A58F; --cream: #F2E8D5; --ink: #DDD5C6; --muted: #ABA393; --line: #3A3E48; --accent: #A8352D; --accent2: #D9B66E; }
+body { background: #14161B radial-gradient(circle at 85% 0, rgba(168,53,45,.16), transparent 55%) no-repeat; color: var(--ink); }
+a { color: var(--river-2); }
+.studio { background: linear-gradient(180deg, #0D0E12, #1B1D24); }
+h1 .hand { color: #E8867A; }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .cta, .toc, ol.steps li, .faq details { background: #1D2027; border: 1px solid #2E323B; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.cta { border: 2px solid var(--accent); }
+.result { background: linear-gradient(135deg, #2A1416, #3A1C1D); }
+.tip { background: #262219; }
+.warn { background: #2C1B1C; }
+.step button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 1px; }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/guides/mafia/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/mafia/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/mafia/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/mafia/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/mafia/" class="current">English</a><a href="../../de/guides/mafia/">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../guides/">Scoring guides</a> › Mafia</div>
+  <h1>How to host Mafia <span class="hand">a calm guide for the person with the script</span></h1>
+  <p class="lead">You're the host tonight, maybe for the first time, or it's been a while and the order of the night has gone fuzzy. Below is everything in the order you'll need it: how many mafia to deal for your table, what happens on the first night, who wakes up when, how the day vote works, what to do with a tie and when the game is over.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>How many of each role?</h3>
+      <p>Count the players who will get a role. The host doesn't play, so don't count yourself.</p>
+      <div class="row"><span class="name">Players with a role<small>from 5 to 16, the host not included</small></span><div class="step"><button data-d="-1" aria-label="Fewer players">−</button><output id="n">9</output><button data-d="1" aria-label="More players">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts">2 mafia, 7 town</div><ul id="how" class="num"></ul><p id="why"></p></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../assets/score-night-icon.png" alt=""><div><b>Host without a cheat sheet</b><p>Score Night deals the roles, tells you what to say at every step, remembers who is who and announces who won.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ Get it on Google Play</a></div>
+      <ul><li>Works without internet, for 5 to 16 players plus the host</li><li>Two games free to try, and no ads during the game</li></ul>
+      <div class="toc"><b>On this page</b><ol><li><a href="#roles">The roles</a></li><li><a href="#before">Before the game</a></li><li><a href="#dealing">Dealing the roles</a></li><li><a href="#first-night">The first night</a></li><li><a href="#night">A full night, in order</a></li><li><a href="#morning">Morning</a></li><li><a href="#day">The day and the vote</a></li><li><a href="#ties">Ties</a></li><li><a href="#game-end">When the game ends</a></li><li><a href="#whole-game">A whole game, start to finish</a></li><li><a href="#host-tips">Tips for the host</a></li><li><a href="#mistakes">Common mistakes</a></li><li><a href="#table-rules">Table rules</a></li><li><a href="#common-questions">Common questions</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="roles">The roles</h2>
+  <p>There are two teams. The mafia knows who their partners are; the town knows nothing at all and has to work it out by talking. Every player gets exactly one role, and the host has none.</p>
+  <div class="roles">
+    <div class="card"><span class="team">Town</span><h3>Townsfolk</h3><p>No night action: they sleep with their eyes closed. By day they listen, argue and vote. They win when every mafia member is out.</p></div>
+    <div class="card"><span class="team">Mafia</span><h3>Mafia</h3><p>At night they open their eyes together and silently choose a victim. By day they pretend to be ordinary townsfolk.</p></div>
+    <div class="card"><span class="team">Mafia</span><h3>Don</h3><p>The head of the mafia. Chooses the victim with the others, then wakes up once more to hunt for the Detective: points at one player and the host nods yes or shakes their head.</p></div>
+    <div class="card"><span class="team">Town</span><h3>Detective</h3><p>Every night points at one player, and the host nods if that player is mafia. The Don counts as mafia too. By day the Detective can share what they found, carefully.</p></div>
+    <div class="card"><span class="team">Town</span><h3>Doctor</h3><p>Every night points at one player to protect. If the mafia picked the same person, nobody is out in the morning.</p></div>
+  </div>
+
+  <h2 id="before">Before the game</h2>
+  <ol class="steps">
+    <li><b>Seat everyone in a circle</b>, the host included. It helps to remember the order: at night people point at each other, and it's much easier to follow if you know who sits where.</li>
+    <li><b>Count the players without the host</b> and pick the roles. You need 5 to 16 players. The helper at the top shows the usual mix: up to 6 players there is 1 mafia; from 7 to 9 there are 2, and one of them is the Don; from 10 to 12 there are 3; from 13 to 16 there are 4. A Detective is always in the game, and a Doctor joins from 6 players. Everyone else is townsfolk.
+      <span class="say">Example: 9 players means the Don, 1 more mafia, the Detective, the Doctor and 5 townsfolk.</span></li>
+    <li><b>Agree on the disputed rules out loud</b> before the first card goes out: what happens on a tie, whether the role of someone who is out gets revealed, whether the Doctor can protect themselves. Tables differ on all of these, and an argument at minute 40 is no fun. The defaults we use are in the <a href="#table-rules">table rules</a> below.</li>
+  </ol>
+  <div class="tip">You can change the mix if your group likes it differently. There are only two limits: at least 1 mafia, and the mafia must be fewer than everyone else together. Otherwise the game would be over before it starts.</div>
+
+  <h2 id="dealing">Dealing the roles</h2>
+  <p>Each player has to learn their role without anyone else seeing it. With paper cards, shuffle the right set, deal one face down to each player, and let everyone peek and keep it hidden. As the host, you need to know every role, so either look at the cards as you deal them or write the roles down once everyone has looked.</p>
+  <p>In Score Night the phone goes around the circle instead: each player swipes and holds to see their role, lets go to hide it, and passes the phone on. At the end the phone comes back to the host, who sees everyone. If your group prefers its own cards, deal them and simply enter the roles into the app yourself.</p>
+
+  <h2 id="first-night">The first night: the mafia meet</h2>
+  <p>The very first night is short. Nobody is out; the mafia just get to see who their partners are.</p>
+  <ol class="steps">
+    <li><b>Everyone closes their eyes.</b> Say the classic line, or something with a bit of atmosphere.<span class="say">“The last tram rolls into the depot. The city falls asleep.”</span></li>
+    <li><b>The mafia open their eyes and look at each other.</b> Give them a few seconds to remember the faces. No talking, no handshakes.<span class="say">“Mafia, open your eyes and exchange meaningful looks. Remember each other.”</span></li>
+    <li><b>The mafia close their eyes, and the town wakes up.</b> On this first morning there's no news to announce, so you go straight to the first day of discussion.</li>
+  </ol>
+  <div class="tip">Some tables skip the meeting and let the mafia choose a victim on the very first night. It makes the game faster and harsher. Either way works, as long as everyone knows before the deal.</div>
+
+  <h2 id="night">A full night, in order</h2>
+  <p>From the second night on, the whole order plays out. Each role wakes up in turn, acts silently by pointing, and goes back to sleep before the next one is called. You watch, remember, and answer with a nod or a shake of the head.</p>
+  <ol class="steps">
+    <li><b>The city falls asleep.</b> Everyone closes their eyes. Wait until it's quiet.</li>
+    <li><b>The mafia wake up and choose a victim.</b> They open their eyes, agree silently and point at one player. Remember who it is, then send them back to sleep.<span class="say">“The back room smells of cigars and schemes. Mafia, decide — quietly, the walls have ears.”</span></li>
+    <li><b>The Don looks for the Detective.</b> The Don opens their eyes again and points at one player. If that's the Detective, nod; if not, shake your head. The Don can't check fellow mafia; there would be no point. If the Don is already out, skip this step.</li>
+    <li><b>The Detective checks someone.</b> The Detective points at one player. Nod if that player is mafia, shake your head if not. The Don counts as mafia here, so the Don gets a nod too.</li>
+    <li><b>The Doctor protects someone.</b> The Doctor points at one player. If the mafia chose that same person, the victim survives. By our defaults the Doctor may protect themselves once per game, and can't protect the same player two nights in a row.<span class="say">“The Doctor grabs the medical bag and an umbrella — it'll rain till dawn. Doctor, who are we saving?”</span></li>
+  </ol>
+  <div class="tip">In the app, a role whose player is already out simply isn't called any more, and the night moves on to the next one. While the Don is out, the rest of the mafia still choose a victim as usual.</div>
+
+  <h2 id="morning">Morning: what happened at night</h2>
+  <p>Wake the town up and tell them the news. Work it out quietly before you speak: if the mafia's victim is the same person the Doctor protected, nobody is out. Otherwise the victim leaves the game.</p>
+  <div class="line"><div class="card">
+    <p>Announce only the result, never the reasons. If someone is out, say who. If nobody is, just say that it was a quiet night, and don't mention the Doctor or who was saved: that would hand the mafia free information.</p>
+    <p>By our default, the role of a player who was taken out at night is <b>not</b> revealed. Some tables reveal it; see the <a href="#table-rules">table rules</a>.</p>
+    <div class="ex"><b>Example:</b> the mafia chose Kate, the Doctor protected Kate. Morning news: “Grey morning, bitter coffee, and good news for once: everyone is still here.”</div>
+  </div></div>
+  <p>After the morning news, check whether the game is over (see <a href="#game-end">when the game ends</a>). If not, the day begins.</p>
+
+  <h2 id="day">The day: discussion and the vote</h2>
+  <ol class="steps">
+    <li><b>Discussion.</b> Go around the circle and let everyone speak in turn. A short speech timer keeps things moving; we use 1 minute per person. This is where players share suspicions and put names forward, and where the Detective decides how much to reveal.</li>
+    <li><b>The vote.</b> Call the candidates one by one and ask who wants that player out. Players raise their hands, and you count. The player with the most votes leaves the game. If nobody gets a single vote, nobody leaves.</li>
+    <li><b>The last word.</b> The player who was voted out gets a few seconds for a last word, then leaves the circle. By our default their role is <b>not</b> revealed.</li>
+    <li><b>Check for the end of the game</b>, and if it goes on, the city falls asleep again for the next night.</li>
+  </ol>
+
+  <h2 id="ties">Ties</h2>
+  <p>When two or more players share the most votes, our default is a revote between just those players. If they tie again, nobody leaves today, and the town goes to sleep a little more nervous than before.</p>
+  <p>Two other common ways: after a second tie, <b>all</b> tied players leave, or there's no revote at all and a tie simply means nobody leaves. Pick one before the game, not when the tie happens.</p>
+  <div class="line"><div class="card"><div class="ex"><b>Example:</b> 4 players are left. Oscar gets 2 votes and Anna gets 2. Revote between Oscar and Anna: now Oscar gets 3 and Anna 1. Oscar leaves.</div></div></div>
+
+  <h2 id="game-end">When the game ends and who wins</h2>
+  <p>Check after every morning and after every vote:</p>
+  <ul>
+    <li><b>The town wins</b> as soon as every mafia member is out, the Don included.</li>
+    <li><b>The mafia wins</b> as soon as there are as many mafia as everyone else together, or more. At that point the town can't outvote them any more.</li>
+  </ul>
+  <div class="line"><div class="card"><div class="ex"><b>Example:</b> 3 players are left, 1 mafia and 2 townsfolk: the game goes on. The next night the mafia takes out one more, and it's 1 against 1. The mafia wins in the morning.</div></div></div>
+  <p>When the game is over, reveal everyone's role and, if people want, tell the story of the nights: who checked whom and who the Doctor saved. That's often the best part of the evening.</p>
+
+  <h2 id="whole-game">A whole game, start to finish</h2>
+  <p>7 players: Anna, Ben, Kate, Liam, Max, Nora and Oscar. Oscar is the Don, Max is mafia, Nora is the Detective, Kate is the Doctor, and Anna, Ben and Liam are townsfolk. Default table rules.</p>
+  <div class="card walk num"><ol>
+    <li><b>Night 1:</b> Oscar and Max open their eyes and see each other. Nobody is out.</li>
+    <li><b>Day 1:</b> nobody knows anything yet, but Ben talks a lot and gets 4 votes. Ben leaves; he was one of the townsfolk. 2 mafia, 4 others.</li>
+    <li><b>Night 2:</b> the mafia point at Kate. The Don checks Liam: you shake your head. The Detective checks Max: you nod. The Doctor protects herself, which she may do once per game.</li>
+    <li><b>Morning 2:</b> the mafia chose the person the Doctor protected, so nobody is out.</li>
+    <li><b>Day 2:</b> Nora carefully steers suspicion towards Max, and Max is voted out. 1 mafia, 4 others.</li>
+    <li><b>Night 3:</b> Oscar, alone now, points at Nora. As the Don he checks Anna: you shake your head. Nora checks Oscar: you nod. Kate has already used her self-protection, so she protects Liam.</li>
+    <li><b>Morning 3:</b> Nora is out. 1 mafia, 3 others: the game goes on.</li>
+    <li><b>Day 3:</b> Oscar and Anna get 2 votes each. Revote between them: Oscar 3, Anna 1. Oscar leaves.</li>
+  </ol><div class="sum">No mafia left: the town wins on day 3.</div></div>
+
+  <h2 id="host-tips">Tips for the host</h2>
+  <div class="tip"><ul>
+    <li><b>Keep the same face for everything.</b> A nod for “yes”, a shake for “no”, both with the same calm expression. Players watch you more closely than you think.</li>
+    <li><b>Give every role the same amount of time.</b> If the mafia choose in 2 seconds and the Doctor thinks for 20, count in your head and wait about as long for each. A long pause after one role and a short one after another tells people who is still in the game.</li>
+    <li><b>Never hint at who acted.</b> Don't look towards the person who pointed, don't say “good choice”, and in the morning announce only the result.</li>
+    <li><b>Talk while people move.</b> A short line of story covers the rustle of someone opening their eyes or lifting an arm.</li>
+    <li><b>Keep the humour kind.</b> Joke about the situation, not about the players: the city, the rain, the bartender who saw nothing. Nobody should feel picked on for being out first.</li>
+    <li><b>Add tension near the end.</b> When only 4 or fewer players are left, say so before the night falls. It's the moment when everyone sits up straight.</li>
+    <li><b>Keep the pace.</b> A timer for speeches and a firm “time to vote” save the evening from one endless argument.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Common mistakes</h2>
+  <div class="warn"><ul>
+    <li>Saying in the morning who the Doctor saved. Just say that nobody is out.</li>
+    <li>Shaking your head at the Detective when they point at the Don. The Don counts as mafia, so it's a nod.</li>
+    <li>Forgetting who the Doctor protected last night. With our defaults the same player can't be protected two nights in a row, so write it down or let the app remember.</li>
+    <li>Checking for the end only after the vote. The game can also end in the morning, after a night victim.</li>
+    <li>Revealing the role of a player who is out when your table agreed not to. Once it's said, it can't be unsaid.</li>
+    <li>Changing a rule in the middle of a night that has already happened. A new rule counts from the next step, not backwards.</li>
+    <li>Counting yourself as a player. The host has no role, can't be chosen at night and doesn't vote.</li>
+  </ul></div>
+
+  <h2 id="table-rules">Table rules: our defaults and the usual alternatives</h2>
+  <p>Mafia is a folk game, and almost every group plays it a little differently. These are the rules we start with; anything in the right-hand column is just as valid if your table agrees on it.</p>
+  <div class="card" style="padding:8px 14px"><table class="rules">
+    <tr><th>Rule</th><th>Our default</th><th>Other ways to play</th></tr>
+    <tr><td>First night</td><td>The mafia only meet</td><td>The mafia choose a victim right away</td></tr>
+    <tr><td>Tie in the vote</td><td>Revote; tied again, nobody leaves</td><td>Revote, tied again, all tied players leave; or no revote, nobody leaves</td></tr>
+    <tr><td>Doctor protects themselves</td><td>Once per game</td><td>Never; or every night</td></tr>
+    <tr><td>Doctor protects the same player two nights in a row</td><td>Not allowed</td><td>Allowed</td></tr>
+    <tr><td>Role of a player voted out</td><td>Not revealed</td><td>Revealed</td></tr>
+    <tr><td>Role of a player taken at night</td><td>Not revealed</td><td>Revealed</td></tr>
+    <tr><td>The Detective at night</td><td>Only checks</td><td>Checks or shoots</td></tr>
+    <tr><td>Last word</td><td>Yes</td><td>No</td></tr>
+    <tr><td>Speech timer</td><td>1 minute</td><td>Off, 30 seconds or 2 minutes</td></tr>
+  </table></div>
+  <p>If your Detective can shoot, it works like this: instead of checking, they point at a player to take out. The Doctor can save that player too, exactly as with the mafia's victim.</p>
+
+  <h2 id="common-questions">Common questions</h2>
+  <div class="faq">
+    <details open><summary>How many players do you need?</summary><p>At least 5 players with a role, plus the host who runs the game. The role mix on this page goes up to 16 players, so with the host that's a table of up to 17 people.</p></details>
+    <details><summary>Does the host play?</summary><p>No. The host has no role, knows everyone's role, can't be chosen at night and doesn't vote. Their job is to keep the game fair and fun.</p></details>
+    <details><summary>Does the Don show up as mafia when the Detective checks?</summary><p>Yes. The Don is part of the mafia, so the Detective gets a nod.</p></details>
+    <details><summary>Can the Doctor protect themselves?</summary><p>By our default, once per game. Some tables never allow it, others allow it every night. Agree before you start.</p></details>
+    <details><summary>What happens if nobody gets a vote?</summary><p>Nobody leaves that day, and the city goes to sleep.</p></details>
+    <details><summary>Should I reveal the role of someone who is out?</summary><p>By our default, no, neither after the vote nor after the night. Revealing makes the game easier for the town; not revealing keeps more mystery. Both are fine.</p></details>
+    <details><summary>Can we change a rule in the middle of the game?</summary><p>Yes, if the table agrees. It counts from the next step on: a night or a vote that has already happened is not replayed.</p></details>
+    <details><summary>What about extra roles?</summary><p>This guide covers the classic set: mafia, Don, Detective, Doctor and townsfolk. Many groups add their own roles; we'll leave those for another page.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../assets/score-night-icon.png" alt=""><div><b>Rather keep all this in your head? You don't have to.</b><p>In Score Night the app deals the roles, shows you what to say with funny stories, remembers who's who and who the Doctor saved, and tells you who won.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ Google Play</a></div>
+
+  <p class="disclaimer">Unofficial guide written in our own words. Mafia is a traditional party game; house rules differ from table to table.</p>
+<script>
+  let n = 9;
+  // Как в приложении: Lineup.defaultFor (score-night lib/games/mafia/logic.dart).
+  function lineup(p) {
+    if (p <= 6) return { mafia: 1, don: 0, det: 1, doc: p === 6 ? 1 : 0 };
+    const team = p <= 9 ? 2 : p <= 12 ? 3 : 4;
+    return { mafia: team - 1, don: 1, det: 1, doc: 1 };
+  }
+  function draw() {
+    document.getElementById('n').textContent = n;
+    const l = lineup(n), team = l.mafia + l.don, town = n - team, civ = town - l.det - l.doc;
+    document.getElementById('pts').textContent = `${team} mafia, ${town} town`;
+    const lines = [];
+    if (l.don) lines.push('Don: 1 (part of the mafia)');
+    lines.push(`Mafia: ${l.mafia}`);
+    lines.push('Detective: 1');
+    lines.push(l.doc ? 'Doctor: 1' : 'Doctor: none, joins from 6 players');
+    lines.push(`Townsfolk: ${civ}`);
+    lines.push(`At the table with the host: ${n + 1} people`);
+    document.getElementById('how').innerHTML = lines.map(x => `<li>${x}</li>`).join('');
+    const why = n <= 6
+      ? 'Up to 6 players there is just 1 mafia and no Don. The Detective plays from 5 players, the Doctor from 6.'
+      : n <= 9
+        ? 'From 7 to 9 players the mafia are 2: the Don and 1 more. The Detective and the Doctor play for the town.'
+        : n <= 12
+          ? 'From 10 to 12 players the mafia are 3: the Don and 2 more, against the Detective, the Doctor and the townsfolk.'
+          : 'From 13 to 16 players the mafia are 4: the Don and 3 more, against the Detective, the Doctor and the townsfolk.';
+    document.getElementById('why').textContent = why + ' Tables can change the mix, as long as there is at least 1 mafia and the mafia are fewer than everyone else.';
+    document.querySelectorAll('.step button').forEach(b => b.disabled = (+b.dataset.d < 0 ? n <= 5 : n >= 16));
+  }
+  document.querySelectorAll('.step button').forEach(b => b.onclick = () => { n = Math.max(5, Math.min(16, n + +b.dataset.d)); draw(); });
+  draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/mafia/" class="current">English</a><a href="../../de/guides/mafia/">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>

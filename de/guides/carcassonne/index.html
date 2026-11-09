@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carcassonne Punkte zählen: Anleitung zum Grundspiel — Bobr Studio</title>
+<meta name="description" content="Eine Anleitung in einfachen Worten, wie du im Grundspiel von Carcassonne Punkte zählst: Straßen, Städte, Klöster und Wiesen, während des Spiels und am Ende.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../de/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Anleitungen</a><details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../de/guides/carcassonne/" class="current">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Anleitungen</a> › Carcassonne</div>
+  <h1>Carcassonne Punkte zählen <span class="hand">das Grundspiel, Schritt für Schritt</span></h1>
+  <p class="lead">In Carcassonne wird zu zwei verschiedenen Zeitpunkten gewertet. Während des Spiels wird jede Straße, jede Stadt und jedes Kloster in dem Moment abgerechnet, in dem es fertig wird, und die Gefolgsleute (die Meeple) darauf gehen wieder nach Hause. Liegt das letzte Plättchen, wird alles, was noch unfertig ist, für weniger Punkte gewertet, und danach kommen die Wiesen, bei denen fast jeder durcheinanderkommt. Diese Seite erklärt beides mit Beispielen, und der Rechner zählt das Spielende für dich.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Deine Schlusswertung</h3>
+      <p>Schau nach dem letzten Plättchen nur auf die unfertigen Straßen, Städte und Klöster, auf denen du die meisten Gefolgsleute hast (oder gleich viele wie ein anderer Spieler), und auf die Wiesen, auf denen du die meisten Bauern hast. Zähle die Zahlen über alle zusammen.</p>
+      <div class="group">Unfertige Städte</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">Stadtplättchen<small>Plättchen mit einem Stück deiner unfertigen Städte</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="Ein Stadtplättchen weniger">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="Ein Stadtplättchen mehr">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Wappen<small>Wappenschilde in diesen Städten</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="Ein Wappen weniger">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="Ein Wappen mehr">+</button></div></div>
+      <div class="group">Unfertige Straßen</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Straßenplättchen<small>Plättchen, über die deine unfertigen Straßen führen</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="Ein Straßenplättchen weniger">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="Ein Straßenplättchen mehr">+</button></div></div>
+      <div class="group">Unfertige Klöster</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Klöster<small>deine Klöster, die noch nicht ganz umbaut sind</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="Ein Kloster weniger">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="Ein Kloster mehr">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Plättchen ringsum<small>alle 8 Nachbarn zählen, auch die Ecken; höchstens 7 je Kloster</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="Ein Plättchen ringsum weniger">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="Ein Plättchen ringsum mehr">+</button></div></div>
+      <div class="group">Wiesen</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Fertige Städte<small>die an die Wiesen grenzen, die du gewinnst, Wiese für Wiese gezählt</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="Eine fertige Stadt weniger">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="Eine fertige Stadt mehr">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 Punkte</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Den ganzen Spielstand im Handy</b><p>Score Night ersetzt die Wertungsleiste: Trag jede Straße, Stadt und jedes Kloster ein, sobald es fertig ist, und am Ende die Schlusswertung, für alle Mitspieler.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Jetzt bei Google Play</a></div>
+      <ul><li>Funktioniert ohne Internet, für 2 bis 5 Spieler</li><li>Schluss mit den verlorenen Runden auf der Leiste</li><li>Zwei Spiele kostenlos zum Ausprobieren</li></ul>
+      <div class="toc"><b>Auf dieser Seite</b><ol><li><a href="#when-to-count">Wann wird gewertet?</a></li><li><a href="#who-gets-points">Wer bekommt die Punkte?</a></li><li><a href="#roads">Straßen</a></li><li><a href="#cities">Städte und Wappen</a></li><li><a href="#monasteries">Klöster</a></li><li><a href="#fields">Wiesen</a></li><li><a href="#field-examples">Beispiele zu den Wiesen</a></li><li><a href="#mistakes">Häufige Fehler</a></li><li><a href="#who-wins">Wer gewinnt?</a></li><li><a href="#whole-game">Ein Spielende, durchgerechnet</a></li><li><a href="#common-questions">Häufige Fragen</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Wann wird gewertet?</h2>
+  <ol class="steps">
+    <li><b>Während des Spiels, in dem Moment, in dem etwas fertig wird.</b> Schließt ein Plättchen eine Straße, eine Stadt oder ein Kloster, wird sofort gewertet, auch wenn gerade ein anderer Spieler dran ist. Wer die meisten Gefolgsleute darauf hat, zieht seinen Zähler auf der Wertungsleiste vor, und danach geht jeder Gefolgsmann auf diesem Bauwerk zurück zu seinem Besitzer und kann wieder eingesetzt werden.</li>
+    <li><b>Sonst wird während des Spiels nichts gewertet.</b> Unfertiges muss warten, und Wiesen werden nie vor dem Spielende gewertet. Ein Bauer, der auf einer Wiese liegt, bleibt dort das ganze Spiel über.</li>
+    <li><b>Liegt das letzte Plättchen, ist das Spiel zu Ende.</b> Schau jetzt auf jeden Gefolgsmann, der noch auf dem Tisch steht. Jeder von ihnen steht auf etwas Unfertigem: einer Straße, einer Stadt oder einem Kloster. Werte diese nacheinander, aber für weniger Punkte als fertige (Städte und Klöster sind weniger wert, Straßen bleiben gleich).</li>
+    <li><b>Die Wiesen kommen zuletzt.</b> Sind alle unfertigen Bauwerke gezählt, werden die Wiesen mit Bauern gewertet. Eine Wiese bringt Punkte für die fertigen Städte, die an sie grenzen. Darum wertet man sie erst, wenn sich nichts mehr ändern kann.</li>
+  </ol>
+  <div class="tip">Am einfachsten räumst du den Tisch Stück für Stück ab: ein Bauwerk werten, seine Gefolgsleute wegnehmen, zum nächsten weitergehen. Wenn nur noch Bauern übrig sind, sind die Wiesen dran.</div>
+
+  <h2 id="who-gets-points">Wer bekommt die Punkte?</h2>
+  <p>Auf eine Straße, Stadt oder Wiese, auf der schon ein Gefolgsmann steht, darfst du keinen weiteren setzen, auch nicht deinen eigenen. Aber zwei getrennte Stücke mit Gefolgsleuten können später zusammenwachsen, und dann stehen mehrere Gefolgsleute auf einem Bauwerk. Wird es gewertet, zähle für jeden Spieler seine Gefolgsleute dort. Wer die meisten hat, bekommt alle Punkte. Haben zwei oder mehr Spieler gleich viele und damit die meisten, bekommt <b>jeder von ihnen die vollen Punkte</b>, es wird nichts geteilt. Spieler mit weniger Gefolgsleuten gehen leer aus. Ein Bauwerk ganz ohne Gefolgsleute bringt niemandem etwas.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Beispiel:</b> Eine fertige Stadt besteht aus 5 Plättchen und hat 2 Wappen, sie ist also 10 + 4 = 14 Punkte wert. Anna hat 2 Gefolgsleute darin, Michael auch 2, und du 1. Anna und Michael bekommen jeweils 14 Punkte. Du bekommst nichts, aber dein Gefolgsmann kommt trotzdem zurück.</div></div></div>
+
+  <h2 id="roads">Straßen</h2>
+  <div class="line"><div class="card"><h3>Was du zählst</h3>
+    <p>Geh die Straße von einem Ende bis zum anderen ab und zähle die Plättchen, über die sie führt. Eine Straße ist fertig, wenn beide Enden abgeschlossen sind: an einer Kreuzung, an einer Stadt, an einem Kloster, oder wenn sie als Kreis wieder bei sich selbst ankommt.</p>
+    <p><span class="when during">Während des Spiels</span>Eine fertige Straße bringt 1 Punkt für jedes Plättchen.</p>
+    <p><span class="when end">Am Spielende</span>Auch eine unfertige Straße bringt 1 Punkt für jedes Plättchen. Straßen sind das Einzige, was in beiden Fällen gleich viel wert ist.</p>
+    <p class="where">Wo du hinschaust: auf die Gefolgsleute, die auf Straßen stehen.</p>
+    <div class="ex"><b>Beispiel:</b> Eine Straße beginnt an einer Kreuzung, führt über 2 einfache Plättchen und endet am Tor einer Stadt. Mit dem Kreuzungsplättchen und dem Stadtplättchen berührt sie 4 Plättchen, das sind 4 Punkte. Hat am Spielende eine Straße aus 3 Plättchen noch ein offenes Ende, bringt sie 3 Punkte.</div></div></div>
+
+  <h2 id="cities">Städte und Wappen</h2>
+  <div class="line"><div class="card"><h3>Was du zählst</h3>
+    <p>Zähle die Plättchen, auf denen irgendein Stück der Stadt liegt, und danach die Wappen. Ein Wappen ist das kleine Schild, das auf manchen Stadtplättchen aufgedruckt ist. Eine Stadt ist fertig, wenn ihre Mauern rundherum geschlossen sind, ohne Lücke und ohne offene Kante.</p>
+    <p><span class="when during">Während des Spiels</span>Eine fertige Stadt bringt 2 Punkte für jedes Plättchen und 2 weitere für jedes Wappen. Die kleinste Stadt, 2 Plättchen ohne Wappen, ist 4 Punkte wert.</p>
+    <p><span class="when end">Am Spielende</span>Eine unfertige Stadt bringt nur 1 Punkt für jedes Plättchen und 1 für jedes Wappen, also halb so viel, wie sie fertig wert gewesen wäre.</p>
+    <p class="where">Wo du hinschaust: auf die Gefolgsleute, die innerhalb von Stadtmauern stehen.</p>
+    <div class="ex"><b>Beispiel:</b> Eine fertige Stadt aus 4 Plättchen mit 1 Wappen bringt 4 × 2 = 8 Punkte für die Plättchen und 2 für das Wappen, zusammen 10 Punkte. Eine unfertige Stadt aus 3 Plättchen mit 1 Wappen bringt am Spielende 3 + 1 = 4 Punkte.</div></div></div>
+
+  <h2 id="monasteries">Klöster</h2>
+  <div class="line"><div class="card"><h3>Was du zählst</h3>
+    <p>Ein Kloster steht in der Mitte seines Plättchens. Schau dir die 8 Felder um es herum an: links, rechts, oben, unten und die 4 Ecken. Das Kloster ist fertig, wenn alle 8 mit Plättchen belegt sind.</p>
+    <p><span class="when during">Während des Spiels</span>Ein fertiges Kloster bringt 9 Punkte: 1 für das Klosterplättchen und 1 für jedes der 8 Plättchen ringsum.</p>
+    <p><span class="when end">Am Spielende</span>Ein unfertiges Kloster bringt 1 Punkt für das Klosterplättchen und 1 für jedes Plättchen, das ringsum liegt. Es ist also zwischen 1 und 8 Punkte wert.</p>
+    <p class="where">Wo du hinschaust: auf die Gefolgsleute auf Klöstern. Auf einem Kloster kann immer nur ein Gefolgsmann stehen, da wird also nichts geteilt.</p>
+    <div class="ex"><b>Beispiel:</b> Am Spielende liegen rings um dein Kloster 5 Plättchen, und 3 Felder sind leer. Das sind 1 + 5 = 6 Punkte.</div></div></div>
+
+  <h2 id="fields">Wiesen</h2>
+  <div class="line"><div class="card"><h3>Was du zählst</h3>
+    <p>Eine Wiese ist ein Stück grünes Gras. Sie geht über die Plättchen hinweg, solange das Gras zusammenhängt; Straßen, Stadtmauern und der Rand der ausgelegten Plättchen schneiden sie ab, deshalb können aus einer großen Wiese am Ende mehrere getrennte Wiesen werden. Ein Gefolgsmann, der auf einer Wiese liegt, ist ein Bauer.</p>
+    <p><span class="when during">Während des Spiels</span>Nichts. Wiesen werden nie vor dem Spielende gewertet, und die Bauern bleiben, wo sie sind.</p>
+    <p><span class="when end">Am Spielende</span>Nimm dir eine Wiese mit Bauern nach der anderen vor. Finde jede <b>fertige</b> Stadt, deren Mauern an diese Wiese grenzen. Der Spieler mit den meisten Bauern auf dieser Wiese bekommt für jede dieser Städte 3 Punkte. Unfertige Städte bringen den Wiesen nichts.</p>
+    <p class="where">Wo du hinschaust: auf die Bauern im Gras, dann geh am Rand ihrer Wiese entlang und schau dir jede Stadtmauer an, die sie berührt.</p>
+    <div class="ex"><b>Beispiel:</b> Die Wiese deines Bauern grenzt an 3 fertige Städte und 1 unfertige. Das sind 3 × 3 = 9 Punkte; die unfertige Stadt zählt nicht.</div>
+    <p>Jede Wiese wird für sich gewertet. Grenzt eine Stadt an zwei verschiedene Wiesen, zählt sie für beide. Und gewinnt derselbe Spieler beide Wiesen, bringt ihm diese Stadt zweimal 3 Punkte.</p></div></div>
+  <div class="tip"><b>So findest du die Städte einer Wiese:</b> Setz einen Finger auf den Bauern und fahr das Gras nach außen ab, ohne eine Straße oder Mauer zu überqueren. Jede fertige Stadtmauer, an der dein Finger entlangläuft, zählt einmal für diese Wiese, egal wie lang die Mauer ist.</div>
+
+  <h2 id="field-examples">Beispiele zu den Wiesen</h2>
+  <div class="examples num">
+    <div class="card"><b>Eine Wiese, viele Städte</b><p>Dein Bauer ist allein auf einer großen Wiese. An ihrem Rand liegen 4 fertige und 2 unfertige Städte. Nur die fertigen zählen: 4 × 3.</p><div class="big">12 Punkte</div></div>
+    <div class="card"><b>Eine Stadt zwischen zwei Wiesen</b><p>Eine Straße teilt das Gras in zwei Hälften, und beide grenzen an dieselbe fertige Stadt. Dein Bauer steht auf der nördlichen Wiese, der von Anna auf der südlichen. Es sind zwei Wiesen, also bekommt ihr beide 3 Punkte für diese Stadt.</p><div class="big">je 3</div></div>
+    <div class="card"><b>Eine gemeinsame Wiese</b><p>Zwei Wiesen mit Bauern sind im Lauf des Spiels zusammengewachsen. Jetzt habt du und Anna je 2 Bauern darauf, und sie grenzt an 5 fertige Städte. Ihr habt gleich viele, also bekommen beide 5 × 3.</p><div class="big">je 15</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>In der Unterzahl</b><p>Dieselbe Wiese, aber Anna hat 2 Bauern und du 1. Anna hat die meisten, also bekommt sie alle 15 Punkte und du gehst bei dieser Wiese leer aus.</p><div class="big">0 für dich</div></div>
+    <div class="card"><b>Ein Spieler, zwei Wiesen</b><p>Du hast auf jeder von zwei Wiesen einen Bauern, und eine fertige Stadt grenzt an beide. Jede Wiese zählt sie einzeln, also bringt dir diese Stadt 3 + 3.</p><div class="big">6 Punkte</div></div>
+    <div class="card"><b>Keine fertigen Städte</b><p>Ein Bauer auf einer Wiese, die nur an unfertige Städte oder an gar keine Stadt grenzt, bekommt nichts. Der Bauer liegt einfach nur da.</p><div class="big">0 Punkte</div></div>
+  </div>
+
+  <h2 id="mistakes">Häufige Fehler</h2>
+  <div class="warn"><b>Diese Fehler passieren beim Zählen in Carcassonne am häufigsten</b><ul>
+    <li>Unfertige Städte am Ende wie fertige werten. Ein fertiges Stadtplättchen ist 2 Punkte wert, ein unfertiges nur 1, und bei den Wappen ist es genauso.</li>
+    <li>Das Klosterplättchen selbst vergessen. Ein unfertiges Kloster mit 5 Nachbarn ist 6 wert, nicht 5.</li>
+    <li>Unfertige Städte für die Wiesen mitzählen. Wiesen bekommen nur für fertige Städte Punkte.</li>
+    <li>Die Punkte bei Gleichstand teilen. Jeder Spieler, der gleichauf die meisten Gefolgsleute hat, bekommt die vollen Punkte.</li>
+    <li>Punkte an den Spieler mit weniger Gefolgsleuten geben. Nur wer die meisten hat, bekommt etwas.</li>
+    <li>Wiesen schon während des Spiels werten oder Bauern zurücknehmen. Bauern bleiben bis ganz zum Schluss liegen.</li>
+    <li>Vergessen, die Gefolgsleute zurückzunehmen, wenn während des Spiels ein Bauwerk gewertet wurde.</li>
+    <li>Die Mauerstücke einer Stadt statt ihrer Plättchen zählen. Zähle jedes Plättchen einmal, egal wie viel Stadt darauf zu sehen ist.</li>
+  </ul></div>
+
+  <h2 id="who-wins">Wer gewinnt?</h2>
+  <p>Dein Endergebnis ist alles, was du während des Spiels auf der Wertungsleiste gesammelt hast, plus die unfertigen Bauwerke und die Wiesen vom Spielende. Wer die meisten Punkte hat, gewinnt. Haben zwei Spieler gleich viele, teilen sie sich den Sieg. Die Leiste ist kürzer als die meisten Endergebnisse. Wenn dein Zähler also einmal ganz herum ist, vergiss nicht, die Runden dazuzurechnen.</p>
+
+  <h2 id="whole-game">Ein Spielende, durchgerechnet</h2>
+  <div class="card walk"><p>Das letzte Plättchen ist gerade gelegt worden, und dein Zähler auf der Leiste zeigt, dass du während des Spiels 64 Punkte gesammelt hast. Das liegt noch auf dem Tisch:</p><ol>
+    <li><b>Eine unfertige Stadt</b> aus 3 Plättchen mit 1 Wappen, in der nur dein Gefolgsmann steht: 3 + 1 = 4 Punkte.</li>
+    <li><b>Eine unfertige Straße</b> über 2 Plättchen mit deinem Gefolgsmann: 2 Punkte.</li>
+    <li><b>Ein unfertiges Kloster</b> mit 5 Plättchen ringsum: 1 + 5 = 6 Punkte.</li>
+    <li><b>Deine erste Wiese</b>, auf der dein Bauer allein steht, grenzt an 3 fertige Städte: 3 × 3 = 9 Punkte.</li>
+    <li><b>Deine zweite Wiese</b> teilst du dir mit Anna, jeder von euch hat einen Bauern, und sie grenzt an 2 fertige Städte. Ihr habt gleich viele, also bekommt ihr beide 2 × 3 = 6 Punkte.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 Punkte</div><p>Wenn du das mit dem Rechner oben nachprüfen willst, gib 3 Stadtplättchen, 1 Wappen, 2 Straßenplättchen, 1 Kloster mit 5 Plättchen ringsum und 5 fertige Städte für die Wiesen ein (3 von der ersten Wiese und 2 von der zweiten). Er zeigt dir die 27 Punkte, die du zu deinen 64 dazurechnest.</p></div>
+
+  <h2 id="common-questions">Häufige Fragen</h2>
+  <div class="faq">
+    <details open><summary>Bekomme ich Punkte für ein Bauwerk, auf dem kein Gefolgsmann von mir steht?</summary><p>Nein. Nur die Spieler mit den meisten Gefolgsleuten auf einem Bauwerk werten es. Eine fertige Stadt ganz ohne Gefolgsleute bringt niemandem Punkte, kann aber am Ende trotzdem den Bauern auf den Wiesen daneben helfen.</p></details>
+    <details><summary>Was ist, wenn ich ein Bauwerk fertigstelle und im selben Zug einen Gefolgsmann daraufsetze?</summary><p>Es wird sofort gewertet, und der Gefolgsmann kommt im selben Zug zu dir zurück.</p></details>
+    <details><summary>Teilen wir die Punkte, wenn wir gleichauf sind?</summary><p>Nein. Jeder Spieler, der gleichauf die meisten Gefolgsleute hat, bekommt die vollen Punkte.</p></details>
+    <details><summary>Kann eine Stadt zwei Wiesen Punkte bringen?</summary><p>Ja. Jede Wiese wird für sich gewertet, also zählt eine Stadt, die an mehrere Wiesen grenzt, für jede von ihnen einmal.</p></details>
+    <details><summary>Kommen Bauern jemals zurück?</summary><p>Nein. Ein Bauer bleibt bis zum Spielende auf seiner Wiese, überleg dir also gut, ob du schon früh einen hinlegst.</p></details>
+    <details><summary>Bringt eine Stadt aus 2 Plättchen weniger Punkte?</summary><p>Nein, nach den aktuellen Regeln sind es wie bei jeder anderen Stadt 2 Punkte pro Plättchen, also 4 Punkte, wenn sie fertig ist. Ältere Ausgaben der Regeln weichen in manchen Einzelheiten ab; wenn ihr nach einem alten Regelheft spielt, haltet euch daran.</p></details>
+    <details><summary>Und die Erweiterungen?</summary><p>Diese Anleitung behandelt nur das Grundspiel; Erweiterungen wie Wirtshäuser &amp; Kathedralen oder der Abt bringen neue Figuren mit und ändern einige Wertungen. Die erklären wir auf eigenen Seiten.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Du willst das nicht alles von Hand zählen?</b><p>In Score Night tippst du auf eine Straße, Stadt oder ein Kloster, sobald es fertig ist, wählst, wer die Punkte bekommt, und gibst am Ende ein, was noch übrig ist. Alle Summen rechnen sich von selbst, mit einem Protokoll jeder Wertung.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Inoffizielle Anleitung, in unseren eigenen Worten geschrieben. Wir stehen in keiner Verbindung zum Verlag von Carcassonne. Die Spielnamen gehören ihren jeweiligen Inhabern. Die vollständigen Regeln stehen im Regelheft des Verlags.</p>
+<script>
+  const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+  const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+  const s = (n, one, many) => `${n} ${n === 1 ? one : (many || one)}`;
+  const pts = n => s(n, 'Punkt', 'Punkte');
+  const tiles = n => s(n, 'Plättchen', 'Plättchen');
+  function score() {
+    const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+    return { city, road, mon, field, total: city + road + mon + field };
+  }
+  function draw() {
+    v.ar = Math.min(v.ar, 7 * v.mo);
+    for (const k in v) document.getElementById(k).textContent = v[k];
+    const r = score(), lines = [];
+    if (v.ct || v.sh) lines.push(`Unfertige Städte: ${tiles(v.ct)}` + (v.sh ? ` und ${s(v.sh, 'Wappen', 'Wappen')}` : '') + `, je 1 Punkt = ${pts(r.city)}`);
+    if (v.rd) lines.push(`Unfertige Straßen: ${tiles(v.rd)}, je 1 Punkt = ${pts(r.road)}`);
+    if (v.mo) lines.push(v.mo === 1
+      ? `1 unfertiges Kloster: 1 Punkt für das Kloster selbst + ${tiles(v.ar)} ringsum = ${pts(r.mon)}`
+      : `${v.mo} unfertige Klöster: 1 Punkt für jedes Kloster (${v.mo}) + ${tiles(v.ar)} ringsum = ${pts(r.mon)}`);
+    if (v.fc) lines.push(`Wiesen: ${s(v.fc, 'fertige Stadt', 'fertige Städte')}, je 3 Punkte = ${pts(r.field)}`);
+    if (lines.length) lines.push('Rechne das zu deinem Stand auf der Wertungsleiste dazu');
+    else lines.push('Trag oben ein, was noch auf dem Tisch liegt, dann erscheinen hier die Punkte');
+    document.getElementById('pts').textContent = pts(r.total);
+    document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+  }
+  document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+    const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+    v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+  });
+  draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../de/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../de/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/de/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../de/guides/carcassonne/" class="current">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>

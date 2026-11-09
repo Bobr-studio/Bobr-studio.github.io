@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to score Wingspan — Bobr Studio</title>
+<meta name="description" content="A step-by-step guide to counting points in the base game of Wingspan.">
+<link rel="icon" href="../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/guides/guide-base.css">
+<style>
+:root{--forest:#234638;--leaf:#52775B;--sky:#DCEBF0;--feather:#9D6846;--paper:#F1F5E8;--ink:#24342D;--muted:#52645A;--line:#C7D5C9;--accent:#795238}
+body{background:var(--paper) radial-gradient(circle at 90% 0,#E3F0E8,transparent 55%);color:var(--ink)}
+.top{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin-top:22px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 14px #2346380d}
+h1,h2,h3{color:var(--forest)}h2::before{content:"";display:inline-block;width:20px;height:4px;background:var(--feather);margin:0 9px 4px 0;border-radius:3px}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}.step{display:flex;align-items:center;gap:8px}.step button{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--forest);font-size:21px}.step output{min-width:26px;text-align:center;font-weight:700}.result{margin-top:14px;padding:16px;border-radius:14px;background:var(--forest);color:white}.result strong{font-size:30px;color:#DDE9B6}.result ul{padding-left:20px;line-height:1.5}.tip{background:#EAF1DE;border-left:4px solid var(--leaf);padding:12px 16px;border-radius:8px;margin-top:12px}.toc{padding:14px 18px;margin-top:16px;background:#fff;border-radius:14px}.toc ol{columns:2}.side .cta{grid-template-columns:56px 1fr}.side .cta .btn{grid-column:1/-1;justify-content:center}
+ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:10px}ol.steps li{counter-increment:s;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px 14px 58px;position:relative}ol.steps li:before{content:counter(s);position:absolute;left:14px;top:13px;background:var(--forest);color:#fff;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;font-weight:bold}
+.line{margin-top:12px}.line .card{padding:18px 20px}.where{color:var(--muted);font-size:14px}.ex{margin-top:8px;padding:9px 12px;border-radius:9px;background:#EDF3E9}.examples{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.examples .big{font-size:22px;color:var(--forest);font-weight:bold}.walk ol{padding-left:22px}.walk li{margin:7px 0}.sum{font-size:22px;font-weight:bold;color:var(--forest);margin-top:12px}.faq details{background:white;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:9px 0}.faq summary{font-weight:bold;color:var(--forest);cursor:pointer}
+@media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/guides/wingspan/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/wingspan/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/wingspan/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/wingspan/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/wingspan/" class="current">English</a><a href="../../de/guides/wingspan/">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../guides/">Scoring guides</a> › Wingspan</div>
+<h1>How to score Wingspan <span class="hand">the base game</span></h1>
+<p class="lead">At the end of the game, take each player's player board and cards, then count the score in 6 parts. The round goals need one extra check: first see which side of the goal board your game used.</p>
+<div class="top"><div class="card calc"><h3>Round goal helper</h3><p>Choose the goal side used in your game, then enter each player's count for one round. The helper shows the points for that round.</p>
+<label for="side"><b>Goal board side</b></label><select id="side"><option value="green">Green: compare players</option><option value="blue">Blue: score your count</option></select>
+<label for="round"><b>Round</b></label><select id="round"><option value="0">Round 1</option><option value="1">Round 2</option><option value="2">Round 3</option><option value="3">Round 4</option></select>
+<div id="players"></div><button id="add" type="button">Add player</button><div class="result"><strong id="out">0 points</strong><ul id="how"><li>Enter the players' counts for this round.</li></ul></div></div>
+<div class="side"><div class="cta"><img src="../../assets/score-night-icon.png" alt=""><div><b>Let Score Night keep the score sheet</b><p>Enter each scoring line for every player and compare final totals.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Get it on Google Play</a></div><div class="toc"><b>On this page</b><ol><li><a href="#when">When to count</a></li><li><a href="#birds">Bird cards</a></li><li><a href="#bonus">Bonus cards</a></li><li><a href="#goals">Round goals</a></li><li><a href="#eggs">Eggs</a></li><li><a href="#food">Cached food</a></li><li><a href="#tucked">Tucked cards</a></li><li><a href="#mistakes">Common mistakes</a></li><li><a href="#winner">Winner and ties</a></li><li><a href="#whole">A whole game</a></li><li><a href="#faq">Questions</a></li></ol></div></div></div>
+<section id="when"><h2>When to count</h2><ol class="steps"><li>After the 4th round, count each player's score. You can total the round goals as you play, then check them again at the end.</li><li>Use the same order for everyone: birds, bonus cards, round goals, eggs, food stored on bird cards, then cards tucked under birds.</li><li>Keep leftover food tokens separate. They do not add points; they only break a tie in the final score.</li></ol></section>
+<section id="birds"><h2>Bird cards</h2><div class="line"><div class="card"><b>Look at the points printed on each bird you played.</b><p>Add those printed values. The bird cards are in the rows of your player board; count only the birds you played.</p><p class="where">Where to look: the point value on each bird card in your habitat.</p><div class="ex">If your played birds show 5, 8, 3 and 7 points, this line is 23 points.</div></div></div></section>
+<section id="bonus"><h2>Bonus cards</h2><div class="line"><div class="card"><b>Read each bonus card you kept and score it using its own condition.</b><p>Check the birds or other items named by the card, count the ones that meet that condition, and use the card's scoring instruction. Add the results from your bonus cards together.</p><p class="where">Where to look: your bonus cards and the birds or items they ask you to count.</p><div class="ex">If a bonus card gives 1 point for each qualifying bird and you have 4, that card adds 4 points.</div><p>Bonus cards do not all score the same way, so check the condition on every card rather than treating them as printed bird points.</p></div></div></section>
+<section id="goals"><h2>Round goals</h2><div class="line"><div class="card"><b>Check the side of the goal board first.</b><p>The blue side scores your own count: each qualifying item is 1 point, up to 5 points in a round. The green side compares all players' counts and awards points by place. Count each round separately, then add your 4 round scores.</p><p class="where">Where to look: the goal tiles and the relevant birds, eggs, nests or other items on each player's board, as the tile describes.</p></div></div>
+<h3>Green side examples</h3><p>For green goals, only players with at least 1 qualifying item take a place. Tied players share the points for the places they occupy, rounded down; the next place is skipped.</p><div class="examples"><div class="card"><div class="big">Round 1: tie for 1st</div><p>Counts 3, 3 and 1. First and second place are worth 4 and 1, so the tied players each get 2. The player with 1 item is 3rd and gets 0.</p></div><div class="card"><div class="big">Round 4: tie for 2nd</div><p>Counts 5, 2 and 2. The leader gets 7. The tie shares 4 and 3, so each tied player gets 3.</p></div><div class="card"><div class="big">A zero is no place</div><p>In round 2, counts 2 and 0 score 5 and 0. The player with none does not take 2nd place.</p></div></div><div class="tip">On the blue side, 7 items score 5 points, not 7. On the green side, a tie changes the points for every tied player and skips the next place.</div></section>
+<section id="eggs"><h2>Eggs</h2><div class="line"><div class="card"><b>Count every egg on your bird cards.</b><p>Each egg is worth 1 point. Check all habitat rows so eggs on any bird are included.</p><p class="where">Where to look: egg tokens sitting on your bird cards.</p><div class="ex">12 eggs add 12 points.</div></div></div></section>
+<section id="food"><h2>Food stored on birds</h2><div class="line"><div class="card"><b>Count food tokens tucked onto bird cards as stored food.</b><p>Each food token stored on a bird is worth 1 point. Count those tokens once; food still in your supply is not part of this scoring line.</p><p class="where">Where to look: food tokens on bird cards that store food.</p><div class="ex">3 stored food tokens add 3 points.</div></div></div></section>
+<section id="tucked"><h2>Cards tucked under birds</h2><div class="line"><div class="card"><b>Count the cards tucked beneath your bird cards.</b><p>Each tucked card is worth 1 point, whatever points are printed on the tucked card. Do not add the bird's printed value again.</p><p class="where">Where to look: cards partly tucked under your played birds.</p><div class="ex">5 tucked cards add 5 points.</div></div></div></section>
+<section id="mistakes"><h2>Common mistakes</h2><ul><li>On the blue goal side, stop at 5 points per round even if you count more than 5 items.</li><li>On the green side, leave players with 0 items unranked, and split tied places by rounding down.</li><li>Count eggs, stored food and tucked cards as separate scoring lines.</li><li>Leftover food in your supply is only a tie-breaker; it does not add to the score.</li><li>Count tucked cards as 1 point each, not by the points printed on those cards.</li></ul></section>
+<section id="winner"><h2>Who wins?</h2><p>Add the 6 scoring lines. The player with the most points wins. If players tie, compare their leftover food tokens; the tied player with more food wins. If they still tie, they share the win.</p></section>
+<section id="whole"><h2>A whole game, counted</h2><div class="card walk"><p>Suppose your player board and cards give you 42 bird points and 9 bonus-card points. Your round goals score 2, 5, 3 and 4; you have 12 eggs, 3 stored food tokens and 5 tucked cards.</p><ol><li>Bird cards add 42 points.</li><li>Bonus cards add 9 points.</li><li>The 4 round goals add 14 points: 2 + 5 + 3 + 4.</li><li>Your 12 eggs add 12 points.</li><li>Your 3 stored food tokens add 3 points.</li><li>Your 5 tucked cards add 5 points.</li></ol><p class="sum">42 + 9 + 14 + 12 + 3 + 5 = 85 points.</p><p>If another player also scores 85, compare leftover food. For example, 3 food beats 1 food.</p></div></section>
+<section id="faq" class="faq"><h2>Questions players ask</h2><details><summary>Does leftover food score points?</summary><p>No. Keep it aside for resolving a tie on total points.</p></details><details><summary>What happens when players tie on a green goal?</summary><p>Add the points for the places they share and divide evenly, rounding down. The next place is skipped.</p></details><details><summary>Do tucked cards score their printed points?</summary><p>No. Each card tucked under a bird is worth 1 point for this end-game count.</p></details><details><summary>Does this cover expansions?</summary><p>This guide covers the base game; expansions can add different scoring rules.</p></details></section>
+<div class="cta" style="margin-top:28px"><img src="../../assets/score-night-icon.png" alt=""><div><b>Keep every player's score in one place</b><p>Score Night adds the scoring lines and shows the table totals.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Google Play</a></div>
+<p class="disclaimer">Unofficial Wingspan guide written in our own words. Bobr Studio is not affiliated with the publisher. Wingspan and its components belong to their respective owners; consult the publisher's rulebook for the full rules.</p>
+<script>
+const names=['Player 1'];let vals=[0];
+function render(){const box=document.getElementById('players');box.innerHTML=names.map((n,i)=>'<label class="row">'+n+'<input type="number" min="0" value="'+vals[i]+'" data-i="'+i+'" aria-label="'+n+' qualifying items"></label>').join('');box.querySelectorAll('input').forEach(x=>x.oninput=()=>{vals[+x.dataset.i]=Math.max(0,+x.value||0);draw()});draw()}
+function draw(){const green=document.getElementById('side').value==='green',round=+document.getElementById('round').value;let pts=vals.map(n=>green?0:Math.min(n,5)),lines=[];
+if(green){const ranking=[...new Set(vals.filter(n=>n>0))].sort((a,b)=>b-a);const table=[[4,1,0],[5,2,1],[6,3,2],[7,4,3]][round];vals.forEach((v,i)=>{if(v>0){const place=ranking.indexOf(v);const tied=vals.filter(x=>x===v).length;let sum=0;for(let j=0;j<tied;j++)sum+=table[place+j]||0;pts[i]=Math.floor(sum/tied)}});lines=vals.map((v,i)=>v===0?names[i]+': 0 items, no place, 0 points':names[i]+': '+v+(v===1?' item, ':' items, ')+pts[i]+(pts[i]===1?' point':' points'))}
+else lines=vals.map((v,i)=>names[i]+': '+v+' items, '+pts[i]+' points (maximum 5)');
+document.getElementById('out').textContent='Round '+(round+1);document.getElementById('how').innerHTML=lines.map((x,i)=>'<li>'+x+'</li>').join('')}
+document.getElementById('side').onchange=draw;document.getElementById('round').onchange=draw;document.getElementById('add').onclick=()=>{if(names.length>=5)return;names.push('Player '+(names.length+1));vals.push(0);render();if(names.length>=5)document.getElementById('add').disabled=true};render();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/wingspan/" class="current">English</a><a href="../../de/guides/wingspan/">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>

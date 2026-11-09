@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How to score Carcassonne — Bobr Studio</title>
+<meta name="description" content="A plain-words guide to counting points in the base game of Carcassonne: roads, cities, monasteries and fields, during the game and at the end.">
+<link rel="icon" href="../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/carcassonne/" class="current">English</a><a href="../../de/guides/carcassonne/">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../guides/">Scoring guides</a> › Carcassonne</div>
+  <h1>How to score Carcassonne <span class="hand">the base game, step by step</span></h1>
+  <p class="lead">In Carcassonne you score in two different moments. During the game, every road, city or monastery is scored the moment it's finished, and the meeples on it go home. When the last tile is down, everything that's still unfinished is scored for fewer points, and then come the fields, which confuse almost everyone. This page explains both, with examples, and the calculator counts the end of the game for you.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Your end-of-game count</h3>
+      <p>After the last tile, look only at the unfinished roads, cities and monasteries where you have the most meeples (or are tied for the most), and at the fields where you have the most farmers. Add up the numbers across all of them.</p>
+      <div class="group">Unfinished cities</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">City tiles<small>tiles with a piece of your unfinished cities</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="One city tile less">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="One city tile more">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Shields<small>shield badges inside those cities</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="One shield less">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="One shield more">+</button></div></div>
+      <div class="group">Unfinished roads</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Road tiles<small>tiles your unfinished roads run across</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="One road tile less">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="One road tile more">+</button></div></div>
+      <div class="group">Unfinished monasteries</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Monasteries<small>your monasteries that aren't fully surrounded</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="One monastery less">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="One monastery more">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Tiles around them<small>all 8 neighbours count, corners too; at most 7 each</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="One tile around less">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="One tile around more">+</button></div></div>
+      <div class="group">Fields</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Completed cities<small>touching the fields you win, counted field by field</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="One completed city less">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="One completed city more">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 points</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../assets/score-night-icon.png" alt=""><div><b>Keep the whole score in your phone</b><p>Score Night replaces the scoring track: record each road, city or monastery as it's finished, then the end of the game, for every player.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Get it on Google Play</a></div>
+      <ul><li>Works without internet, for 2 to 5 players</li><li>No more lost laps around the track</li><li>Two games free to try</li></ul>
+      <div class="toc"><b>On this page</b><ol><li><a href="#when-to-count">When to count</a></li><li><a href="#who-gets-points">Who gets the points</a></li><li><a href="#roads">Roads</a></li><li><a href="#cities">Cities and shields</a></li><li><a href="#monasteries">Monasteries</a></li><li><a href="#fields">Fields</a></li><li><a href="#field-examples">Field examples</a></li><li><a href="#mistakes">Common mistakes</a></li><li><a href="#who-wins">Who wins</a></li><li><a href="#whole-game">An end of game, counted</a></li><li><a href="#common-questions">Common questions</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">When to count</h2>
+  <ol class="steps">
+    <li><b>During the game, the moment something is finished.</b> When a tile closes a road, a city or a monastery, that feature is scored straight away, even if it's another player's turn. The player with the most meeples on it moves their marker along the scoring track, and then every meeple on that feature goes back to its owner, ready to be placed again.</li>
+    <li><b>Nothing else is scored during the game.</b> Unfinished features wait, and fields are never scored before the end. A farmer lying in a field stays there for the whole game.</li>
+    <li><b>When the last tile has been placed, the game ends.</b> Now look at every meeple still on the table. Each one is standing on something unfinished: a road, a city or a monastery. Score those, one feature at a time, but for fewer points than finished ones (cities and monasteries are worth less, roads stay the same).</li>
+    <li><b>Fields come last.</b> Once all unfinished features are counted, score the fields with farmers. A field earns points for the finished cities next to it, which is why you score it only when nothing can change anymore.</li>
+  </ol>
+  <div class="tip">It's easiest to clear the table as you go: score a feature, take its meeples off, move on to the next one. When only farmers are left, it's time for the fields.</div>
+
+  <h2 id="who-gets-points">Who gets the points</h2>
+  <p>You can't put a meeple on a road, city or field that already has one, even your own. But two separate pieces with meeples on them can grow and join later, and then one feature has several meeples on it. When it's scored, count each player's meeples there. The player with the most gets all the points. If two or more players are tied for the most, <b>each of them gets the full points</b>, nobody splits anything. Players with fewer meeples get nothing. A feature with no meeples at all scores for nobody.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Example:</b> a finished city has 5 tiles and 2 shields, so it's worth 10 + 4 = 14 points. Anna has 2 meeples in it, Mike has 2, and you have 1. Anna and Mike each get 14 points. You get nothing, but your meeple still comes back.</div></div></div>
+
+  <h2 id="roads">Roads</h2>
+  <div class="line"><div class="card"><h3>What you count</h3>
+    <p>Follow the road from one end to the other and count the tiles it runs across. A road is finished when both ends stop: at a crossroads, at a city, at a monastery, or when it comes back around to meet itself in a loop.</p>
+    <p><span class="when during">During the game</span>A finished road gives 1 point for each tile.</p>
+    <p><span class="when end">At the end</span>An unfinished road also gives 1 point for each tile. Roads are the only feature worth the same either way.</p>
+    <p class="where">Where to look: the meeples standing on roads.</p>
+    <div class="ex"><b>Example:</b> a road leaves a crossroads, runs over 2 plain tiles and ends at a city gate. Counting the crossroads tile and the city tile, it touches 4 tiles, so 4 points. If at the end of the game a road of 3 tiles still has an open end, it gives 3 points.</div></div></div>
+
+  <h2 id="cities">Cities and shields</h2>
+  <div class="line"><div class="card"><h3>What you count</h3>
+    <p>Count the tiles that have any part of the city on them, and then count the shields. A shield is the small coat-of-arms badge printed on some city tiles. A city is finished when its walls close all the way around with no gap and no open edge.</p>
+    <p><span class="when during">During the game</span>A finished city gives 2 points for each tile and 2 more for each shield. The smallest city, 2 tiles with no shield, is worth 4.</p>
+    <p><span class="when end">At the end</span>An unfinished city gives only 1 point for each tile and 1 for each shield, half of what it would have been worth finished.</p>
+    <p class="where">Where to look: the meeples standing inside city walls.</p>
+    <div class="ex"><b>Example:</b> a finished city of 4 tiles with 1 shield gives 4 × 2 = 8 for the tiles and 2 for the shield, 10 points. An unfinished city of 3 tiles with 1 shield at the end of the game gives 3 + 1 = 4 points.</div></div></div>
+
+  <h2 id="monasteries">Monasteries</h2>
+  <div class="line"><div class="card"><h3>What you count</h3>
+    <p>A monastery sits in the middle of its tile. Look at the 8 spaces around it: left, right, above, below and the 4 corners. The monastery is finished when all 8 are filled with tiles.</p>
+    <p><span class="when during">During the game</span>A finished monastery gives 9 points: 1 for the monastery tile and 1 for each of the 8 tiles around it.</p>
+    <p><span class="when end">At the end</span>An unfinished monastery gives 1 point for the monastery tile and 1 for each tile around it that is there. So it's worth between 1 and 8 points.</p>
+    <p class="where">Where to look: the meeples on monasteries. Only one meeple can ever be on a monastery, so there's no sharing.</p>
+    <div class="ex"><b>Example:</b> at the end of the game, your monastery has 5 tiles around it and 3 empty spaces. That's 1 + 5 = 6 points.</div></div></div>
+
+  <h2 id="fields">Fields</h2>
+  <div class="line"><div class="card"><h3>What you count</h3>
+    <p>A field is a stretch of green grass. It goes on across tiles for as long as the grass is connected; roads, city walls and the edge of the tiles on the table cut it off, so one big meadow can end up as several separate fields. A meeple lying down in a field is a farmer.</p>
+    <p><span class="when during">During the game</span>Nothing. Fields are never scored before the end, and farmers stay where they are.</p>
+    <p><span class="when end">At the end</span>Take one field with farmers at a time. Find every <b>finished</b> city whose walls touch that field. The player with the most farmers in that field gets 3 points for each of those cities. Unfinished cities give fields nothing.</p>
+    <p class="where">Where to look: the farmers lying in the grass, then walk around the edge of their field and look at every city wall it touches.</p>
+    <div class="ex"><b>Example:</b> your farmer's field touches 3 finished cities and 1 unfinished one. That's 3 × 3 = 9 points; the unfinished city doesn't count.</div>
+    <p>Every field is scored on its own. If one city touches two different fields, it counts for both of them. And if the same player wins both fields, that city earns them 3 points twice.</p></div></div>
+  <div class="tip"><b>A handy way to find a field's cities:</b> put a finger on the farmer and trace the grass outwards without crossing any road or wall. Every finished city wall your finger runs along counts once for this field, no matter how long the wall is.</div>
+
+  <h2 id="field-examples">Field examples</h2>
+  <div class="examples num">
+    <div class="card"><b>One field, many cities</b><p>Your farmer is alone in a big field. Around its edge there are 4 finished cities and 2 unfinished ones. Only the finished ones count: 4 × 3.</p><div class="big">12 points</div></div>
+    <div class="card"><b>A city between two fields</b><p>A road cuts the grass in two, and both halves touch the same finished city. Your farmer is in the north field, Anna's in the south. It's two fields, so you both get 3 for that city.</p><div class="big">3 each</div></div>
+    <div class="card"><b>A shared field</b><p>Two fields with farmers joined during the game. Now you and Anna each have 2 farmers in it, and it touches 5 finished cities. You're tied, so both get 5 × 3.</p><div class="big">15 each</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>Outnumbered</b><p>The same field, but Anna has 2 farmers and you have 1. Anna has the most, so she gets all 15 and you get nothing for this field.</p><div class="big">0 for you</div></div>
+    <div class="card"><b>One player, two fields</b><p>You have a farmer in each of two fields, and one finished city touches both. Each field counts it separately, so that city gives you 3 + 3.</p><div class="big">6 points</div></div>
+    <div class="card"><b>No finished cities</b><p>A farmer in a field that touches only unfinished cities, or no cities at all, scores nothing. The farmer just lies there.</p><div class="big">0 points</div></div>
+  </div>
+
+  <h2 id="mistakes">Common mistakes</h2>
+  <div class="warn"><b>Mistakes people make with Carcassonne scoring</b><ul>
+    <li>Scoring unfinished cities like finished ones at the end. A finished city tile is worth 2, an unfinished one only 1, and the same goes for shields.</li>
+    <li>Forgetting the monastery tile itself. An unfinished monastery with 5 neighbours is worth 6, not 5.</li>
+    <li>Counting unfinished cities for fields. Fields only get points for finished cities.</li>
+    <li>Splitting the points in a tie. Every player tied for the most meeples gets the full points.</li>
+    <li>Giving points to the player with fewer meeples. Only the player or players with the most get anything.</li>
+    <li>Scoring fields during the game, or taking farmers back. Farmers stay until the very end.</li>
+    <li>Forgetting to take meeples back after a feature is scored during the game.</li>
+    <li>Counting the city's wall pieces instead of its tiles. Count each tile once, however much city is on it.</li>
+  </ul></div>
+
+  <h2 id="who-wins">Who wins</h2>
+  <p>Your final score is everything you collected on the scoring track during the game, plus the unfinished features and the fields from the end. The player with the most points wins. If two players have the same total, they share the victory. The track is shorter than most final scores, so if your marker went around it, don't forget to add the laps.</p>
+
+  <h2 id="whole-game">An end of game, counted</h2>
+  <div class="card walk"><p>The last tile has just been placed, and your marker on the track shows that you collected 64 points during the game. Here's what's still on the table:</p><ol>
+    <li><b>An unfinished city</b> of 3 tiles with 1 shield, where you have the only meeple: 3 + 1 = 4 points.</li>
+    <li><b>An unfinished road</b> over 2 tiles with your meeple: 2 points.</li>
+    <li><b>An unfinished monastery</b> with 5 tiles around it: 1 + 5 = 6 points.</li>
+    <li><b>Your first field</b>, where your farmer is alone, touches 3 finished cities: 3 × 3 = 9 points.</li>
+    <li><b>Your second field</b> is shared with Anna, 1 farmer each, and touches 2 finished cities. You're tied, so you both get 2 × 3 = 6 points.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 points</div><p>To check this with the calculator above, enter 3 city tiles, 1 shield, 2 road tiles, 1 monastery with 5 tiles around it, and 5 finished cities for the fields (3 from the first field and 2 from the second). It shows the 27 points you add to your 64.</p></div>
+
+  <h2 id="common-questions">Common questions</h2>
+  <div class="faq">
+    <details open><summary>Do I score a feature if I don't have a meeple on it?</summary><p>No. Only the players with the most meeples on a feature score it. A finished city without any meeples gives nobody points, though it can still help the farmers in the fields next to it at the end.</p></details>
+    <details><summary>What if I finish a feature and put a meeple on it in the same turn?</summary><p>It's scored right away, and the meeple comes back to you in the same turn.</p></details>
+    <details><summary>Do we split the points when we're tied?</summary><p>No. Every player tied for the most meeples gets the full points.</p></details>
+    <details><summary>Can one city give points to two fields?</summary><p>Yes. Each field is scored on its own, so a city touching several fields counts once for each of them.</p></details>
+    <details><summary>Do farmers ever come back?</summary><p>No. A farmer stays in its field until the end of the game, so think twice before laying one down early.</p></details>
+    <details><summary>Does a 2-tile city score less?</summary><p>No, in the current rules it's 2 points per tile like any other city, so 4 points when finished. Older printings of the rules differ in some details; if you play by an old rulebook, follow it.</p></details>
+    <details><summary>What about the expansions?</summary><p>This guide covers the base game only; expansions such as Inns &amp; Cathedrals or the Abbot add new pieces and change some scores, and we'll explain them on separate pages.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../assets/score-night-icon.png" alt=""><div><b>Rather not count all this by hand?</b><p>In Score Night you tap a road, city or monastery when it's finished, pick who gets the points, and at the end enter what's left. Every total adds up by itself, with a log of every score.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Unofficial guide written in our own words. Not affiliated with the publisher of Carcassonne. Game names belong to their owners. The full rules are in the rulebook from the publisher.</p>
+<script>
+  const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+  const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+  const s = (n, one, many) => `${n} ${n === 1 ? one : (many || one + 's')}`;
+  const pts = n => s(n, 'point');
+  function score() {
+    const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+    return { city, road, mon, field, total: city + road + mon + field };
+  }
+  function draw() {
+    v.ar = Math.min(v.ar, 7 * v.mo);
+    for (const k in v) document.getElementById(k).textContent = v[k];
+    const r = score(), lines = [];
+    if (v.ct || v.sh) lines.push(`Unfinished cities: ${s(v.ct, 'tile')}` + (v.sh ? ` and ${s(v.sh, 'shield')}` : '') + `, 1 point each = ${pts(r.city)}`);
+    if (v.rd) lines.push(`Unfinished roads: ${s(v.rd, 'tile')}, 1 point each = ${pts(r.road)}`);
+    if (v.mo) lines.push(v.mo === 1
+      ? `1 unfinished monastery: 1 point for the monastery itself + ${s(v.ar, 'tile')} around it = ${pts(r.mon)}`
+      : `${v.mo} unfinished monasteries: 1 point for each monastery (${v.mo}) + ${s(v.ar, 'tile')} around them = ${pts(r.mon)}`);
+    if (v.fc) lines.push(`Fields: ${s(v.fc, 'finished city', 'finished cities')}, 3 points each = ${pts(r.field)}`);
+    if (lines.length) lines.push('Add this to your score on the track');
+    else lines.push('Add what is still on the table above, and the points will appear here');
+    document.getElementById('pts').textContent = pts(r.total);
+    document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+  }
+  document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+    const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+    v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+  });
+  draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/carcassonne/" class="current">English</a><a href="../../de/guides/carcassonne/">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>

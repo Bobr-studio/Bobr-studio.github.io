@@ -1,0 +1,257 @@
+<!doctype html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Munchkin Kampf berechnen: Stufe und Kampfstärke — Bobr Studio</title>
+<meta name="description" content="Wie Stufe, Ausrüstung und Kampfstärke im Munchkin-Grundspiel funktionieren, mit einem Kampfrechner, der erklärt, wer gewinnt.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../de/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Anleitungen</a><details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../de/guides/munchkin/" class="current">Deutsch</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Anleitungen</a> › Munchkin</div>
+  <h1>Munchkin Kampf berechnen <span class="hand">wer ist stärker, und wer gewinnt</span></h1>
+  <p class="lead">Bei Munchkin wird am Ende nicht gezählt. Stattdessen behältst du das ganze Spiel über zwei Zahlen im Blick: deine Stufe und deine Kampfstärke. Der Rechner unten entscheidet jeden Kampf in einer Sekunde und sagt dir in einfachen Worten, warum du gewonnen oder verloren hast. Weiter unten werden Stufen, Ausrüstung, Kämpfe und das Rennen zu Stufe 10 Schritt für Schritt erklärt, mit Beispielen und mit den Verwechslungen, die an fast jedem Tisch passieren.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Wer gewinnt diesen Kampf?</h3>
+      <p>Trag beide Seiten des Kampfes ein. Deine Stärke ist deine Stufe plus deine Ausrüstung, die des Monsters seine Stufe plus alle Boni, die es bekommen hat.</p>
+      <h4>Deine Seite</h4>
+      <div class="row"><span class="name">Deine Stufe<small>von 1 bis 10</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="Stufe runter">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="Stufe rauf">+</button></div></div>
+      <div class="row"><span class="name">Dein Ausrüstungsbonus<small>alle Boni der Ausrüstung, die du benutzt; kann unter null liegen</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="Weniger Ausrüstungsbonus">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="Mehr Ausrüstungsbonus">+</button></div></div>
+      <div class="row"><span class="name">Einmal-Boni<small>Tränke und andere Boni, die nur für einen Kampf gelten, für deine Seite</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="Weniger Einmal-Bonus">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="Mehr Einmal-Bonus">+</button></div></div>
+      <div class="row"><span class="name">Stärke des Helfers<small>seine Stufe plus seine Ausrüstung; lass 0 stehen, wenn dir niemand hilft</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="Weniger Stärke des Helfers">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="Mehr Stärke des Helfers">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> Auf unserer Seite kämpft ein Krieger (du oder dein Helfer)</label>
+      <h4>Das Monster</h4>
+      <div class="row"><span class="name">Stufe des Monsters<small>die Zahl, die auf dem Monster steht; bei zwei Monstern zählst du ihre Stufen zusammen</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="Niedrigere Monsterstufe">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="Höhere Monsterstufe">+</button></div></div>
+      <div class="row"><span class="name">Boni des Monsters<small>alles, was gespielt wurde, um es stärker (oder schwächer) zu machen</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="Weniger Bonus für das Monster">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="Mehr Bonus für das Monster">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">Du gewinnst!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Die Stufen des ganzen Tisches an einem Ort</b><p>Score Night behält Stufe, Ausrüstung und Kampfstärke jedes Spielers im Blick, entscheidet Kämpfe mit Helfern und Boni und würfelt sogar, wenn ihr weglauft.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Jetzt bei Google Play</a></div>
+      <ul><li>Funktioniert ohne Internet, für 3 bis 6 Spieler</li><li>Zwei Spiele kostenlos zum Ausprobieren</li></ul>
+      <div class="toc"><b>Auf dieser Seite</b><ol><li><a href="#what-you-track">Was du im Blick behältst</a></li><li><a href="#level">Deine Stufe</a></li><li><a href="#strength">Ausrüstung und Kampfstärke</a></li><li><a href="#fight">Ein Kampf, Schritt für Schritt</a></li><li><a href="#run-away">Verlieren und Weglaufen</a></li><li><a href="#who-wins">So gewinnst du</a></li><li><a href="#mistakes">Häufige Fehler</a></li><li><a href="#examples">Beispiele</a></li><li><a href="#whole-turn">Ein ganzer Kampf, durchgerechnet</a></li><li><a href="#common-questions">Häufige Fragen</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">Was du im Blick behältst</h2>
+  <p>Bei Munchkin gibt es keinen Wertungsblock und kein Zählen am Ende. Das ganze Spiel über hält jeder Spieler ein paar Dinge auf dem Laufenden, und die ändern sich ständig: nach jedem Kampf, jedem Fluch und jedem neuen Ausrüstungsstück. Es hilft, wenn jeder seine Zahlen irgendwo aufschreibt, wo alle sie sehen können.</p>
+  <ol class="steps">
+    <li><b>Deine Stufe.</b> Alle starten auf Stufe 1. Mit der Stufe gewinnst du: Wer als Erster Stufe 10 erreicht, gewinnt das Spiel.</li>
+    <li><b>Dein Ausrüstungsbonus.</b> Jedes Ausrüstungsstück, das du benutzt, gibt einen Bonus. Zähl alle zusammen, und du hast eine einzige Zahl, deinen Ausrüstungsbonus.</li>
+    <li><b>Deine Kampfstärke.</b> Das ist die Zahl, mit der du kämpfst. Sie ist deine Stufe plus dein Ausrüstungsbonus, und du musst sie nicht extra aufschreiben: Sie ändert sich, sobald sich eine der beiden Zahlen ändert.</li>
+    <li><b>Dein Geschlecht und deine Klasse.</b> Manche Karten wirken nur bei männlichen oder nur bei weiblichen Charakteren, darum sollte jeder wissen, was du bist. Und wenn dein Charakter ein Krieger ist, merk dir das gut: Krieger gewinnen Kämpfe, die unentschieden ausgehen.</li>
+  </ol>
+  <div class="tip"><b>Stufe und Kampfstärke sind nicht dasselbe.</b> Die Stufe zeigt, wie nah du am Sieg bist. Die Kampfstärke zeigt, wie hart du zuschlägst. Ein Held auf Stufe 4 mit einem Ausrüstungsbonus von 6 kämpft mit Kampfstärke 10, ist aber immer noch 6 Stufen vom Sieg entfernt.</div>
+
+  <h2 id="level">Deine Stufe: rauf und runter</h2>
+  <div class="line"><div class="card"><h3>So ändert sich deine Stufe</h3>
+    <p>Du startest auf Stufe 1. Der wichtigste Weg nach oben ist, ein Monster zu besiegen: Das bringt dir 1 Stufe, und manche größeren Monster geben 2. Wie viele, steht auf der Monsterkarte. Manche Karten können deine Stufe auch direkt erhöhen oder senken, und ein verlorener Kampf kann dich ebenfalls eine Stufe kosten, wenn es auf der Karte des Monsters steht.</p>
+    <p>Es gibt zwei Grenzen. Deine Stufe <b>sinkt nie unter 1</b>: Bist du auf Stufe 1 und etwas nimmt dir eine Stufe weg, bleibst du einfach auf 1. Und sie <b>steigt nie über 10</b>, denn mit 10 ist das Spiel vorbei.</p>
+    <p class="where">Wo du hinschaust: auf die Zahl, die du für deine Stufe notierst. Nur deine Stufe zählt für den Sieg, nie deine Kampfstärke.</p>
+    <div class="ex"><b>Beispiel:</b> Du bist auf Stufe 1 und verlierst durch ein Monster eine Stufe. Du bleibst auf Stufe 1. In der nächsten Runde besiegst du ein Monster, das 2 Stufen gibt, und steigst auf Stufe 3.</div></div></div>
+
+  <h2 id="strength">Deine Ausrüstung und Kampfstärke</h2>
+  <div class="line"><div class="card"><h3>Kampfstärke ist Stufe plus Ausrüstung</h3>
+    <p>Für deine Kampfstärke nimmst du deine Stufe und addierst die Boni der gesamten Ausrüstung, die du benutzt. Das ist deine Stärke in jedem Kampf, bis sich etwas ändert.</p>
+    <p>Ausrüstungsboni sind meistens positiv, aber die Summe kann auch unter null fallen. Das ist erlaubt und macht dich einfach schwächer: Ein Held auf Stufe 2 mit einem Ausrüstungsbonus von −3 hat eine Kampfstärke von −1. Ja, minus eins. Zeit, sich zu verstecken.</p>
+    <p class="where">Wo du hinschaust: auf deine Stufe und auf die Bonuszahl auf jedem Ausrüstungsstück, das vor dir liegt.</p>
+    <div class="ex"><b>Beispiel:</b> Stufe 4 und Ausrüstung im Wert von 2 + 3 + 1. Der Ausrüstungsbonus ist 6, also ist deine Kampfstärke 4 + 6 = 10.</div></div></div>
+
+  <div class="line"><div class="card"><h3>Einmal-Boni</h3>
+    <p>Tränke und ähnliche Karten geben einen Bonus nur für einen Kampf. Zähl sie für die Dauer dieses Kampfes zur Stärke deiner Seite dazu, und wenn der Kampf vorbei ist, sind sie weg. Sie verändern deinen Ausrüstungsbonus nicht und gelten auch nicht für deinen nächsten Kampf.</p>
+    <div class="ex"><b>Beispiel:</b> Deine Kampfstärke ist 10, und du wirfst einen Trank im Wert von 3 in den Kampf. Für diesen Kampf hat deine Seite 13. Im nächsten Kampf bist du wieder bei 10.</div></div></div>
+
+  <h2 id="fight">Ein Kampf, Schritt für Schritt</h2>
+  <ol class="steps">
+    <li><b>Zähl deine Seite.</b> Deine Kampfstärke (Stufe plus Ausrüstung), dazu alle Einmal-Boni, die für dich gespielt wurden.</li>
+    <li><b>Nimm einen Helfer dazu, wenn du einen hast.</b> Ein anderer Spieler kann sich deinem Kampf anschließen. Seine ganze Stärke, also seine Stufe plus seine Ausrüstung, wird zu deiner addiert.</li>
+    <li><b>Zähl das Monster.</b> Nimm die Stufe, die auf dem Monster steht, und addiere alle Boni, die es während des Kampfes bekommen hat (Boni können auch negativ sein und es schwächer machen). Bei zwei Monstern rechnest du beide zusammen.</li>
+    <li><b>Vergleiche.</b> Ist deine Seite <b>stärker</b> als das Monster, gewinnst du. Gleichstand reicht nicht: <b>Bei Gleichstand gewinnt das Monster</b>, es sei denn, auf deiner Seite kämpft ein Krieger (du oder dein Helfer). Dann gewinnst du den Gleichstand.</li>
+    <li><b>Hol dir deine Stufen.</b> Wenn du gewinnst, steigst du um so viele Stufen auf, wie das Monster gibt, meistens 1, manchmal 2. Bei zwei Monstern bekommst du die Stufen für beide. Dein Helfer bekommt für seine Hilfe keine Stufen, mit einer Ausnahme: Ein Elf steigt für jedes Monster, das er jemand anderem töten hilft, eine Stufe auf. Danach werden die Einmal-Boni abgeworfen.</li>
+  </ol>
+  <div class="tip"><b>Die Gleichstand-Regel in einem Satz:</b> Gleiche Zahlen heißen, das Monster gewinnt, außer auf deiner Seite steht ein Krieger. Diese Regel vergessen die meisten am häufigsten, und sie entscheidet erstaunlich viele Kämpfe.</div>
+
+  <h2 id="run-away">Verlieren und Weglaufen</h2>
+  <p>Ist das Monster stärker, oder es steht unentschieden und kein Krieger ist dabei, verlierst du den Kampf. Aber noch hat es dich nicht: Du darfst weglaufen. Würfle mit einem Würfel. Bei einer <b>5 oder 6</b> entkommst du. Bei einer 1, 2, 3 oder 4 schaffst du es nicht, und das Monster tut mit dir, was auf seiner Karte für Verlierer steht. Das kann dich eine Stufe kosten, einen Teil deiner Ausrüstung oder etwas noch Schlimmeres, ändere deine Zahlen also sofort.</p>
+  <p>Am schlimmsten ist es, wenn dein Charakter stirbt. Im Grundspiel scheidet dabei niemand aus: Du verlierst deine Ausrüstung, dein Ausrüstungsbonus fällt also auf 0, aber <b>deine Stufe bleibt, wie sie war</b>. Dann spielst du weiter.</p>
+  <div class="tip">Prüfe nach einem verlorenen Kampf zwei Zahlen: deine Stufe und deinen Ausrüstungsbonus. Deine Kampfstärke richtet sich von selbst, denn sie ist ja nur die Summe der beiden.</div>
+
+  <h2 id="who-wins">So gewinnst du</h2>
+  <p>Wer als Erster <b>Stufe 10</b> erreicht, gewinnt. Einen Haken gibt es: Die letzte Stufe, von 9 auf 10, bekommt man normalerweise <b>nur dadurch, dass man ein Monster tötet</b>. Eine Karte, die dir einfach eine Stufe schenkt, bringt dich nicht von 9 auf 10, es sei denn, auf der Karte steht, dass sie das darf.</p>
+  <p>Deine Stufe geht nie über 10 hinaus. Bist du auf Stufe 9 und besiegst ein Monster, das 2 Stufen gibt, erreichst du Stufe 10, nicht 11, und gewinnst trotzdem.</p>
+  <div class="warn"><b>Fehler, die kurz vor dem Ziel passieren</b><ul>
+    <li>Von 9 auf 10 mit einer Karte statt mit einem Kampf aufsteigen. Für die 10. Stufe braucht es ein erlegtes Monster, es sei denn, die Karte erlaubt es ausdrücklich.</li>
+    <li>Dem Helfer eine Stufe geben (nur ein Elf bekommt eine). Wenn du jemandem hilft, ein Monster zu töten, während du auf Stufe 9 bist, steigst du nicht auf: Nur der Spieler, der gekämpft hat, bekommt die Stufen.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Häufige Fehler</h2>
+  <div class="warn"><ul>
+    <li>Stufe und Kampfstärke verwechseln. Du kämpfst mit der Kampfstärke, aber du gewinnst das Spiel mit der Stufe.</li>
+    <li>Einen Gleichstand für einen Sieg halten. Gleiche Stärke heißt, das Monster gewinnt, außer auf deiner Seite steht ein Krieger.</li>
+    <li>Den Bonus eines Tranks nach dem Kampf behalten. Einmal-Boni gelten nur für einen Kampf.</li>
+    <li>Nur die Stufe des Helfers dazurechnen. Der Helfer bringt seine Stufe und seine Ausrüstung mit, seine ganze Stärke.</li>
+    <li>Unter Stufe 1 fallen. Stufe 1 ist der Boden; verlierst du dort eine Stufe, ändert sich nichts.</li>
+    <li>Beim Sterben die Stufe verlieren. Der Tod nimmt dir die Ausrüstung, nicht die Stufe.</li>
+  </ul></div>
+
+  <h2 id="examples">Beispiele</h2>
+  <div class="examples num">
+    <div class="card"><b>Einfache Kampfstärke</b><p>Stufe 4 mit einem Ausrüstungsbonus von 6. Deine Kampfstärke ist 4 + 6.</p><div class="big">Kampfstärke 10</div></div>
+    <div class="card"><b>Ein Gleichstand</b><p>Kampfstärke 10 gegen ein Monster mit 10. Ohne Krieger gewinnt das Monster. Bist du ein Krieger, gewinnst du.</p><div class="big">Monster, oder Krieger</div></div>
+    <div class="card"><b>Ausrüstung unter null</b><p>Stufe 2 mit einem Ausrüstungsbonus von −3. Deine Kampfstärke ist 2 − 3.</p><div class="big">Kampfstärke −1</div></div>
+    <div class="card"><b>Mit Helfer</b><p>Deine 10, dazu ein Helfer auf Stufe 3 mit Ausrüstung 2 (das sind 5), gegen ein Monster mit 10. 15 ist mehr als 10.</p><div class="big">Du gewinnst</div></div>
+    <div class="card"><b>Das große Finale</b><p>Du bist auf Stufe 9 und tötest ein Monster, das 2 Stufen gibt. Du hörst bei 10 auf, nicht bei 11.</p><div class="big">Stufe 10, du gewinnst das Spiel</div></div>
+    <div class="card"><b>Weglaufen</b><p>Du hast verloren und würfelst eine 4: Pech gehabt, tu, was auf der Monsterkarte steht. Mit einer 5 oder 6 wärst du entkommen.</p><div class="big">5 oder 6 zum Entkommen</div></div>
+  </div>
+
+  <h2 id="whole-turn">Ein ganzer Kampf, durchgerechnet</h2>
+  <div class="card walk"><ol>
+    <li><b>Deine Kampfstärke:</b> Du bist auf Stufe 6 mit einem Ausrüstungsbonus von 4. 6 + 4 = 10.</li>
+    <li><b>Das Monster:</b> Es hat Stufe 12 und bekommt während des Kampfes einen Bonus von +3. 12 + 3 = 15. Dir fehlen 5.</li>
+    <li><b>Ein Trank:</b> Du benutzt einen im Wert von 2. Deine Seite hat jetzt 10 + 2 = 12. Es fehlen immer noch 3.</li>
+    <li><b>Ein Helfer:</b> Ein anderer Spieler auf Stufe 3 mit Ausrüstung 2 schließt sich dir an. Seine Stärke ist 3 + 2 = 5, also hat deine Seite 12 + 5 = 17.</li>
+    <li><b>Vergleichen:</b> 17 gegen 15. Deine Seite ist stärker, du gewinnst. (Hätte es 15 gegen 15 gestanden, bräuchtest du einen Krieger auf deiner Seite, um zu gewinnen.)</li>
+    <li><b>Stufen:</b> Das Monster gibt 1 Stufe, du steigst von 6 auf 7 auf. Dein Helfer bleibt auf Stufe 3.</li>
+    <li><b>Aufräumen:</b> Der Trank ist weg. Deine Kampfstärke ist wieder deine Stufe plus deine Ausrüstung: 7 + 4 = 11.</li>
+  </ol><div class="sum num">17 gegen 15: Du gewinnst, Stufe 6 → 7, Kampfstärke jetzt 11</div></div>
+
+  <h2 id="common-questions">Häufige Fragen</h2>
+  <div class="faq">
+    <details open><summary>Wer gewinnt bei Gleichstand?</summary><p>Das Monster, es sei denn, auf deiner Seite kämpft ein Krieger. Bist du oder dein Helfer ein Krieger, gewinnst du den Gleichstand.</p></details>
+    <details><summary>Ist meine Kampfstärke dasselbe wie meine Stufe?</summary><p>Nein. Die Kampfstärke ist deine Stufe plus dein Ausrüstungsbonus, und mit ihr kämpfst du. Für den Sieg zählt nur deine Stufe.</p></details>
+    <details><summary>Kann meine Kampfstärke negativ sein?</summary><p>Ja. Liegt dein Ausrüstungsbonus unter null, kann auch deine Kampfstärke unter null fallen: Stufe 2 mit Ausrüstung −3 ergibt Kampfstärke −1.</p></details>
+    <details><summary>Kann meine Stufe unter 1 fallen?</summary><p>Nein. Stufe 1 ist das Minimum. Verlierst du auf Stufe 1 eine Stufe, bleibst du einfach auf 1.</p></details>
+    <details><summary>Steigt mein Helfer auch eine Stufe auf?</summary><p>Nein. Nur der Spieler, der das Monster bekämpft hat, bekommt die Stufen. Der Helfer steuert seine Stärke bei, und das war es.</p></details>
+    <details><summary>Kann ich mit einer Karte Stufe 10 erreichen?</summary><p>Normalerweise nicht: Die 10. Stufe gibt es nur für ein getötetes Monster. Die einzige Ausnahme ist eine Karte, auf der ausdrücklich steht, dass sie dich dorthin bringen darf.</p></details>
+    <details><summary>Was passiert, wenn ich sterbe?</summary><p>Du verlierst deine Ausrüstung, dein Ausrüstungsbonus geht also auf 0. Deine Stufe bleibt gleich, und du spielst weiter.</p></details>
+    <details><summary>Was ist, wenn ich gegen zwei Monster gleichzeitig kämpfe?</summary><p>Rechne beide Monster zusammen: ihre Stufen und ihre Boni. Wenn du gewinnst, bekommst du die Stufen von beiden.</p></details>
+    <details><summary>Und die Erweiterungen?</summary><p>Diese Anleitung behandelt nur das Grundspiel; Erweiterungen und andere Munchkin-Spiele bringen eigene Rassen, Klassen und Regeln mit (eines wird sogar bis Stufe 20 gespielt), schaut also in deren Regelheft.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Du willst lieber die Monster im Auge behalten?</b><p>In Score Night stehen Stufe, Ausrüstung und Kampfstärke aller Spieler auf einem Bildschirm, Kämpfe rechnen sich von selbst, und die App lässt niemanden ohne erlegtes Monster auf Stufe 10 schleichen.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">Inoffizielle Anleitung, in unseren eigenen Worten geschrieben. Wir stehen in keiner Verbindung zum Verlag von Munchkin. Die Spielnamen gehören ihren jeweiligen Inhabern. Die vollständigen Regeln stehen im Regelheft des Verlags.</p>
+<script>
+  const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+  const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+  const n = x => x < 0 ? '−' + (-x) : String(x);
+  const term = (name, x) => ` + ${name} ${n(x)}`;
+  function fight(s, warrior) {
+    const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+    let side = `Stufe ${s.lvl}` + term('Ausrüstung', s.gear);
+    if (s.once) side += term('Einmal-Bonus', s.once);
+    if (s.help) side += term('Helfer', s.help);
+    const lines = [`Deine Seite: ${side} = ${n(you)}`,
+      s.mbon ? `Monster: Stufe ${s.mlvl}${term('Boni', s.mbon)} = ${n(mon)}` : `Monster: Stufe ${s.mlvl}`];
+    const won = you > mon || (you === mon && warrior);
+    if (you > mon) lines.push(`${n(you)} ist mehr als ${n(mon)}, also besiegst du das Monster.`);
+    else if (you === mon && warrior) lines.push(`${n(you)} gegen ${n(mon)} ist ein Gleichstand. Bei Gleichstand gewinnt eigentlich das Monster, aber auf deiner Seite kämpft ein Krieger, also gewinnst du.`);
+    else if (you === mon) lines.push(`${n(you)} gegen ${n(mon)} ist ein Gleichstand, und der geht ans Monster. 1 Kampfstärke mehr oder ein Krieger auf deiner Seite würde den Kampf gewinnen.`);
+    else lines.push(`${n(you)} ist weniger als ${n(mon)}, also gewinnt das Monster. Dir fehlen noch ${mon - you + (warrior ? 0 : 1)} Kampfstärke zum Sieg.`);
+    if (won) {
+      lines.push(s.lvl >= 9 ? 'Du steigst auf Stufe 10 auf und gewinnst das Spiel!'
+        : s.lvl === 8 ? 'Du steigst eine Stufe auf, auf 9. Gibt das Monster 2 Stufen, erreichst du Stufe 10 und gewinnst das Spiel!'
+        : `Du steigst eine Stufe auf, auf ${s.lvl + 1} (oder auf ${s.lvl + 2}, wenn das Monster 2 Stufen gibt).`);
+      if (s.help) lines.push("Dein Helfer bekommt keine Stufe (es sei denn, er ist ein Elf).");
+    } else lines.push('Würfle zum Weglaufen: Bei einer 5 oder 6 entkommst du. Sonst passiert, was auf der Monsterkarte steht.');
+    return { won, head: won ? 'Du gewinnst!' : 'Das Monster gewinnt', lines };
+  }
+  function draw() {
+    for (const k in v) document.getElementById(k).textContent = n(v[k]);
+    const r = fight(v, document.getElementById('warrior').checked);
+    document.getElementById('pts').textContent = r.head;
+    document.getElementById('box').classList.toggle('lost', !r.won);
+    document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+  }
+  document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+  document.getElementById('warrior').onchange = draw;
+  draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../de/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../de/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/de/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../de/guides/munchkin/" class="current">Deutsch</a></div></details>
+</div></footer>
+</body>
+</html>
