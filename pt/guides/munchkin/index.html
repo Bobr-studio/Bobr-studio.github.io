@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="pt">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Como contar níveis e combate em Munchkin — Bobr Studio</title>
+<meta name="description" content="Como funcionam os níveis, equipamento e força de combate no Munchkin base, com uma calculadora de combate que explica quem ganha.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../pt/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Regras dos jogos</a><details class="langs"><summary>🌐 Português</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/" class="current">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Regras dos jogos</a> › Munchkin</div>
+  <h1>Como contar níveis e combate em Munchkin <span class="hand">quem é mais forte e quem ganha</span></h1>
+  <p class="lead">No Munchkin não tem pontuação no final. Em vez disso, você fica de olho em dois números durante todo o jogo: seu nível e sua força de combate. A calculadora abaixo resolve qualquer luta em um segundo e diz em palavras simples por que você ganhou ou perdeu. Mais abaixo, explicamos níveis, equipamentos, lutas e a corrida para o nível 10, passo a passo, com exemplos e confusões que acontecem em quase todas as mesas.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Quem ganha essa luta?</h3>
+      <p>Insira os dois lados da luta. Sua força é seu nível mais seu equipamento, e a do monstro é o nível dele mais quaisquer bônus que ele tenha recebido.</p>
+      <h4>Seu lado.</h4>
+      <div class="row"><span class="name">Seu nível<small>de 1 a 10</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="Abaixar nível">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="Subir nível">+</button></div></div>
+      <div class="row"><span class="name">Bônus de seu equipamento<small>todos os bônus do equipamento que você está usando; pode ser abaixo de zero</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="Menos bônus de equipamento">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="Mais bônus de equipamento">+</button></div></div>
+      <div class="row"><span class="name">Bônus de uso único<small>poções e outros bônus de uma luta para o seu lado</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="Menos bônus de uso único">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="Mais bônus de uso único">+</button></div></div>
+      <div class="row"><span class="name">Força do ajudante<small>o nível dele mais o equipamento dele; deixe 0 se ninguém estiver ajudando</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="Menos força do ajudante">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="Mais força do ajudante">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> Um Guerreiro está lutando do nosso lado (você ou seu ajudante)</label>
+      <h4>O monstro</h4>
+      <div class="row"><span class="name">Nível do monstro<small>o número impresso no monstro; para dois monstros, some os níveis</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="Nível do monstro mais baixo">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="Nível do monstro mais alto">+</button></div></div>
+      <div class="row"><span class="name">Bônus do monstro<small>qualquer coisa jogada para torná-lo mais forte (ou mais fraco)</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="Menos bônus do monstro">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="Mais bônus do monstro">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">Você venceu!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Mantenha os níveis de toda a mesa em um só lugar</b><p>Score Night rastreia o nível, o equipamento e a força de cada jogador, resolve lutas com ajudantes e bônus, e até rola o dado quando você foge.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Baixe no Google Play</a></div>
+      <ul><li>Funciona sem internet, para 3 a 6 jogadores</li><li>Duas partidas de cada jogo grátis</li></ul>
+      <div class="toc"><b>Nesta página</b><ol><li><a href="#what-you-track">O que você acompanha</a></li><li><a href="#level">Seu nível</a></li><li><a href="#strength">Equipamento e força</a></li><li><a href="#fight">Uma luta, passo a passo</a></li><li><a href="#run-away">Perder e fugir</a></li><li><a href="#who-wins">Como você vence</a></li><li><a href="#mistakes">Erros comuns</a></li><li><a href="#examples">Exemplos</a></li><li><a href="#whole-turn">Uma luta completa, contada</a></li><li><a href="#common-questions">Perguntas comuns</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">O que você acompanha</h2>
+  <p>No Munchkin não tem uma ficha de pontuação nem contagem no final. Durante o jogo, cada jogador mantém algumas coisas atualizadas, e elas mudam o tempo todo: depois de cada luta, de cada maldição e de cada novo equipamento. Ajuda muito se cada jogador mantiver seus números em algum lugar onde todos possam ver.</p>
+  <ol class="steps">
+    <li><b>Seu nível.</b> Todo mundo começa no nível 1. O nível é o que você usa para vencer: o primeiro jogador a chegar ao nível 10 vence o jogo.</li>
+    <li><b>Bônus de equipamento.</b> Cada item que você está usando dá um bônus. Some todos eles e você terá um número, seu bônus de equipamento.</li>
+    <li><b>Força de combate.</b> Este é o número com que você luta. É o seu nível mais o bônus de equipamento, e você não o mantém separadamente: ele muda sempre que qualquer um dos dois muda.</li>
+    <li><b>Seu sexo e sua classe.</b> Algumas cartas só funcionam em personagens masculinos ou femininos, então todo mundo deve saber qual é o seu. E se seu personagem for um Guerreiro, lembre-se disso: Guerreiros vencem lutas que terminam em empate.</li>
+  </ol>
+  <div class="tip"><b>Nível e força não são a mesma coisa.</b> Nível é o quão perto você está de vencer. Força é o quão forte você acerta. Um herói nível 4 com um bônus de equipamento de 6 luta com uma força de 10, mas ainda está a 6 níveis de distância da vitória.</div>
+
+  <h2 id="level">Seu nível: subindo e descendo</h2>
+  <div class="line"><div class="card"><h3>Como seu nível muda</h3>
+    <p>Você começa no Nível 1. O jeito principal de subir é vencendo um Monstro: ele te dá 1 Nível, e Monstros maiores dão 2. A carta do Monstro indica quantos. Algumas cartas também podem subir ou descer seu Nível diretamente, e perder um combate também pode te custar um Nível, se a carta do Monstro mandar.</p>
+    <p>Tem dois limites. Seu Nível <b>nunca fica abaixo de 1</b>: se você estiver no Nível 1 e algo tirar um Nível, você simplesmente continua no 1. E ele <b>nunca passa de 10</b>, porque o 10 é o fim do jogo.</p>
+    <p class="where">Onde olhar: é o número que você mantém para o seu Nível. Somente o seu Nível conta para vencer, nunca a sua Força.</p>
+    <div class="ex"><b>Exemplo:</b> você está no Nível 1 e perde um Nível para um Monstro. Você fica no Nível 1. Na rodada seguinte, você vence um Monstro que dá 2 Níveis, então você sobe para o Nível 3.</div></div></div>
+
+  <h2 id="strength">Seu Equipamento e Força no Combate</h2>
+  <div class="line"><div class="card"><h3>A Força é o Nível mais o Equipamento</h3>
+    <p>Para calcular sua Força no Combate, pegue seu Nível e some os bônus de todo o Equipamento que você está usando. Essa é sua Força para cada combate até que algo mude.</p>
+    <p>Os bônus de Equipamento geralmente são positivos, mas o total pode cair abaixo de zero. Isso é permitido, e simplesmente te deixa mais fraco: um herói Nível 2 com bônus de Equipamento de −3 tem uma Força no Combate de −1. Sim, menos um. Hora de se esconder.</p>
+    <p class="where">Onde olhar: seu Nível, mais o número de bônus em cada peça de Equipamento que está à sua frente.</p>
+    <div class="ex"><b>Exemplo:</b> Nível 4 e Equipamento que vale 2 + 3 + 1. O bônus de Equipamento é 6, então sua Força é 4 + 6 = 10.</div></div></div>
+
+  <div class="line"><div class="card"><h3>Bônus de Uso Único (poções…)</h3>
+    <p>Poções e cartas parecidas dão um bônus só para um combate. Você adiciona esse bônus à Força do seu lado durante aquele combate, e quando a luta acaba, eles somem. Eles não mudam seu bônus de Equipamento e não são passados para o próximo combate.</p>
+    <div class="ex"><b>Exemplo:</b> sua Força é 10 e você joga uma poção que vale 3 em um combate. Para esta luta, seu lado tem 13. No próximo combate, você volta para 10.</div></div></div>
+
+  <h2 id="fight">Um combate, passo a passo</h2>
+  <ol class="steps">
+    <li><b>Conte seu lado.</b> Sua Força (Nível mais Equipamento), mais quaisquer Bônus de Uso Único jogados por você.</li>
+    <li><b>Adicione um Ajudante, se tiver um.</b> Outro jogador pode participar do seu combate. Toda a Força dele, Nível mais Equipamento, é adicionada à sua.</li>
+    <li><b>Conte o Monstro.</b> Pegue o Nível impresso no Monstro e adicione quaisquer bônus que ele tenha recebido durante o combate (os bônus também podem ser negativos e deixar ele mais fraco). Se houver dois Monstros, some os dois.</li>
+    <li><b>Compare.</b> Se o seu lado for <b>mais forte</b> que o Monstro, você vence. Ser igual não é suficiente: <b>Empate — o monstro vence</b>, a não ser que um Guerreiro esteja lutando do seu lado (você ou seu Ajudante). Nesse caso, o empate é seu.</li>
+    <li><b>Colete seus Níveis.</b> Se você vencer, você sobe pelo número de Níveis que o Monstro dá, geralmente 1, às vezes 2. Com dois Monstros, você leva os Níveis dos dois. Seu Ajudante não ganha Níveis por ajudar, com uma exceção: um Elfo sobe um Nível para cada Monstro que ele ajuda alguém a matar. Depois disso, os Bônus de Uso Único são descartados.</li>
+  </ol>
+  <div class="tip"><b>A regra do empate em uma linha:</b> números iguais significam que o Monstro vence, a não ser que haja um Guerreiro do seu lado. É a regra que as pessoas esquecem mais vezes, e ela decide um número surpreendente de combates.</div>
+
+  <h2 id="run-away">Derrota e Fuga</h2>
+  <p>Se o Monstro for mais forte, ou se for um empate sem um Guerreiro, você perde o combate. Mas você ainda não foi pego: você pode tentar fugir. Role um dado. Com <b>5 ou 6</b>, você escapa. Se sair 1, 2, 3 ou 4, você não escapa, e o Monstro faz o que a carta dele diz que faz com os perdedores. Isso pode custar um Nível, algum do seu Equipamento ou algo pior, então atualize seus números imediatamente.</p>
+  <p>O pior resultado é que seu personagem morre. No jogo base, ninguém é nocauteado: você perde seu Equipamento, então seu bônus de Equipamento cai para 0, mas <b>seu Nível permanece como estava</b>. Aí você continua.</p>
+  <div class="tip">Depois de uma luta perdida, verifique dois números: seu Nível e seu bônus de Equipamento. Sua Força se ajustará sozinha, já que é só a soma dos dois.</div>
+
+  <h2 id="who-wins">Como você vence</h2>
+  <p>O primeiro jogador a chegar no <b>Nível 10</b> vence. Tem uma ressalva: o último Nível, de 9 para 10, normalmente <b>só pode ser vencido matando um Monstro</b>. Uma carta que apenas dá um Nível não vai te levar de 9 para 10, a não ser que a carta diga que pode.</p>
+  <p>O seu nível nunca passa de 10. Se você estiver no nível 9 e vencer um monstro que dá 2 níveis, você chega ao nível 10, e não ao 11, e você ainda assim ganha.</p>
+  <div class="warn"><b>Erros que as pessoas cometem no final</b><ul>
+    <li>Chegar do nível 9 para o 10 com uma carta, em vez de uma luta. O nível 10 exige um monstro morto, a menos que a carta permita explicitamente.</li>
+    <li>Dar um nível ao ajudante (só um Elfo ganha). Se você ajudar alguém a matar um monstro enquanto você está no nível 9, você não sobe: só o jogador que lutou ganha os níveis.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Erros comuns</h2>
+  <div class="warn"><ul>
+    <li>Confundir nível com força. Você luta com força, mas você ganha o jogo com nível.</li>
+    <li>Chamar um empate de vitória. Força igual significa que o monstro vence, a menos que um Guerreiro esteja do seu lado.</li>
+    <li>Manter o bônus de uma poção após a luta. Bônus de uso único duram apenas uma luta.</li>
+    <li>Somar apenas o nível do ajudante. O ajudante traz o nível e o equipamento dele, toda a força dele.</li>
+    <li>Cair abaixo do nível 1. O Nível 1 é o piso; perder um nível lá não muda nada.</li>
+    <li>Perder seu nível quando você morre. Morte leva seu equipamento, não seu nível.</li>
+  </ul></div>
+
+  <h2 id="examples">Exemplos.</h2>
+  <div class="examples num">
+    <div class="card"><b>Força básica</b><p>Nível 4 com um bônus de equipamento de 6. Sua força é 4 + 6.</p><div class="big">Força 10.</div></div>
+    <div class="card"><b>Um empate</b><p>Força 10 contra um monstro com 10. Sem um Guerreiro, o monstro vence. Se você for um Guerreiro, você vence.</p><div class="big">Monstro, ou Guerreiro.</div></div>
+    <div class="card"><b>Equipamento abaixo de zero</b><p>Nível 2 com um bônus de equipamento de −3. Sua força é 2 − 3.</p><div class="big">Força −1.</div></div>
+    <div class="card"><b>Com um ajudante</b><p>Seus 10, mais um ajudante no nível 3 com equipamento 2 (o que dá 5), contra um monstro com 10. 15 é mais que 10.</p><div class="big">Você vence.</div></div>
+    <div class="card"><b>O grande final</b><p>Você está no nível 9 e mata um monstro que dá 2 níveis. Você para no 10, não no 11.</p><div class="big">Nível 10, você vence o jogo.</div></div>
+    <div class="card"><b>Fugindo</b><p>Você perdeu e rola um 4: azar, faça o que a carta do monstro diz. Um 5 ou um 6 teria te tirado.</p><div class="big">5 ou 6 para escapar.</div></div>
+  </div>
+
+  <h2 id="whole-turn">Uma luta inteira, contada.</h2>
+  <div class="card walk"><ol>
+    <li><b>Sua força:</b> você está no nível 6 com um bônus de equipamento de 4. 6 + 4 = 10.</li>
+    <li><b>O monstro:</b> ele está no nível 12 e ganha um bônus de +3 durante a luta. 12 + 3 = 15. Você está 5 pontos atrás.</li>
+    <li><b>Uma poção:</b> você usa uma que vale 2. Seu lado agora tem 10 + 2 = 12. Ainda falta 3.</li>
+    <li><b>Um ajudante:</b> outro jogador no nível 3 com equipamento 2 te junta. A força dele é 3 + 2 = 5, então seu lado tem 12 + 5 = 17.</li>
+    <li><b>Compare:</b> 17 contra 15. Seu lado é mais forte, então você vence. (Se fosse 15 contra 15, você precisaria de um Guerreiro do seu lado para vencer.)</li>
+    <li><b>Níveis:</b> o monstro dá 1 nível, então você passa de 6 para 7. Seu ajudante fica no nível 3.</li>
+    <li><b>Limpeza:</b> a poção se foi. Sua força volta ao seu nível mais seu equipamento: 7 + 4 = 11.</li>
+  </ol><div class="sum num">17 contra 15: você vence, nível 6 → 7, força agora 11.</div></div>
+
+  <h2 id="common-questions">Perguntas comuns</h2>
+  <div class="faq">
+    <details open><summary>Quem vence um empate?</summary><p>O monstro, a menos que um Guerreiro esteja lutando do seu lado. Se você ou seu ajudante for um Guerreiro, um empate é uma vitória para você.</p></details>
+    <details><summary>Minha força é a mesma que meu nível?</summary><p>Não. Força é o seu nível mais o seu bônus de equipamento, e é com isso que você luta. Só o seu nível conta para vencer.</p></details>
+    <details><summary>Minha força pode ser negativa?</summary><p>Sim. Se o seu bônus de equipamento for abaixo de zero, sua força também pode cair abaixo de zero: nível 2 com equipamento −3 é força −1.</p></details>
+    <details><summary>Meu nível pode cair abaixo de 1?</summary><p>Não. O Nível 1 é o mínimo. Se você perder um nível no nível 1, você simplesmente fica no 1.</p></details>
+    <details><summary>Meu ajudante sobe de nível também?</summary><p>Não. Só o jogador que lutou contra o monstro ganha os níveis. O ajudante soma a força dele e pronto.</p></details>
+    <details><summary>Eu consigo chegar ao nível 10 com uma carta?</summary><p>Normalmente não: o 10º nível só vem de matar um monstro. A única exceção é uma carta que diga abertamente que pode te levar até lá.</p></details>
+    <details><summary>O que acontece quando eu morro?</summary><p>Você perde seu equipamento, então o seu bônus de equipamento vai para 0. Seu nível permanece o mesmo, e você continua jogando.</p></details>
+    <details><summary>E se eu lutar contra dois monstros de uma vez?</summary><p>Some os dois monstros: os níveis e os bônus deles. Se você vencer, você ganha os níveis de ambos.</p></details>
+    <details><summary>E as expansões?</summary><p>Este guia cobre apenas o jogo base; suplementos e outros conjuntos Munchkin adicionam suas próprias raças, classes e regras (um deles joga até o nível 20), então confira os livros de regras deles.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Será que devemos ficar de olho nos monstros?</b><p>No Score Night, o nível, o equipamento e a força de todo mundo ficam numa tela só. Os combates são somados sozinhos, e o app não permite que ninguém chegue ao nível 10 sem matar.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">Guia não oficial escrito com as nossas próprias palavras. Não é afiliado à editora do Munchkin. Os nomes dos jogos pertencem aos seus donos. As regras completas estão no livrinho de regras da editora.</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "Nível {v}",
+ "termGear": "Equipamento {v}",
+ "termOnce": "Bônus de uso único {v}",
+ "termHelper": "Ajudante {v}",
+ "termBonuses": "Bônus {v}",
+ "yourSide": "Seu lado: {expr} = {total}",
+ "monsterSum": "Monstro: {expr} = {total}",
+ "monsterPlain": "Monstro: {expr}",
+ "killMonster": "{you} é mais que {mon}, então você mata o monstro.",
+ "tieWarriorWins": "{you} contra {mon} é um empate. Empates vão para o monstro, mas um Guerreiro está lutando do seu lado, então você vence.",
+ "tieMonsterWins": "{you} contra {mon} é um empate, e o empate vai para o monstro. Mais 1 de força, ou um Guerreiro do seu lado, venceria.",
+ "monsterWins": {
+  "one": "{you} é menor que {mon}, então o monstro vence. Você precisa de {n} mais de força para vencer.",
+  "other": "{you} é menor que {mon}, então o monstro vence. Você precisa de {n} mais de força para vencer."
+ },
+ "levelWin": "Você chega ao nível 10 e vence o jogo!",
+ "levelUpTo9": "Você sobe um nível, para 9. Se o monstro der 2 níveis, você chega a 10 e vence o jogo!",
+ "levelUp": "Você sobe um nível, para {a} (ou para {b} se o monstro der 2 níveis).",
+ "helperNoLevel": "Seu ajudante não ganha um nível (a menos que o ajudante seja um Elfo).",
+ "runAway": "Role um dado para fugir: 5 ou 6 te tira. Caso contrário, faça o que a carta do monstro diz.",
+ "headWin": "Você venceu!",
+ "headLose": "O monstro venceu"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../pt/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../pt/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/pt/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Português</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/" class="current">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

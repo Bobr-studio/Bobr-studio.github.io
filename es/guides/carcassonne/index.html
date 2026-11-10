@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cómo contar los puntos en Carcassonne — Bobr Studio</title>
+<meta name="description" content="Una guía sencilla para contar puntos en el juego base de Carcassonne: caminos, ciudades, monasterios y campos, durante la partida y al final.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../es/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Reglas de los juegos</a><details class="langs"><summary>🌐 Español</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/" class="current">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Reglas de los juegos</a> › Carcassonne</div>
+  <h1>Cómo contar los puntos en Carcassonne <span class="hand">juego base, paso a paso</span></h1>
+  <p class="lead">En Carcassonne puntúas en dos momentos diferentes. Durante la partida, cada camino, ciudad o monasterio se puntúa en el momento en que se completa, y los seguidores que están sobre él vuelven a casa. Cuando se coloca la última loseta, todo lo que sigue inacabado se puntúa con menos puntos, y luego vienen los campos, que confunden a casi todos. Esta página explica ambos casos, con ejemplos, y la calculadora lleva la cuenta del final de la partida por ti.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Tu recuento de fin de partida</h3>
+      <p>Después de la última loseta, mira solo los caminos, ciudades y monasterios inacabados donde tienes más seguidores (o estás empatado por la mayor cantidad), y los campos donde tienes más granjeros. Suma los números de todos ellos.</p>
+      <div class="group">Ciudades inacabadas</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">Losetas de ciudad<small>losetas con una parte de tus ciudades inacabadas</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="Una loseta de ciudad menos">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="Una loseta de ciudad más">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Escudos<small>insignias de escudo dentro de esas ciudades</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="Un escudo menos">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="Un escudo más">+</button></div></div>
+      <div class="group">Caminos inacabados</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Losetas de camino<small>losetas por las que pasan tus caminos inacabados</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="Una loseta de camino menos">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="Una loseta de camino más">+</button></div></div>
+      <div class="group">Monasterios inacabados</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Monasterios<small>tus monasterios que no están completamente rodeados</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="Un monasterio menos">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="Un monasterio más">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Losetas alrededor<small>las 8 vecinas cuentan, también las esquinas; como máximo 7 cada una</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="Una loseta alrededor menos">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="Una loseta alrededor más">+</button></div></div>
+      <div class="group">Campos</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Ciudades completadas<small>que tocan los campos que ganas, contados campo a campo</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="Una ciudad completada menos">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="Una ciudad completada más">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 puntos</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Mantén toda la puntuación en tu móvil</b><p>Score Night sustituye la pista de puntuación: registra cada camino, ciudad o monasterio cuando se completa, y al final de la partida, para cada jugador.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Consíguelo en Google Play</a></div>
+      <ul><li>Funciona sin internet, para 2 a 5 jugadores</li><li>Ya no más vueltas perdidas alrededor de la pista</li><li>Dos partidas de cada juego gratis</li></ul>
+      <div class="toc"><b>En esta página</b><ol><li><a href="#when-to-count">Cuándo contar</a></li><li><a href="#who-gets-points">Quién recibe los puntos</a></li><li><a href="#roads">Caminos</a></li><li><a href="#cities">Ciudades y escudos</a></li><li><a href="#monasteries">Monasterios</a></li><li><a href="#fields">Campos</a></li><li><a href="#field-examples">Ejemplos de campos</a></li><li><a href="#mistakes">Errores comunes</a></li><li><a href="#who-wins">Quién gana</a></li><li><a href="#whole-game">Un fin de partida, contado</a></li><li><a href="#common-questions">Preguntas habituales</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Cuándo contar</h2>
+  <ol class="steps">
+    <li><b>Durante la partida, en el momento en que algo se completa.</b> Cuando una loseta cierra un camino, una ciudad o un monasterio, esa característica se puntúa de inmediato, aunque sea el turno de otro jugador. El jugador con más seguidores sobre ella avanza su marcador en la pista de puntuación, y luego cada seguidor de esa característica vuelve a su dueño, listo para colocarse de nuevo.</li>
+    <li><b>No se puntúa nada más durante la partida.</b> Las características inacabadas esperan, y los campos nunca se puntúan antes del final. Un granjero que está en un campo permanece allí durante toda la partida.</li>
+    <li><b>Cuando se ha colocado la última loseta, la partida termina.</b> Ahora mira cada seguidor que aún está sobre la mesa. Cada uno está sobre algo inacabado: un camino, una ciudad o un monasterio. Puntúa esos, una característica a la vez, pero con menos puntos que los completados (las ciudades y monasterios valen menos, los caminos permanecen igual).</li>
+    <li><b>Los campos van al final.</b> Cuando ya hayas contado todo lo inacabado, puntúa los campos con granjeros. Un campo suma puntos por las ciudades completadas que tiene al lado, así que solo lo puntúas cuando ya no puede cambiar nada.</li>
+  </ol>
+  <div class="tip">Lo más fácil es ir despejando la mesa mientras juegas: puntúa una característica, retira sus seguidores, y pasa a la siguiente. Cuando solo queden granjeros, es momento de los campos.</div>
+
+  <h2 id="who-gets-points">¿Quién puntúa?</h2>
+  <p>No puedes poner un seguidor en un Camino, Ciudad o Campo si ya hay uno, incluso si es tuyo. Pero dos piezas separadas con seguidores pueden crecer y unirse más tarde, y así una característica puede tener varios seguidores. Cuando puntúes, cuenta los seguidores de cada jugador allí. El jugador con más recibe todos los puntos. Si dos o más jugadores están empatados por más seguidores, <b>todos reciben todos los puntos</b>, nadie divide nada. Los jugadores con menos seguidores no obtienen nada. Una característica sin seguidores puntúa para nadie.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Ejemplo:</b> una ciudad completada tiene 5 losetas y 2 escudos, por lo que vale 10 + 4 = 14 puntos. Laura tiene 2 seguidores en ella, Javier tiene 2, y tú tienes 1. Laura y Javier obtienen 14 puntos cada uno. Tú no recibes nada, pero tu seguidor vuelve a estar.</div></div></div>
+
+  <h2 id="roads">Caminos</h2>
+  <div class="line"><div class="card"><h3>Lo que cuentas</h3>
+    <p>Sigue el camino de un extremo a otro y cuenta las losetas que atraviesa. Un camino está terminado cuando ambos extremos se detienen: en una intersección, en una ciudad, en un monasterio o cuando se curva para encontrarse a sí mismo en un bucle.</p>
+    <p><span class="when during">Durante el juego</span>Un camino terminado da 1 punto por cada loseta.</p>
+    <p><span class="when end">Al final</span>Un camino inacabado también da 1 punto por cada loseta. Los Caminos son la única característica que vale lo mismo en ambos casos.</p>
+    <p class="where">Dónde mirar: los seguidores que están en los caminos.</p>
+    <div class="ex"><b>Ejemplo:</b> un camino sale de una intersección, atraviesa 2 losetas normales y termina en una puerta de ciudad. Contando la loseta de la intersección y la loseta de la ciudad, toca 4 losetas, por lo que da 4 puntos. Si al final de la partida un camino de 3 losetas todavía tiene un extremo abierto, da 3 puntos.</div></div></div>
+
+  <h2 id="cities">Ciudades y escudos</h2>
+  <div class="line"><div class="card"><h3>Lo que cuentas</h3>
+    <p>Cuenta las losetas que tengan alguna parte de la ciudad, y luego cuenta los escudos. Un escudo es la pequeña insignia de blasón impresa en algunas losetas de la ciudad. Una ciudad está terminada cuando sus murallas cierran completamente sin huecos ni bordes abiertos.</p>
+    <p><span class="when during">Durante el juego</span>Una ciudad completada da 2 puntos por cada loseta y 2 más por cada escudo. La ciudad más pequeña, con 2 losetas y sin escudo, vale 4.</p>
+    <p><span class="when end">Al final</span>Una ciudad inacabada da solo 1 punto por cada loseta y 1 por cada escudo, la mitad de lo que valdría si estuviera completada.</p>
+    <p class="where">Dónde mirar: los seguidores que están dentro de las murallas de la ciudad.</p>
+    <div class="ex"><b>Ejemplo:</b> una ciudad completada de 4 losetas con 1 escudo da 4 × 2 = 8 por las losetas y 2 por el escudo, 10 puntos. Una ciudad inacabada de 3 losetas con 1 escudo al final de la partida da 3 + 1 = 4 puntos.</div></div></div>
+
+  <h2 id="monasteries">Monasterios</h2>
+  <div class="line"><div class="card"><h3>Lo que cuentas</h3>
+    <p>Un monasterio está en el centro de su loseta. Mira los 8 espacios a su alrededor: izquierda, derecha, arriba, abajo y las 4 esquinas. El monasterio está terminado cuando los 8 están llenos de losetas.</p>
+    <p><span class="when during">Durante el juego</span>Un monasterio terminado da 9 puntos: 1 por la loseta del monasterio y 1 por cada una de las 8 losetas a su alrededor.</p>
+    <p><span class="when end">Al final</span>Un monasterio inacabado da 1 punto por la loseta del monasterio y 1 por cada loseta a su alrededor que esté ahí. Por lo tanto, vale entre 1 y 8 puntos.</p>
+    <p class="where">Dónde mirar: los seguidores en los monasterios. Solo puede haber un seguidor en un monasterio, así que no hay reparto.</p>
+    <div class="ex"><b>Ejemplo:</b> al final de la partida, tu monasterio tiene 5 losetas a su alrededor y 3 espacios vacíos. Eso es 1 + 5 = 6 puntos.</div></div></div>
+
+  <h2 id="fields">Campos</h2>
+  <div class="line"><div class="card"><h3>Lo que cuentas</h3>
+    <p>Un campo es una extensión de césped verde. Se extiende a través de losetas mientras el césped esté conectado; los caminos, las murallas de la ciudad y el borde de las losetas en la mesa lo cortan, así que un prado grande puede convertirse en varios campos separados. Un seguidor tumbado en un campo es un granjero.</p>
+    <p><span class="when during">Durante el juego</span>Nada. Los campos nunca se puntúan antes del final, y los granjeros se quedan donde están.</p>
+    <p><span class="when end">Al final</span>Toma un campo con granjeros a la vez. Busca todas las <b>ciudades terminadas</b> cuyos muros tocan ese campo. El jugador con más granjeros en ese campo obtiene 3 puntos por cada una de esas ciudades. Las ciudades sin terminar no dan puntos a los campos.</p>
+    <p class="where">Dónde mirar: los granjeros tumbados en la hierba, luego camina por el borde de su campo y mira cada muro de ciudad que toque.</p>
+    <div class="ex"><b>Ejemplo:</b> el campo de tu granjero toca 3 ciudades terminadas y 1 sin terminar. Eso son 3 × 3 = 9 puntos; la ciudad sin terminar no cuenta.</div>
+    <p>Cada campo se puntúa por separado. Si una ciudad toca dos campos diferentes, cuenta para ambos. Y si el mismo jugador gana ambos campos, esa ciudad le da 3 puntos dos veces.</p></div></div>
+  <div class="tip"><b>Una forma práctica de encontrar las ciudades de un campo:</b> pon un dedo en el granjero y traza la hierba hacia afuera sin cruzar ningún camino ni muro. Cada muro de ciudad terminada por el que pase tu dedo cuenta una vez para este campo, sin importar lo largo que sea el muro.</div>
+
+  <h2 id="field-examples">Ejemplos de campos</h2>
+  <div class="examples num">
+    <div class="card"><b>Un campo, muchas ciudades</b><p>Tu granjero está solo en un gran campo. Alrededor de su borde hay 4 ciudades terminadas y 2 sin terminar. Solo cuentan las terminadas: 4 × 3.</p><div class="big">12 puntos</div></div>
+    <div class="card"><b>Una ciudad entre dos campos</b><p>Un camino corta la hierba en dos, y ambas mitades tocan la misma ciudad terminada. Tu granjero está en el campo del norte, el de Ana en el del sur. Son dos campos, así que los dos obtenéis 3 por esa ciudad.</p><div class="big">3 cada uno</div></div>
+    <div class="card"><b>Un campo compartido</b><p>Dos campos con granjeros unidos durante el juego. Ahora tú y Ana tenéis cada uno 2 granjeros en él, y toca 5 ciudades terminadas. Estáis empatados, así que los dos obtenéis 5 × 3.</p><div class="big">15 cada uno</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>Superado en número</b><p>El mismo campo, pero Ana tiene 2 granjeros y tú tienes 1. Ana tiene más, así que ella se lleva todos los 15 y tú no obtienes nada por este campo.</p><div class="big">0 para ti</div></div>
+    <div class="card"><b>Un jugador, dos campos</b><p>Tienes un granjero en cada uno de dos campos, y una ciudad terminada toca ambos. Cada campo la cuenta por separado, así que esa ciudad te da 3 + 3.</p><div class="big">6 puntos</div></div>
+    <div class="card"><b>Sin ciudades terminadas</b><p>Un granjero en un campo que solo toca ciudades sin terminar, o ninguna ciudad, no puntúa. El granjero solo está ahí.</p><div class="big">0 puntos</div></div>
+  </div>
+
+  <h2 id="mistakes">Errores comunes</h2>
+  <div class="warn"><b>Errores que la gente comete al puntuar Carcassonne</b><ul>
+    <li>Puntuar ciudades sin terminar como si estuvieran terminadas al final. Una loseta de ciudad terminada vale 2, una sin terminar solo 1, y lo mismo pasa con los escudos.</li>
+    <li>Olvidarse de la loseta del monasterio mismo. Un monasterio sin terminar con 5 vecinos vale 6, no 5.</li>
+    <li>Contar ciudades sin terminar para los campos. Los campos solo obtienen puntos por ciudades terminadas.</li>
+    <li>Dividir los puntos en un empate. Cada jugador empatado por más seguidores obtiene los puntos completos.</li>
+    <li>Dar puntos al jugador con menos seguidores. Solo el jugador o jugadores con más obtienen algo.</li>
+    <li>Puntuar campos durante el juego, o retirar seguidores. Los seguidores se quedan hasta el final.</li>
+    <li>Olvidarse de retirar seguidores después de puntuar una característica durante el juego.</li>
+    <li>Contar las piezas del muro de la ciudad en lugar de sus losetas. Cuenta cada loseta una vez, sin importar cuánta ciudad haya en ella.</li>
+  </ul></div>
+
+  <h2 id="who-wins">¿Quién gana?</h2>
+  <p>Tu puntuación final es todo lo que recogiste en la pista de puntuación durante el juego, más las características sin terminar y los campos del final. El jugador con más puntos gana. Si dos jugadores tienen la misma puntuación total, comparten la victoria. La pista es más corta que la mayoría de las puntuaciones finales, así que si tu marcador dio la vuelta, no te olvides de añadir las vueltas.</p>
+
+  <h2 id="whole-game">Un final de partida, contado</h2>
+  <div class="card walk"><p>Acaban de colocar la última loseta, y tu marcador en la pista muestra que recogiste 64 puntos durante el juego. Aquí está lo que aún hay en la mesa:</p><ol>
+    <li><b>Una ciudad sin terminar</b> de 3 losetas con 1 escudo, donde tienes el único seguidor: 3 + 1 = 4 puntos.</li>
+    <li><b>Un camino sin terminar</b> sobre 2 losetas con tu seguidor: 2 puntos.</li>
+    <li><b>Un monasterio sin terminar</b> con 5 losetas alrededor: 1 + 5 = 6 puntos.</li>
+    <li><b>Tu primer campo</b>, donde tu granjero está solo, toca 3 ciudades terminadas: 3 × 3 = 9 puntos.</li>
+    <li><b>Tu segundo campo</b> es compartido con Ana, 1 granjero cada uno, y toca 2 ciudades terminadas. Estáis empatados, así que los dos obtenéis 2 × 3 = 6 puntos.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 puntos</div><p>Para comprobar esto con la calculadora de arriba, introduce 3 losetas de ciudad, 1 escudo, 2 losetas de camino, 1 monasterio con 5 losetas alrededor y 5 ciudades completadas para los campos (3 del primer campo y 2 del segundo). Muestra los 27 puntos que añades a tus 64.</p></div>
+
+  <h2 id="common-questions">Preguntas comunes</h2>
+  <div class="faq">
+    <details open><summary>¿Punto una característica si no tengo un seguidor en ella?</summary><p>No. Solo los jugadores con más seguidores en una característica puntúan. Una ciudad terminada sin seguidores no da puntos a nadie, aunque puede ayudar a los granjeros en los campos al lado al final.</p></details>
+    <details><summary>¿Qué pasa si termino una característica y pongo un seguidor en ella en el mismo turno?</summary><p>Se puntúa al instante, y el seguidor vuelve a ti en el mismo turno.</p></details>
+    <details><summary>¿Dividimos los puntos cuando estamos empatados?</summary><p>No. Cada jugador empatado con más seguidores recibe los puntos completos.</p></details>
+    <details><summary>¿Puede una ciudad dar puntos a dos campos?</summary><p>Sí. Cada campo se puntúa por separado, así que una ciudad que toca varios campos cuenta una vez para cada uno de ellos.</p></details>
+    <details><summary>¿Los granjeros vuelven alguna vez?</summary><p>No. Un granjero se queda en su campo hasta el final de la partida, así que piénsalo dos veces antes de ponerlo temprano.</p></details>
+    <details><summary>¿Una ciudad de 2 losetas puntúa menos?</summary><p>No, en las reglas actuales son 2 puntos por loseta como cualquier otra ciudad, así que 4 puntos cuando está terminada. Las impresiones antiguas de las reglas difieren en algunos detalles; si juegas por un libro de reglas antiguo, síguelo.</p></details>
+    <details><summary>¿Y las expansiones?</summary><p>Esta guía cubre solo el juego base; las expansiones como Posadas y Catedrales o el Abad añaden nuevas piezas y cambian algunas puntuaciones, y las explicaremos en páginas separadas.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>¿Prefieres no contar todo esto a mano?</b><p>En Score Night tocas un camino, ciudad o monasterio cuando está terminado, eliges quién recibe los puntos, y al final introduces lo que queda. Cada total se suma por sí mismo, con un registro de cada puntuación.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Guía no oficial escrita con nuestras propias palabras. No está afiliada con el editor de Carcassonne. Los nombres de los juegos pertenecen a sus dueños. Las reglas completas están en el libro de reglas del editor.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} punto",
+  "other": "{n} puntos"
+ },
+ "tiles": {
+  "one": "{n} loseta",
+  "other": "{n} losetas"
+ },
+ "shields": {
+  "one": "{n} escudo",
+  "other": "{n} escudos"
+ },
+ "finishedCities": {
+  "one": "{n} ciudad completada",
+  "other": "{n} ciudades completadas"
+ },
+ "cityLine": "Ciudades inacabadas: {tiles}, 1 punto cada una = {pts}",
+ "cityShieldLine": "Ciudades inacabadas: {tiles} y {shields}, 1 punto cada una = {pts}",
+ "roadLine": "Caminos inacabados: {tiles}, 1 punto cada uno = {pts}",
+ "monasteryLine": {
+  "one": "{n} monasterio inacabado: 1 punto por el monasterio en sí + {tiles} alrededor = {pts}",
+  "other": "{n} monasterios inacabados: 1 punto por cada monasterio ({n}) + {tiles} alrededor = {pts}"
+ },
+ "fieldLine": "Campos: {cities}, 3 puntos cada uno = {pts}",
+ "addToTrack": "Añade esto a tu puntuación en el marcador",
+ "emptyHint": "Añade lo que queda en la mesa de arriba, y los puntos aparecerán aquí"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../es/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../es/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/es/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Español</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/" class="current">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

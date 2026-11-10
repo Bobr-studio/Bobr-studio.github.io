@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>如何为《展翅翱翔》计分 — Bobr Studio</title>
+<meta name="description" content="一步步教你在《展翅翱翔》基础版里怎么算分。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+:root{--forest:#234638;--leaf:#52775B;--sky:#DCEBF0;--feather:#9D6846;--paper:#F1F5E8;--ink:#24342D;--muted:#52645A;--line:#C7D5C9;--accent:#795238}
+body{background:var(--paper) radial-gradient(circle at 90% 0,#E3F0E8,transparent 55%);color:var(--ink)}
+.top{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin-top:22px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 14px #2346380d}
+h1,h2,h3{color:var(--forest)}h2::before{content:"";display:inline-block;width:20px;height:4px;background:var(--feather);margin:0 9px 4px 0;border-radius:3px}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}.step{display:flex;align-items:center;gap:8px}.step button{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--forest);font-size:21px}.step output{min-width:26px;text-align:center;font-weight:700}.result{margin-top:14px;padding:16px;border-radius:14px;background:var(--forest);color:white}.result strong{font-size:30px;color:#DDE9B6}.result ul{padding-left:20px;line-height:1.5}.tip{background:#EAF1DE;border-left:4px solid var(--leaf);padding:12px 16px;border-radius:8px;margin-top:12px}.toc{padding:14px 18px;margin-top:16px;background:#fff;border-radius:14px}.toc ol{columns:2}.side .cta{grid-template-columns:56px 1fr}.side .cta .btn{grid-column:1/-1;justify-content:center}
+ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:10px}ol.steps li{counter-increment:s;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px 14px 58px;position:relative}ol.steps li:before{content:counter(s);position:absolute;left:14px;top:13px;background:var(--forest);color:#fff;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;font-weight:bold}
+.line{margin-top:12px}.line .card{padding:18px 20px}.where{color:var(--muted);font-size:14px}.ex{margin-top:8px;padding:9px 12px;border-radius:9px;background:#EDF3E9}.examples{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.examples .big{font-size:22px;color:var(--forest);font-weight:bold}.walk ol{padding-left:22px}.walk li{margin:7px 0}.sum{font-size:22px;font-weight:bold;color:var(--forest);margin-top:12px}.faq details{background:white;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:9px 0}.faq summary{font-weight:bold;color:var(--forest);cursor:pointer}
+@media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/zh/guides/wingspan/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/wingspan/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/wingspan/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/wingspan/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/wingspan/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/wingspan/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/wingspan/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/wingspan/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/wingspan/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/wingspan/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/wingspan/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/wingspan/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/wingspan/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/wingspan/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/wingspan/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">规则指南</a><details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/wingspan/">English</a><a href="../../../ru/guides/wingspan/">Русский</a><a href="../../../uk/guides/wingspan/">Українська</a><a href="../../../pl/guides/wingspan/">Polski</a><a href="../../../cs/guides/wingspan/">Čeština</a><a href="../../../de/guides/wingspan/">Deutsch</a><a href="../../../fr/guides/wingspan/">Français</a><a href="../../../es/guides/wingspan/">Español</a><a href="../../../pt/guides/wingspan/">Português</a><a href="../../../tr/guides/wingspan/">Türkçe</a><a href="../../../ja/guides/wingspan/">日本語</a><a href="../../../ko/guides/wingspan/">한국어</a><a href="../../../zh/guides/wingspan/" class="current">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">规则指南</a> › 展翅翱翔</div>
+<h1>如何为《展翅翱翔》<span class="hand">基础版</span>计分</h1>
+<p class="lead">游戏结束时，拿出每位玩家的玩家板和卡牌，按 6 个部分来算分。回合目标要多查一步：先看你们这局用的是目标板的哪一面。</p>
+<div class="top"><div class="card calc"><h3>回合目标小助手</h3><p>选一下你们用的目标面，再填每位玩家这一回合的数量，小助手就会算出该回合的分数。</p>
+<label for="side"><b>目标板面</b></label><select id="side"><option value="green">绿色面：玩家比拼</option><option value="blue">蓝色面：按你的数量计分</option></select>
+<label for="round"><b>回合</b></label><select id="round"><option value="0">第 1 回合</option><option value="1">第 2 回合</option><option value="2">第 3 回合</option><option value="3">第 4 回合</option></select>
+<div id="players"></div><button id="add" type="button">添加玩家</button><div class="result"><strong id="out">0 分</strong><ul id="how"><li>填入各位玩家这一回合的数量。</li></ul></div></div>
+<div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>让 Score Night 帮你记分表</b><p>把每位玩家的每一项分数都填进去，最后一对比总分。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ 在 Google Play 获取</a></div><div class="toc"><b>本页内容</b><ol><li><a href="#when">什么时候算分</a></li><li><a href="#birds">鸟卡</a></li><li><a href="#bonus">奖励卡</a></li><li><a href="#goals">回合目标</a></li><li><a href="#eggs">蛋</a></li><li><a href="#food">卡上的食物</a></li><li><a href="#tucked">塞在下方的卡</a></li><li><a href="#mistakes">常见错误</a></li><li><a href="#winner">赢家与平分</a></li><li><a href="#whole">完整一局</a></li><li><a href="#faq">常见问题</a></li></ol></div></div></div>
+<section id="when"><h2>什么时候算分</h2><ol class="steps"><li>打完第 4 回合后，给每位玩家算总分。你们可以边玩边把回合目标的分加起来，最后再核对一遍。</li><li>大家按同一个顺序来：鸟卡、奖励卡、回合目标、蛋、鸟卡上的食物、塞在鸟卡下方的卡。</li><li>把剩余食物代币单独放着。它们不加分，只在最终分数打平时用来定胜负。</li></ol></section>
+<section id="birds"><h2>鸟卡</h2><div class="line"><div class="card"><b>看一下你打出的每张鸟卡上印的分数。</b><p>把那些印刷分数加起来。鸟卡放在你玩家板的几行里；只数你打出的鸟。</p><p class="where">去哪看：你栖息地里每张鸟卡上的分数值。</p><div class="ex">如果你打出的鸟显示 5、8、3 和 7 分，这一行就是 23 分。</div></div></div></section>
+<section id="bonus"><h2>奖励卡</h2><div class="line"><div class="card"><b>逐张看你留下的奖励卡，按卡上自己的条件来计分。</b><p>看卡上提到的鸟或其他东西，数出符合条件的有几个，再按卡上的计分说明算分。把你所有奖励卡的结果加在一起。</p><p class="where">去哪看：你的奖励卡，还有它们让你数的鸟或物品。</p><div class="ex">如果一张奖励卡说每只符合条件的鸟给 1 分，而你有 4 只，这张卡就加 4 分。</div><p>奖励卡的计分方式不都一样，所以要逐张看条件，别把它们当成鸟卡上的印刷分。</p></div></div></section>
+<section id="goals"><h2>回合目标</h2><div class="line"><div class="card"><b>先看目标板用的是哪一面。</b><p>蓝色面按你自己的数量计分：每个符合条件的物品 1 分，单回合最多 5 分。绿色面则把所有玩家的数量比一比，按名次给分。每回合单独算，最后把你的 4 个回合分数加起来。</p><p class="where">去哪看：目标贴纸，以及每位玩家板上贴纸描述的相关鸟、蛋、巢或其他物品。</p></div></div>
+<h3>绿色面示例</h3><p>绿色目标下，只有至少有 1 个符合条件物品的玩家才占名次。打平的玩家平分他们占据的名次对应的分数，向下取整；下一个名次则跳过。</p><div class="examples"><div class="card"><div class="big">第 1 回合：并列第 1</div><p>数量分别是 3、3 和 1。第 1 名 4 分，第 2 名 1 分，两个并列的玩家各得 2 分。只有 1 个物品的玩家是第 3 名，得 0 分。</p></div><div class="card"><div class="big">第 4 回合：并列第 2</div><p>数量分别是 5、2 和 2。领先者得 7 分。并列的两人平分 4 分和 3 分，所以每人得 3 分。</p></div><div class="card"><div class="big">零不占名次</div><p>第 2 回合，数量 2 和 0 分别得 5 分和 0 分。没有物品的玩家不占第 2 名。</p></div></div><div class="tip">蓝色面上，7 个物品得 5 分，不是 7 分。绿色面上，打平会改变每个并列玩家的分数，并跳过下一个名次。</div></section>
+<section id="eggs"><h2>蛋</h2><div class="line"><div class="card"><b>数一下你鸟卡上的每一个蛋。</b><p>每个蛋值 1 分。把所有栖息地行都查一遍，别漏掉任何鸟上的蛋。</p><p class="where">去哪看：放在你鸟卡上的蛋代币。</p><div class="ex">12 个蛋加 12 分。</div></div></div></section>
+<section id="food"><h2>卡上的食物</h2><div class="line"><div class="card"><b>把塞在鸟卡上的食物标记算作存储食物。</b><p>每枚存储在鸟身上的食物标记算作 1 分。只计算一次这些标记；你手牌里剩下的食物不计入这一项分数。</p><p class="where">怎么看：在储存食物的鸟卡上的食物标记。</p><div class="ex">3 个存储食物标记可以加 3 分。</div></div></div></section>
+<section id="tucked"><h2>塞在鸟卡下方的卡片</h2><div class="line"><div class="card"><b>计算你鸟卡下方塞着的卡片。</b><p>每张塞在下方的卡都算作 1 分，不管这张卡上印了多少分数。你不要再重复计算鸟卡上的分数。</p><p class="where">怎么看：部分塞在你已出鸟卡下的卡片。</p><div class="ex">5 张塞在下方的卡可以加 5 分。</div></div></div></section>
+<section id="mistakes"><h2>常见的错误</h2><ul><li>在蓝色面目标下，每回合得分达到 5 分就要停止，即使你计算的数量超过 5。</li><li>在绿色面目标下，不给玩家任何未排名的数量（即数量为 0），平局的名次则向下取整来决定。</li><li>请将蛋、存储食物和塞在下方的卡视为不同的计分项。</li><li>你手牌里剩余的食物只作为平局时的决定因素；它不会增加你的分数。</li><li>塞在下方的卡按每张 1 分计算，而不是根据卡上印的分数来算。</li></ul></section>
+<section id="winner"><h2>谁获胜呢？</h2><p>把 6 项计分相加。分数最高的玩家获胜。如果出现平局，则比较大家剩余食物标记的数量；食物更多的平局玩家获胜。如果仍然平局，你们共同分享胜利。</p></section>
+<section id="whole"><h2>完整游戏，全部计算完毕</h2><div class="card walk"><p>假设你的玩家板和卡片让你获得了 42 分鸟卡分数和 9 分奖励卡分数。你的回合目标得分为 2、5、3 和 4；你有 12 个蛋，3 个存储食物标记和 5 张塞在下方的卡。</p><ol><li>鸟卡贡献了 42 分。</li><li>奖励卡贡献了 9 分。</li><li>这 4 个回合目标加起来是 14 分：2 + 5 + 3 + 4。</li><li>你的 12 个蛋可以加 12 分。</li><li>你的 3 个存储食物标记可以加 3 分。</li><li>你的 5 张塞在下方的卡可以加 5 分。</li></ol><p class="sum">42 + 9 + 14 + 12 + 3 + 5 = 85 分。</p><p>如果另一位玩家也得了 85 分，那就比较你们的剩余食物。举例来说，3 个食物比 1 个食物要多。</p></div></section>
+<section id="faq" class="faq"><h2>玩家常问的问题</h2><details><summary>剩余食物会计分吗？</summary><p>不会。请把它单独留着，用于解决总分数平局的情况。</p></details><details><summary>如果在绿色面目标上出现平局，该怎么办呢？</summary><p>把他们共享的这些名次的分数加起来，平均分配给他们，并且向下取整。接下来那个名次就跳过了。</p></details><details><summary>塞在下方的卡会根据它印的分数计分吗？</summary><p>不会。在这个结束阶段的计分中，每一张塞在鸟卡下的卡都算作 1 分。</p></details><details><summary>这套规则涵盖了扩展包吗？</summary><p>这份指南涵盖了基础游戏；扩展包可能会增加不同的计分规则。</p></details></section>
+<div class="cta" style="margin-top:28px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>把所有玩家的分数都集中在一个地方</b><p>Score Night 会帮你计算这些计分项，并显示最终的总分。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Google Play</a></div>
+<p class="disclaimer">这是我们自己撰写的展翅翱翔非官方指南。Bobr Studio 与出版商没有关联。展翅翱翔及其组件属于其各自的所有者；请参考出版商的规则书了解完整的规则。</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "other": "{n} 分"
+ },
+ "items": {
+  "other": "{n} 个"
+ },
+ "player": "玩家 {n}",
+ "itemsAria": "{name} 的达标数量",
+ "greenNone": "{name}：0 个，无名次，0 分",
+ "greenLine": "{name}：{items}，{pts}",
+ "cappedLine": "{name}：{items}，{pts}（上限 {max} 分）",
+ "round": "第 {n} 轮"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const MAX_PTS = 5;
+const names = [f(T.player, { n: 1 })];
+let vals = [0];
+function render() {
+  const box = document.getElementById('players');
+  box.innerHTML = names.map((name, i) => '<label class="row">' + name + '<input type="number" min="0" value="' + vals[i] + '" data-i="' + i + '" aria-label="' + esc(f(T.itemsAria, { name })) + '"></label>').join('');
+  box.querySelectorAll('input').forEach(x => x.oninput = () => { vals[+x.dataset.i] = Math.max(0, +x.value || 0); draw(); });
+  draw();
+}
+function draw() {
+  const green = document.getElementById('side').value === 'green', round = +document.getElementById('round').value;
+  let pts = vals.map(n => green ? 0 : Math.min(n, MAX_PTS)), lines = [];
+  if (green) {
+    const ranking = [...new Set(vals.filter(n => n > 0))].sort((a, b) => b - a);
+    const table = [[4, 1, 0], [5, 2, 1], [6, 3, 2], [7, 4, 3]][round];
+    vals.forEach((v, i) => {
+      if (v > 0) {
+        const place = ranking.indexOf(v), tied = vals.filter(x => x === v).length;
+        let sum = 0;
+        for (let j = 0; j < tied; j++) sum += table[place + j] || 0;
+        pts[i] = Math.floor(sum / tied);
+      }
+    });
+    lines = vals.map((v, i) => v === 0 ? f(T.greenNone, { name: names[i] }) : f(T.greenLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]) }));
+  } else {
+    lines = vals.map((v, i) => f(T.cappedLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]), max: MAX_PTS }));
+  }
+  document.getElementById('out').textContent = f(T.round, { n: round + 1 });
+  document.getElementById('how').innerHTML = lines.map(x => '<li>' + x + '</li>').join('');
+}
+document.getElementById('side').onchange = draw;
+document.getElementById('round').onchange = draw;
+document.getElementById('add').onclick = () => {
+  if (names.length >= 5) return;
+  names.push(f(T.player, { n: names.length + 1 }));
+  vals.push(0);
+  render();
+  if (names.length >= 5) document.getElementById('add').disabled = true;
+};
+render();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../zh/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/zh/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/wingspan/">English</a><a href="../../../ru/guides/wingspan/">Русский</a><a href="../../../uk/guides/wingspan/">Українська</a><a href="../../../pl/guides/wingspan/">Polski</a><a href="../../../cs/guides/wingspan/">Čeština</a><a href="../../../de/guides/wingspan/">Deutsch</a><a href="../../../fr/guides/wingspan/">Français</a><a href="../../../es/guides/wingspan/">Español</a><a href="../../../pt/guides/wingspan/">Português</a><a href="../../../tr/guides/wingspan/">Türkçe</a><a href="../../../ja/guides/wingspan/">日本語</a><a href="../../../ko/guides/wingspan/">한국어</a><a href="../../../zh/guides/wingspan/" class="current">中文</a></div></details>
+</div></footer>
+</body>
+</html>

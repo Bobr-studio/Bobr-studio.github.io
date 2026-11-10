@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>铁路环游怎么算分 — Bobr Studio</title>
+<meta name="description" content="一份清晰、循序渐进的指南，教你在 USA 地图的基础版铁路环游里怎么算分。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:start;margin-top:22px}
+  .calc h3{margin-bottom:4px}.calc>p{margin:0 0 10px;color:var(--muted);font-size:15px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .row span.name{font-weight:500;line-height:1.25}.row small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+  .ticket-entry{margin-top:12px}.ticket-remove{padding:8px 12px;border:0;border-radius:9px;background:var(--accent);color:#fff;font:600 14px Rubik,sans-serif;cursor:pointer}.ticket-list{margin:8px 0 0;padding:0;list-style:none}.ticket-list li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}.ticket-remove{padding:4px 8px;background:var(--river-2)}
+  .bonus-check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px}.bonus-check input{width:18px;height:18px;accent-color:var(--accent)}
+  .step{display:flex;align-items:center;gap:6px}.step button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:#fff;font:700 22px Rubik;color:var(--river);cursor:pointer}
+  .step output{min-width:28px;text-align:center;font:700 22px Fredoka,sans-serif}
+  .result{margin-top:14px;background:var(--river);color:var(--cream);border-radius:16px;padding:16px 20px}.result .pts{font:700 36px/1 Fredoka,sans-serif;color:var(--accent2);margin-bottom:8px}.result ul{margin:0;padding-left:18px;font-size:15px;line-height:1.5}
+  .side .cta{grid-template-columns:56px 1fr}.side .cta img{width:56px;height:56px}.side .cta .btn{grid-column:1/-1;justify-content:center}
+  .side ul{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:16px}.toc{margin-top:18px;background:#fff;border-radius:16px;padding:14px 20px;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  .toc b{color:var(--river)}.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:30px}.toc li{margin:2px 0}
+  ol.steps{list-style:none;padding:0;margin:14px 0 0;counter-reset:s;display:grid;gap:12px}ol.steps li{counter-increment:s;background:#fff;border-radius:16px;padding:14px 18px 14px 62px;position:relative;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  ol.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--river);color:var(--cream);font:700 17px Fredoka;display:flex;align-items:center;justify-content:center}
+  ol.steps b,.card b{color:var(--river)}.tip,.warn{border-radius:10px;padding:12px 16px;margin-top:14px}.tip{background:#FBF1DE;border-left:4px solid var(--accent2)}.warn{background:#FDEDEA;border-left:4px solid #B13D2E}
+  .examples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}.examples .card{padding:16px 18px}.examples p{margin:6px 0 0;font-size:15px}.examples .big{font:700 25px Fredoka,sans-serif;color:var(--accent)}
+  .line{margin-top:14px}.line .card{padding:20px 22px}.line p{margin:8px 0 0}.line .where{color:var(--muted);font-size:14px}.line .ex{background:#F3F0E9;border-radius:10px;padding:8px 12px;font-size:15px;margin-top:10px}
+  .faq details{background:#fff;border-radius:14px;padding:12px 18px;margin-top:10px;box-shadow:0 4px 14px rgba(15,46,58,.06)}.faq summary{font:600 18px Fredoka,sans-serif;color:var(--river);cursor:pointer}.faq p{margin:8px 0 2px}
+  .walk{margin-top:12px}.walk ol{margin:0;padding-left:22px}.walk li{margin:6px 0}.walk .sum{font:700 22px Fredoka,sans-serif;color:var(--river);margin-top:10px}
+  :root{--river:#252C30;--river-2:#414B50;--cream:#F3EBDD;--ink:#252B2D;--muted:#5B605E;--line:#D2C5B0;--accent:#8B4528;--accent2:#B87543}
+  body{background:var(--cream) radial-gradient(circle at 20% 0,#FCF8EF,transparent 60%)}.studio{background:linear-gradient(180deg,#252C30,#414B50)}
+  h1,h2{letter-spacing:.3px}h2::before{content:"";display:inline-block;width:22px;height:4px;background:var(--accent2);border-radius:2px;vertical-align:middle;margin-right:10px}
+  .card,.line .card,ol.steps li,.faq details{border:1px solid #E1D2B8}.result{background:linear-gradient(135deg,#252A2C,#41484A)}.tip{background:#FBF1DE}
+  @media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}ol.steps li{padding-left:56px}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/zh/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">规则指南</a><details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/" class="current">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">规则指南</a> › 铁路环游</div>
+<h1>铁路环游怎么算分 <span class="hand">USA 基础版</span></h1>
+<p class="lead">大部分路线分是在你占领路线时就记下的。游戏结束后，再从棋盘上数一遍，这样漏掉或记错某条路线也不会改变结果。然后加上完成的车票，减去未完成的车票，再检查一下最长路线加分。</p>
+<div class="top">
+  <div class="card calc"><h3>数路线和车票</h3><p>看看棋盘上你的塑料火车。你占领的每条路线，按它的长度加一条。</p>
+    <div class="row"><span class="name">1 节火车的路线<small>每条得 1 分</small></span><div class="step"><button data-k="1" data-d="-1" aria-label="撤掉一条 1 节火车的路线">−</button><output id="r1">0</output><button data-k="1" data-d="1" aria-label="加一条 1 节火车的路线">+</button></div></div>
+    <div class="row"><span class="name">2 节火车的路线<small>每条得 2 分</small></span><div class="step"><button data-k="2" data-d="-1" aria-label="撤掉一条 2 节火车的路线">−</button><output id="r2">0</output><button data-k="2" data-d="1" aria-label="加一条 2 节火车的路线">+</button></div></div>
+    <div class="row"><span class="name">3 节火车的路线<small>每条得 4 分</small></span><div class="step"><button data-k="3" data-d="-1" aria-label="撤掉一条 3 节火车的路线">−</button><output id="r3">0</output><button data-k="3" data-d="1" aria-label="加一条 3 节火车的路线">+</button></div></div>
+    <div class="row"><span class="name">4 节火车的路线<small>每条得 7 分</small></span><div class="step"><button data-k="4" data-d="-1" aria-label="撤掉一条 4 节火车的路线">−</button><output id="r4">0</output><button data-k="4" data-d="1" aria-label="加一条 4 节火车的路线">+</button></div></div>
+    <div class="row"><span class="name">5 节火车的路线<small>每条得 10 分</small></span><div class="step"><button data-k="5" data-d="-1" aria-label="撤掉一条 5 节火车的路线">−</button><output id="r5">0</output><button data-k="5" data-d="1" aria-label="加一条 5 节火车的路线">+</button></div></div>
+    <div class="row"><span class="name">6 节火车的路线<small>每条得 15 分</small></span><div class="step"><button data-k="6" data-d="-1" aria-label="撤掉一条 6 节火车的路线">−</button><output id="r6">0</output><button data-k="6" data-d="1" aria-label="加一条 6 节火车的路线">+</button></div></div>
+    <label for="ticket-value"><b>目的地车票</b></label><div class="ticket-entry"><input id="ticket-value" type="number" min="1" max="30" value="8" aria-label="车票分值"><select id="ticket-status" aria-label="车票状态"><option value="yes">完成</option><option value="no">未完成</option></select><button id="add-ticket" type="button">加</button></div><ul class="ticket-list" id="ticket-list"></ul><label class="bonus-check"><input id="longest-bonus" type="checkbox"> 我有最长路线，不管是独自还是并列（+10 分）</label>
+    <div class="result"><div class="pts" id="pts" aria-live="polite">0 分</div><ul id="how"></ul></div>
+  </div>
+  <div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>让 Score Night 把全桌的分都算出来</b><p>为每位玩家输入路线、车票和最长路线，然后查看总分和获胜者。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ 在 Google Play 获取</a></div>
+    <div class="toc"><b>本页内容</b><ol><li><a href="#when-to-count">什么时候算分</a></li><li><a href="#routes">路线得分</a></li><li><a href="#tickets">目的地车票</a></li><li><a href="#longest">最长路线</a></li><li><a href="#mistakes">常见失误</a></li><li><a href="#examples">车票示例</a></li><li><a href="#winner">谁获胜</a></li><li><a href="#whole-game">一整局的算分示例</a></li><li><a href="#faq">常见问题</a></li></ol></div>
+  </div>
+</div>
+<section id="when-to-count"><h2>什么时候算分</h2><ol class="steps"><li><b>游戏结束时，收拾好自己的棋子和卡牌。</b> 检查你在 USA 地图上放下的塑料火车、手上的目的地车票，以及你是否拥有最长的连续路线。</li><li><b>从棋盘上数路线得分。</b> 这些分通常在你占领路线时就已经记下。现在再把每条路线数一遍，可以查漏补缺，避免点错或算错总分。</li><li><b>给每张目的地车票计分。</b> 如果两个城市被你的路线网络连通，就加上这张车票的分值；如果不连通，就减去同样的分值。</li><li><b>加上最长路线加分，然后比较总分。</b> 每位与他人并列最长路线的玩家都能拿到这个加分。</li></ol></section>
+<section id="routes"><h2>路线得分</h2><div class="line"><div class="card"><b>先看地图上的塑料火车。</b><p>你占领的每条路线，数一下它由多少节火车组成。按长度把路线分组，再分别计算每组的分数。路线越长，分值越高。</p><p class="where">看哪里：棋盘上属于你自己的塑料火车。</p><div class="ex">例如，两条各占 4 节火车的路线，每条得 7 分，这一组共 14 分。</div></div></div><div class="examples"><div class="card"><div class="big">1 节火车 → 1 分</div><p>一条短路线加 1 分。</p></div><div class="card"><div class="big">3 节火车 → 4 分</div><p>一条路线用 3 节火车，得 4 分，而不是 3 分。</p></div><div class="card"><div class="big">6 节火车 → 15 分</div><p>一条 6 节火车的路线值 15 分。</p></div></div><div class="tip">上面的计算器会按长度统计路线，并列出每组的分数，你可以把它的结果和你自己重新数的对比一下。</div></section>
+<section id="tickets"><h2>目的地车票</h2><div class="line"><div class="card"><b>从手牌里拿出目的地车票，逐一检查。</b><p>完成的车票，加上印在上面的车票分值；未完成的车票，减去同样的分值。一张张来，最后把加分和减分合并一下。</p><p class="where">看哪里：你留下的目的地卡牌。每张卡牌上都印有分值。</p><div class="ex">一张价值十二分的完成车票能为你加十二分。一张价值九分的未完成车票则会减去九分，所以这两张加起来，分数变动是三分。</div><p><b>你怎么知道一张车票是完成的？</b> 你需要在地图上找到车票上标明的两个城市。只有当你能用自己的火车形成一条不间断的链条，从其中一个城市到达另一个城市时，这张车票才有效。这条链条可以弯曲，经过其他城市，而且不一定是最短的路径，但它中间不能有空隙，也不能夹杂其他玩家的路线。如果链条的任何地方断了，这张车票就算未完成，它的分值就会被扣掉。</p></div></div></section>
+<section id="longest"><h2>最长路线</h2><div class="line"><div class="card"><b>请检查是哪位玩家或哪些玩家拥有最长路线。</b><p>所有并列拥有最长路线的玩家，都会获得十分的额外奖励。</p><p class="where">去哪里看：看每位玩家放置在地图上的火车。这个奖励是在游戏结束时检查的。</p><div class="ex">如果两名玩家各自的最长路线都是七节火车，那么他们两人都会加十分。</div><p><b>你是如何衡量的呢？</b> 每位玩家要找出自己最长、不间断的火车链条，然后数链条上的火车车厢（数车厢，而不是路线或城市）。这条链条可以经过同一个城市多次，甚至可以形成一个循环，但每条路线只能算一次。伸到侧面的分支不计入：你选择一个方向贯穿，只计算沿着那个方向的车厢。拥有最多车厢的玩家可以获得10分；如果有多名玩家平手，他们每个人都获得10分。</p></div></div></section>
+<section id="mistakes"><h2>常见的错误</h2><ul><li>不要把火车数量当成分数。三节火车的路线价值四分，而六节火车的路线价值十五分。</li><li>不要忘记扣除未完成的车票。它们的价值可能会让你分数减少。</li><li>当有多名玩家并列拥有最长路线时，千万不要只给其中一个人最长路线的奖励。</li><li>不要把其他玩家的火车算作你路线分数的一部分。</li></ul></section>
+<section id="examples"><h2>目的地车票示例</h2><div class="examples"><div class="card"><div class="big">完成：+8</div><p>一张价值八分的完成车票可以增加八分。</p></div><div class="card"><div class="big">未完成：−8</div><p>一张价值八分的未完成车票会扣减八分。</p></div><div class="card"><div class="big">两张车票：+12 − 9</div><p>一张价值十二分的完成车票和一张价值九分的未完成车票，总计净增加三分。</p></div></div></section>
+<section id="winner"><h2>谁获胜呢？</h2><p>把路线分数、完成车票的分值加起来，减去未完成车票的分值，再加上最长路线的奖励。最终分数最高的人获胜。如果分数平手，再比较每位玩家完成了多少张目的地车票；如果依然平手，再比较谁的最长路线更长。如果最后还是平手，他们就平分胜利。</p></section>
+<section id="whole-game"><h2>完整游戏，全部计算完毕</h2><div class="card walk"><p>想象一下，你的火车在棋盘上显示出了两条 1 节火车的路线、三条 2 节火车的路线、两条 3 节火车的路线、两条 4 节火车的路线、一条 5 节火车的路线和一条 6 节火车的路线。</p><ol><li>这些 1 节火车的路线一共得 2 分。</li><li>这些 2 节火车的路线一共得 6 分：3 条路线，每条 2 分。</li><li>这些 3 节火车的路线一共得 8 分：2 条路线，每条 4 分。</li><li>这些 4 节火车的路线一共得 14 分：2 条路线，每条 7 分。</li><li>这条 5 节火车的路线得 10 分，而那条 6 节火车的路线得 15 分。路线分总共是 55 分。</li><li>你的车票有两张价值 12 分和 8 分，这两张都是完成的，外加一张价值 9 分但未完成的车票。总共加上 20 分减去 9 分，这组车票带来的分数变化是 11 分。</li><li>你和别人并列拥有最长路线，所以要加 10 分。</li></ol><p class="sum">55 分的路线分数，再加上 11 分的车票分数，再加 10 分的最长路线奖励：总共 76 分。</p></div></section>
+<section id="faq" class="faq"><h2>玩家常问的问题</h2><details><summary>如果我们游戏过程中已经计了路线分数，我还需要重新计算一遍吗？</summary><p>是的。路线分数通常是在你占领路线时计分的，但最后重新计算一下可以帮你找出错误。</p></details><details><summary>如果车票的分值比我的路线分数还要高，怎么办呢？</summary><p>无论如何都要计分。未完成的车票会扣除它上印的价值，这可能会让你最终的得分变成负数。</p></details><details><summary>有多于一个玩家可以获得最长路线的奖励吗？</summary><p>是的。所有与你平手获得最长路线的玩家，都会获得十分。</p></details><details><summary>如果我们的总分数平手了，该怎么办呢？</summary><p>完成目的地车票数量更多的玩家会获胜。如果还是平局，就比较最长路线；如果最长路线也平手了，大家就平分胜利。</p></details><details><summary>这份规则适用于其他的地图或者扩张包吗？</summary><p>本页面仅涵盖美洲地图上的基础游戏。其他的地图和扩张包可能会使用不同的计分规则。</p></details></section>
+<div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>不想手动逐行添加？</b><p>计分时，Score Night 会把路线、车票、奖励和玩家总分都整理在一起。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Google Play</a></div>
+<p class="disclaimer">这是一份非官方指南，用我们自己的话写成。与《铁路环游》发行方无关。游戏名称归其所有者所有。完整规则请参阅发行方的规则书。</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "other": "{n} 分"
+ },
+ "routes": {
+  "other": "{n} 条"
+ },
+ "trains": {
+  "other": "{n} 节车厢"
+ },
+ "routeLine": "{trains}的路线 {routes}：{count} × {each} = {pts}",
+ "completedLine": {
+  "other": "完成的车票 {n} 张：+{pts}"
+ },
+ "unfinishedLine": {
+  "other": "未完成的车票 {n} 张：−{pts}"
+ },
+ "longestBonus": "最长路线奖励：+{pts}",
+ "emptyHint": "在上方添加你的路线，分数会显示在这里。",
+ "ticketDone": {
+  "other": "已完成的 {n} 分车票"
+ },
+ "ticketOpen": {
+  "other": "未完成的 {n} 分车票"
+ },
+ "remove": "删除",
+ "removeAria": "删除车票 {n}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const points = { 1: 1, 2: 2, 3: 4, 4: 7, 5: 10, 6: 15 };
+const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+const tickets = [];
+const LONGEST = 10;
+function draw() {
+  let total = 0, lines = [];
+  for (const n of Object.keys(points)) {
+    const count = counts[n], each = points[n];
+    document.getElementById('r' + n).textContent = count;
+    total += count * each;
+    if (count) lines.push(f(T.routeLine, { routes: p(T.routes, count), trains: p(T.trains, +n), count, each, pts: p(T.points, count * each) }));
+  }
+  tickets.forEach(ticket => total += ticket.completed ? ticket.value : -ticket.value);
+  const done = tickets.filter(ticket => ticket.completed), open = tickets.filter(ticket => !ticket.completed);
+  const sum = list => list.reduce((s, ticket) => s + ticket.value, 0);
+  if (tickets.length) lines.push(p(T.completedLine, done.length, { pts: p(T.points, sum(done)) }));
+  if (open.length) lines.push(p(T.unfinishedLine, open.length, { pts: p(T.points, sum(open)) }));
+  if (document.getElementById('longest-bonus').checked) { total += LONGEST; lines.push(f(T.longestBonus, { pts: p(T.points, LONGEST) })); }
+  document.getElementById('pts').textContent = p(T.points, total);
+  if (!lines.length) lines = [T.emptyHint];
+  document.getElementById('how').innerHTML = lines.map(line => `<li>${line}</li>`).join('');
+  document.getElementById('ticket-list').innerHTML = tickets.map((ticket, index) => `<li>${p(ticket.completed ? T.ticketDone : T.ticketOpen, ticket.value)} <button type="button" class="ticket-remove" data-remove="${index}" aria-label="${esc(f(T.removeAria, { n: index + 1 }))}">${T.remove}</button></li>`).join('');
+  document.querySelectorAll('.ticket-remove').forEach(button => button.onclick = () => { tickets.splice(Number(button.dataset.remove), 1); draw(); });
+}
+document.querySelectorAll('.step button').forEach(button => button.onclick = () => { const n = button.dataset.k; counts[n] = Math.max(0, counts[n] + Number(button.dataset.d)); draw(); });
+document.getElementById('add-ticket').onclick = () => {
+  const value = Number(document.getElementById('ticket-value').value);
+  if (!Number.isInteger(value) || value < 1 || value > 30) return;
+  tickets.push({ value, completed: document.getElementById('ticket-status').value === 'yes' });
+  draw();
+};
+document.getElementById('longest-bonus').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../zh/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/zh/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/" class="current">中文</a></div></details>
+</div></footer>
+</body>
+</html>

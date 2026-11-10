@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak počítat body v Ticket to Ride — Bobr Studio</title>
+<meta name="description" content="Jasný krok za krokem průvodce počítáním bodů v základní hře Ticket to Ride na mapě USA.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:start;margin-top:22px}
+  .calc h3{margin-bottom:4px}.calc>p{margin:0 0 10px;color:var(--muted);font-size:15px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .row span.name{font-weight:500;line-height:1.25}.row small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+  .ticket-entry{margin-top:12px}.ticket-remove{padding:8px 12px;border:0;border-radius:9px;background:var(--accent);color:#fff;font:600 14px Rubik,sans-serif;cursor:pointer}.ticket-list{margin:8px 0 0;padding:0;list-style:none}.ticket-list li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}.ticket-remove{padding:4px 8px;background:var(--river-2)}
+  .bonus-check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px}.bonus-check input{width:18px;height:18px;accent-color:var(--accent)}
+  .step{display:flex;align-items:center;gap:6px}.step button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:#fff;font:700 22px Rubik;color:var(--river);cursor:pointer}
+  .step output{min-width:28px;text-align:center;font:700 22px Fredoka,sans-serif}
+  .result{margin-top:14px;background:var(--river);color:var(--cream);border-radius:16px;padding:16px 20px}.result .pts{font:700 36px/1 Fredoka,sans-serif;color:var(--accent2);margin-bottom:8px}.result ul{margin:0;padding-left:18px;font-size:15px;line-height:1.5}
+  .side .cta{grid-template-columns:56px 1fr}.side .cta img{width:56px;height:56px}.side .cta .btn{grid-column:1/-1;justify-content:center}
+  .side ul{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:16px}.toc{margin-top:18px;background:#fff;border-radius:16px;padding:14px 20px;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  .toc b{color:var(--river)}.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:30px}.toc li{margin:2px 0}
+  ol.steps{list-style:none;padding:0;margin:14px 0 0;counter-reset:s;display:grid;gap:12px}ol.steps li{counter-increment:s;background:#fff;border-radius:16px;padding:14px 18px 14px 62px;position:relative;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  ol.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--river);color:var(--cream);font:700 17px Fredoka;display:flex;align-items:center;justify-content:center}
+  ol.steps b,.card b{color:var(--river)}.tip,.warn{border-radius:10px;padding:12px 16px;margin-top:14px}.tip{background:#FBF1DE;border-left:4px solid var(--accent2)}.warn{background:#FDEDEA;border-left:4px solid #B13D2E}
+  .examples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}.examples .card{padding:16px 18px}.examples p{margin:6px 0 0;font-size:15px}.examples .big{font:700 25px Fredoka,sans-serif;color:var(--accent)}
+  .line{margin-top:14px}.line .card{padding:20px 22px}.line p{margin:8px 0 0}.line .where{color:var(--muted);font-size:14px}.line .ex{background:#F3F0E9;border-radius:10px;padding:8px 12px;font-size:15px;margin-top:10px}
+  .faq details{background:#fff;border-radius:14px;padding:12px 18px;margin-top:10px;box-shadow:0 4px 14px rgba(15,46,58,.06)}.faq summary{font:600 18px Fredoka,sans-serif;color:var(--river);cursor:pointer}.faq p{margin:8px 0 2px}
+  .walk{margin-top:12px}.walk ol{margin:0;padding-left:22px}.walk li{margin:6px 0}.walk .sum{font:700 22px Fredoka,sans-serif;color:var(--river);margin-top:10px}
+  :root{--river:#252C30;--river-2:#414B50;--cream:#F3EBDD;--ink:#252B2D;--muted:#5B605E;--line:#D2C5B0;--accent:#8B4528;--accent2:#B87543}
+  body{background:var(--cream) radial-gradient(circle at 20% 0,#FCF8EF,transparent 60%)}.studio{background:linear-gradient(180deg,#252C30,#414B50)}
+  h1,h2{letter-spacing:.3px}h2::before{content:"";display:inline-block;width:22px;height:4px;background:var(--accent2);border-radius:2px;vertical-align:middle;margin-right:10px}
+  .card,.line .card,ol.steps li,.faq details{border:1px solid #E1D2B8}.result{background:linear-gradient(135deg,#252A2C,#41484A)}.tip{background:#FBF1DE}
+  @media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}ol.steps li{padding-left:56px}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/cs/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Pravidla her</a><details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/" class="current">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Pravidla her</a> › Ticket to Ride</div>
+<h1>Jak počítat body v Ticket to Ride <span class="hand">základní hra, mapa USA</span></h1>
+<p class="lead">Většina bodů za trasy byla získána, když jste si je během hry zabrali. Na konci znovu spočítejte je z desky, aby chybějící nebo špatně zapamatovaná trasa nezměnila výsledek. Poté přidejte splněné jízdenky, odečtěte nesplněné jízdenky a zkontrolujte bonus za nejdelší trasu.</p>
+<div class="top">
+  <div class="card calc"><h3>Počítejte trasy a jízdenky</h3><p>Podívejte se na své plastové vláčky na desce. Pro každou trasu, kterou jste si zabrali, přidejte jednu podle její délky.</p>
+    <div class="row"><span class="name">Trasy s 1 vláčkem<small>Každá stojí 1 bod</small></span><div class="step"><button data-k="1" data-d="-1" aria-label="Odebrat jednu trasu s 1 vláčkem">−</button><output id="r1">0</output><button data-k="1" data-d="1" aria-label="Přidat jednu trasu s 1 vláčkem">+</button></div></div>
+    <div class="row"><span class="name">Trasy s 2 vláčky<small>Každá stojí 2 body</small></span><div class="step"><button data-k="2" data-d="-1" aria-label="Odebrat jednu trasu s 2 vláčky">−</button><output id="r2">0</output><button data-k="2" data-d="1" aria-label="Přidat jednu trasu s 2 vláčky">+</button></div></div>
+    <div class="row"><span class="name">Trasy s 3 vláčky<small>Každá stojí 4 body</small></span><div class="step"><button data-k="3" data-d="-1" aria-label="Odebrat jednu trasu s 3 vláčky">−</button><output id="r3">0</output><button data-k="3" data-d="1" aria-label="Přidat jednu trasu s 3 vláčky">+</button></div></div>
+    <div class="row"><span class="name">Trasy s 4 vláčky<small>Každá stojí 7 bodů</small></span><div class="step"><button data-k="4" data-d="-1" aria-label="Odebrat jednu trasu s 4 vláčky">−</button><output id="r4">0</output><button data-k="4" data-d="1" aria-label="Přidat jednu trasu s 4 vláčky">+</button></div></div>
+    <div class="row"><span class="name">Trasy s 5 vláčky<small>Každá stojí 10 bodů</small></span><div class="step"><button data-k="5" data-d="-1" aria-label="Odebrat jednu trasu s 5 vláčky">−</button><output id="r5">0</output><button data-k="5" data-d="1" aria-label="Přidat jednu trasu s 5 vláčky">+</button></div></div>
+    <div class="row"><span class="name">Trasy s 6 vláčky<small>Každá stojí 15 bodů</small></span><div class="step"><button data-k="6" data-d="-1" aria-label="Odebrat jednu trasu s 6 vláčky">−</button><output id="r6">0</output><button data-k="6" data-d="1" aria-label="Přidat jednu trasu s 6 vláčky">+</button></div></div>
+    <label for="ticket-value"><b>Cestovní jízdenky</b></label><div class="ticket-entry"><input id="ticket-value" type="number" min="1" max="30" value="8" aria-label="Hodnota jízdenky"><select id="ticket-status" aria-label="Stav jízdenky"><option value="yes">Splněna</option><option value="no">Nesplněna</option></select><button id="add-ticket" type="button">Přidat</button></div><ul class="ticket-list" id="ticket-list"></ul><label class="bonus-check"><input id="longest-bonus" type="checkbox"> Mám nejdelší trasu, sám nebo při remíze (+10 bodů)</label>
+    <div class="result"><div class="pts" id="pts" aria-live="polite">0 bodů</div><ul id="how"></ul></div>
+  </div>
+  <div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Nechte, aby Score Night sečetla celou tabulku</b><p>Zadejte trasy, jízdenky a nejdelší trasu pro každého hráče, pak zjistěte celkové výsledky a vítěze.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Získejte na Google Play</a></div>
+    <div class="toc"><b>Na této stránce</b><ol><li><a href="#when-to-count">Kdy počítat</a></li><li><a href="#routes">Body za trasy</a></li><li><a href="#tickets">Cestovní jízdenky</a></li><li><a href="#longest">Nejdelší trasa</a></li><li><a href="#mistakes">Běžné chyby</a></li><li><a href="#examples">Příklady jízdenek</a></li><li><a href="#winner">Kdo vyhrál</a></li><li><a href="#whole-game">Celá hra, spočítaná</a></li><li><a href="#faq">Otázky</a></li></ol></div>
+  </div>
+</div>
+<section id="when-to-count"><h2>Kdy počítat</h2><ol class="steps"><li><b>Na konci hry shromážďte své vlastní součásti a karty.</b> Zkontrolujte plastové vláčky, které jste umístili na mapě USA, své cestovní jízdenky a zda máte nejdelší spojitou trasu.</li><li><b>Počítejte body za trasy z desky.</b> Tyto body se obvykle získávají během hry, když je trasa zabrána. Opětovné spočítání každé trasy nyní je užitečná kontrola proti chybějícímu kliknutí nebo špatnému součtu.</li><li><b>Ohodnoťte každou cestovní jízdenku.</b> Přidejte její hodnotu, když jsou dvě města spojena vaší sítí. Odečtěte její hodnotu, když nejsou.</li><li><b>Přidejte bonus za nejdelší trasu, pak porovnejte celkové výsledky.</b> Každý hráč, který je při nejdelší trase, dostane bonus.</li></ol></section>
+<section id="routes"><h2>Body za trasy</h2><div class="line"><div class="card"><b>Začněte s plastovými vláčky na mapě.</b><p>Pro každou trasu, kterou jste si zabrali, zjistěte, kolik kusů vláčků dlouhá je. Seskupte trasy podle délky, pak ohodnoťte každou skupinu. Délší trasy jsou hodnotnější než krátké.</p><p class="where">Kde hledat: vaše vlastní plastové vláčky na desce.</p><div class="ex">Například dvě trasy po čtyřech vláčcích stojí sedm bodů každá, takže tato skupina stojí čtrnáct bodů.</div></div></div><div class="examples"><div class="card"><div class="big">1 vláček → 1 bod</div><p>Jedna krátká trasa přidává jeden bod.</p></div><div class="card"><div class="big">3 vláčky → 4 body</div><p>Tři vláčky na jedné trase stojí čtyři body, ne tři.</p></div><div class="card"><div class="big">6 vláčků → 15 bodů</div><p>Trasa se šesti vláčky stojí patnáct bodů.</p></div></div><div class="tip">Kalkulačka výše počítá trasy podle délky a vypisuje každou skupinu, takže můžete porovnat její výsledek se svým vlastním přepočítáním.</div></section>
+<section id="tickets"><h2>Cestovní jízdenky</h2><div class="line"><div class="card"><b>Vezměte si své cestovní jízdenky z ruky a zkontrolujte každou.</b><p>Splněná jízdenka přidává číslo na ní vytištěné. Nesplněná jízdenka odečte stejné číslo. Udělejte to jednu jízdenku po druhé, pak spojte plusy a mínusy.</p><p class="where">Kde hledat: cestovní karty, které jste si nechali. Jejich hodnota je vytištěna na každé kartě.</p><div class="ex">Splněná jízdenka s hodnotou dvanácti dodává dvanáct bodů. Nesplněná jízdenka s hodnotou devět odečítá devět, takže dohromady změny vašího skóre představují tři body.</div><p><b>Jak zjistíte, že jízdenka je splněná?</b> Najděte na mapě dvě města uvedená na jízdence. Jízdenka platí pouze tehdy, když můžete cestovat z jednoho města do druhého po jedné nepřerušené řadě vašich vlastních vagónů. Tato řada může kroutit se a projíždět jinými městy, a nemusí to být nejdaleká cesta, ale nesmí v ní být žádná díra ani trasa jiného hráče. Pokud je řada někde přerušena, jízdenka není splněna a její hodnota je odečtena.</p></div></div></section>
+<section id="longest"><h2>Nejddelší trasa</h2><div class="line"><div class="card"><b>Zkontrolujte, který nebo kteří hráči mají nejdelší trasy.</b><p>Každý hráč, který má stejnou nejdelší trasu, dostane deset bonus bodů.</p><p class="where">Kam se podívat: na vagóny, které každý hráč umístil na mapu. Bonus se kontroluje na konci.</p><div class="ex">Pokud mají dva hráči nejdelší trasu s sedmi vagóny, obojí přidají deset bodů.</div><p><b>Jak to změříte?</b> Každý hráč hledá svou nejdelší nepřerušovanou řadu vlastních vagónů a počítá vagóny v ní (vagóny, ne trasy ani města). Řada může projíždět stejným městem více než jednou a dokonce může vytvořit smyčku, ale každou trasu lze počítat jen jednou. Boční větve se nepočítají: vyberte jednu cestu a počítejte pouze po ní. Kdo má nejdříve nejvíce vagónů, ten dostane 10 bodů; pokud je několik hráčů shodných, obojí dostane 10.</p></div></div></section>
+<section id="mistakes"><h2>Časté chyby</h2><ul><li>Nepočítávejte počet vagónů jako body. Trasa s třemi vagóny stojí čtyři body, a ta s šesti stojí patnáct.</li><li>Nezapomeňte odečíst nesplněné jízdenky. Jejich hodnoty mohou odčítat body.</li><li>Při shodě nejdelší trasy nedavejte bonus za nejdelší trasu pouze jedinému hráči.</li><li>Nepočítávejte vagóny jiného hráče jako součást vašich bodů za trasy.</li></ul></section>
+<section id="examples"><h2>Příklady jízdenek do cíle</h2><div class="examples"><div class="card"><div class="big">Splněná: +8</div><p>Splněná jízdenka s hodnotou osmi dodává osm bodů.</p></div><div class="card"><div class="big">Nesplněná: −8</div><p>Nesplněná jízdenka s hodnotou osmi odečítá osm.</p></div><div class="card"><div class="big">Dvě jízdenky: +12 − 9</div><p>Jedna splněná jízdenka s hodnotou dvanácti a jedna nesplněná jízdenka s hodnotou devět dává čistý zisk tři bodů.</p></div></div></section>
+<section id="winner"><h2>Kdo vyhrává?</h2><p>Přičtěte body za trasy, hodnoty splněných jízdenek, odečtěte hodnoty nesplněných jízdenek a přičtěte jakýkoli bonus za nejdelší trasu. Vítězí hráč s nejvyšším celkovým skórem. Pokud jsou hráči shodní v bodech, porovnejte, kolik cílových jízdenek každý splnil; pokud i tak, porovnejte, kdo má nejdelší trasu. Pokud i to zůstává shodné, sdílejí vítězství.</p></section>
+<section id="whole-game"><h2>Celá hra, spočítaná</h2><div class="card walk"><p>Představte si, že vaše vagóny na hře ukazují dvě trasy s 1 vagónem, tři trasy s 2 vagóny, dvě trasy s 3 vagóny, dvě trasy s 4 vagóny, jednu trasu s 5 vagóny a jednu trasu s 6 vagóny.</p><ol><li>Trasy s 1 vagónem skórují dohromady 2 body.</li><li>Trasy s 2 vagóny skórují dohromady 6 bodů: 3 trasy, po 2 body.</li><li>Trasy s 3 vagóny skórují dohromady 8 bodů: 2 trasy, po 4 body.</li><li>Trasy s 4 vagóny skórují dohromady 14 bodů: 2 trasy, po 7 bodů.</li><li>Trasa s 5 vagóny skóruje 10 bodů a trasa s 6 vagóny skóruje 15 bodů. Celkem body za trasy jsou 55.</li><li>Vaše jízdenky stojí 12 a 8, obě jsou splněny, plus 1 s hodnotou 9, které není splněné. Přičtěte 20, odečtěte 9 a jízdenky změny skóre o 11.</li><li>Sdílíte nejdelší trasu, takže přičtěte 10 bodů.</li></ol><p class="sum">55 bodů za trasy, plus 11 z jízdenek, plus 10 za nejdelší trasu: 76 bodů.</p></div></section>
+<section id="faq" class="faq"><h2>Otázky, které si hráči kladou</h2><details><summary>Mám znovu počítat body za trasy, pokud jsme je počítali během hry?</summary><p>Ano. Body za trasy se obvykle počítají, když si zaberete trasy, ale opětovné počítání na konci pomáhá chytit chyby.</p></details><details><summary>Co když jízdenka stojí více než mé body za trasy?</summary><p>Počítejte ji přesto. Nesplněná jízdenka odečítá svou tištěnou hodnotu a může vás vést k negativnímu celkovému skóru.</p></details><details><summary>Může více než jeden hráč získat bonus za nejdelší trasu?</summary><p>Ano. Každý hráč, který má stejnou nejdelší trasu, dostane deset bodů.</p></details><details><summary>Co se stane, když jsou shodní celkové body?</summary><p>Hráč s více splněnými cílovými jízdenkami vyhrává remízu. Pokud i tak, porovnejte nejdelší trasy; pokud i ty jsou shodné, sdílejí vítězství.</p></details><details><summary>Zahrnuje to i jiné mapy nebo rozšíření?</summary><p>Tato stránka se týká pouze základní hry na mapě USA. Jiné mapy a rozšíření mohou používat odlišné pravidla pro skóre.</p></details></section>
+<div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Není lepší, když se vám nezačít přidávat každý krok ručně?</b><p>Score Night uchovává trasy, jízdenky, bonusy a celkové skóre hráčů pohromadě, zatímco vy počítáte.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Google Play</a></div>
+<p class="disclaimer">Toto je neoficiální průvodce, napsaný naším vlastním jazykem. Není spojen s vydavateli Ticket to Ride. Název her patří jejich vlastníkům. Kompletní pravidla najdete v regelách vydavatele.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} bod",
+  "few": "{n} bodů",
+  "many": "{n} bodů",
+  "other": "{n} bodů"
+ },
+ "routes": {
+  "one": "{n} trasa",
+  "few": "{n} trasy",
+  "many": "{n} trasy",
+  "other": "{n} tras"
+ },
+ "trains": {
+  "one": "{n} vagónka",
+  "few": "{n} vagónky",
+  "many": "{n} vagónky",
+  "other": "{n} vagónek"
+ },
+ "routeLine": "{routes} z {trains}: {count} × {each} = {pts}",
+ "completedLine": {
+  "one": "{n} splněná jízdenka: +{pts}",
+  "few": "{n} splněné jízdenky: +{pts}",
+  "many": "{n} splněné jízdenky: +{pts}",
+  "other": "{n} splněné jízdenky: +{pts}"
+ },
+ "unfinishedLine": {
+  "one": "{n} nesplněná jízdenka: −{pts}",
+  "few": "{n} nesplněné jízdenky: −{pts}",
+  "many": "{n} nesplněné jízdenky: −{pts}",
+  "other": "{n} nesplněné jízdenky: −{pts}"
+ },
+ "longestBonus": "Bonus nejdelší trasy: +{pts}",
+ "emptyHint": "Přidat své trasy výše a body se zde objeví",
+ "ticketDone": {
+  "one": "Splněná jízdenka se hodnotou {n} bod",
+  "few": "Splněné jízdenky se hodnotou {n} bodů",
+  "many": "Splněné jízdenky se hodnotou {n} bodů",
+  "other": "Splněné jízdenky se hodnotou {n} bodů"
+ },
+ "ticketOpen": {
+  "one": "Nesplněná jízdenka se hodnotou {n} bod",
+  "few": "Nesplněné jízdenky se hodnotou {n} bodů",
+  "many": "Nesplněné jízdenky se hodnotou {n} bodů",
+  "other": "Nesplněné jízdenky se hodnotou {n} bodů"
+ },
+ "remove": "Odebrat",
+ "removeAria": "Odebrat jízdenku {n}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const points = { 1: 1, 2: 2, 3: 4, 4: 7, 5: 10, 6: 15 };
+const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+const tickets = [];
+const LONGEST = 10;
+function draw() {
+  let total = 0, lines = [];
+  for (const n of Object.keys(points)) {
+    const count = counts[n], each = points[n];
+    document.getElementById('r' + n).textContent = count;
+    total += count * each;
+    if (count) lines.push(f(T.routeLine, { routes: p(T.routes, count), trains: p(T.trains, +n), count, each, pts: p(T.points, count * each) }));
+  }
+  tickets.forEach(ticket => total += ticket.completed ? ticket.value : -ticket.value);
+  const done = tickets.filter(ticket => ticket.completed), open = tickets.filter(ticket => !ticket.completed);
+  const sum = list => list.reduce((s, ticket) => s + ticket.value, 0);
+  if (tickets.length) lines.push(p(T.completedLine, done.length, { pts: p(T.points, sum(done)) }));
+  if (open.length) lines.push(p(T.unfinishedLine, open.length, { pts: p(T.points, sum(open)) }));
+  if (document.getElementById('longest-bonus').checked) { total += LONGEST; lines.push(f(T.longestBonus, { pts: p(T.points, LONGEST) })); }
+  document.getElementById('pts').textContent = p(T.points, total);
+  if (!lines.length) lines = [T.emptyHint];
+  document.getElementById('how').innerHTML = lines.map(line => `<li>${line}</li>`).join('');
+  document.getElementById('ticket-list').innerHTML = tickets.map((ticket, index) => `<li>${p(ticket.completed ? T.ticketDone : T.ticketOpen, ticket.value)} <button type="button" class="ticket-remove" data-remove="${index}" aria-label="${esc(f(T.removeAria, { n: index + 1 }))}">${T.remove}</button></li>`).join('');
+  document.querySelectorAll('.ticket-remove').forEach(button => button.onclick = () => { tickets.splice(Number(button.dataset.remove), 1); draw(); });
+}
+document.querySelectorAll('.step button').forEach(button => button.onclick = () => { const n = button.dataset.k; counts[n] = Math.max(0, counts[n] + Number(button.dataset.d)); draw(); });
+document.getElementById('add-ticket').onclick = () => {
+  const value = Number(document.getElementById('ticket-value').value);
+  if (!Number.isInteger(value) || value < 1 || value > 30) return;
+  tickets.push({ value, completed: document.getElementById('ticket-status').value === 'yes' });
+  draw();
+};
+document.getElementById('longest-bonus').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../cs/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/cs/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/" class="current">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

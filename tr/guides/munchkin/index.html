@@ -1,0 +1,300 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Munchkin&#x27;de seviye ve dövüş nasıl hesaplanır — Bobr Studio</title>
+<meta name="description" content="Temel Munchkin&#x27;de seviye, teçhizat ve dövüş gücü nasıl çalışır, kimin kazanacağını açıklayan bir dövüş hesaplayıcısıyla.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../tr/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Oyun kuralları</a><details class="langs"><summary>🌐 Türkçe</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/" class="current">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Oyun kuralları</a> › Munchkin</div>
+  <h1>Munchkin'de seviye ve dövüş nasıl hesaplanır <span class="hand">kim daha güçlü, kim kazanır</span></h1>
+  <p class="lead">Munchkin sonunda puanlanmaz. Bunun yerine, tüm oyun boyunca iki sayıya dikkat edersin: seviyen ve dövüş gücün. Aşağıdaki hesaplayıcı, herhangi bir dövüşü saniyeler içinde çözer ve neden kazandığını veya kaybettiğini açıkça söyler. Daha aşağıda ise, örnekler ve neredeyse her masada olan karışıklıklarla birlikte, seviyeler, teçhizat, dövüşler ve 10. seviyeye ulaşma yarışı adım adım açıklanır.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Bu dövüşü kim kazanır?</h3>
+      <p>Dövüşün her iki tarafını da gir. Gücün, seviyen artı teçhizatındır ve canavarınki, seviyesi artı aldığı herhangi bir bonusdur.</p>
+      <h4>Senin tarafın</h4>
+      <div class="row"><span class="name">Senin seviyen<small>1'den 10'a kadar</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="Seviye düşüşü">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="Seviye artışı">+</button></div></div>
+      <div class="row"><span class="name">Senin teçhizat bonusun<small>kullandığın teçhizattan gelen tüm bonuslardır; sıfırın altında olabilir</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="Daha az teçhizat bonusu">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="Daha fazla teçhizat bonusu">+</button></div></div>
+      <div class="row"><span class="name">Tek seferlik bonuslar<small>senin tarafın için iksirler ve diğer tek dövüş bonusları</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="Daha az tek seferlik bonus">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="Daha fazla tek seferlik bonus">+</button></div></div>
+      <div class="row"><span class="name">Yardımcının gücü<small>onun seviyesi artı teçhizatıdır; kimse yardım etmiyorsa 0 bırak</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="Daha az yardımcı gücü">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="Daha fazla yardımcı gücü">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> Bir Savaşçı bizim tarafımızda dövüşüyor (sen veya yardımcı ton)</label>
+      <h4>Canavar</h4>
+      <div class="row"><span class="name">Canavarın seviyesi<small>canavar üzerinde yazan sayıdır; iki canavar varsa, seviyelerini topla</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="Daha düşük canavar seviyesi">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="Daha yüksek canavar seviyesi">+</button></div></div>
+      <div class="row"><span class="name">Canavarın bonusları<small>onu güçlendirmek (veya zayıflatmak) için oynanan her şey</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="Daha az canavar bonusu">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="Daha fazla canavar bonusu">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">Sen kazandın!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Tüm masanın seviyelerini bir yerde tut</b><p>Score Night, her oyuncunun seviyesini, teçhizatını ve gücünü takip eder, yardımcılar ve bonuslarla dövüşleri çözer ve hatta kaçtığında zar atar.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play'de al</a></div>
+      <ul><li>İnternetsiz çalışır, 3 ila 6 oyuncu için</li><li>Her oyunun iki partisi ücretsiz</li></ul>
+      <div class="toc"><b>Bu sayfada</b><ol><li><a href="#what-you-track">Neler takip edersin</a></li><li><a href="#level">Senin seviyen</a></li><li><a href="#strength">Teçhizat ve güç</a></li><li><a href="#fight">Bir dövüş, adım adım</a></li><li><a href="#run-away">Kaybetmek ve kaçmak</a></li><li><a href="#who-wins">Nasıl kazanırsın</a></li><li><a href="#mistakes">Sık yapılan hatalar</a></li><li><a href="#examples">Örnekler</a></li><li><a href="#whole-turn">Tam bir dövüş, sayılmış</a></li><li><a href="#common-questions">Sık sorulan sorular</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">Neleri takip edersin</h2>
+  <p>Munchkin'de puan kağıdı yok ve sonunda sayım yok. Oyun boyunca her oyuncu birkaç şeyi güncel tutar ve bunlar sürekli değişir: her dövüşten sonra, her lanetten sonra ve her yeni teçhizat parçasından sonra. Her oyuncunun kendi sayılarını herkesin görebileceği bir yerde tutması yardımcı olur.</p>
+  <ol class="steps">
+    <li><b>Seviyen.</b> Herkes 1. seviyeden başlar. Seviye, senin kazandığın şeydir: 10. seviyeye ilk ulaşan kazanır.</li>
+    <li><b>Teçhizat bonusun.</b> Kullandığın her eşya bir bonus verir. Hepsini toplarsın ve bir sayı elde edersin: teçhizat bonusun.</li>
+    <li><b>Dövüş gücün.</b> Bu, dövüştüğün sayıdır. Seviyen artı teçhizat bonusundur ve bunu ayrı tutmazsın: iki taraftan biri değiştiğinde değişir.</li>
+    <li><b>Cinsiyetin ve sınıfın.</b> Bazı kartlar yalnızca erkek veya kadın karakterler için işe yarar, bu yüzden herkesin hangisi olduğunu bilmesi gerekir. Ve karakterin Savaşçı ise, unutma: Savaşçılar beraberlikle sonuçlanan dövüşleri kazanır.</li>
+  </ol>
+  <div class="tip"><b>Seviye ve güç aynı şeyler değil.</b> Seviye, kazanmaya ne kadar yaklaştığını gösterir. Güç ise ne kadar sert vurduğunu gösterir. Teçhizat bonusu 6 olan 4. seviye bir kahraman, 10 güçle dövüşür ama hâlâ zaferden 6 seviye uzaktadır.</div>
+
+  <h2 id="level">Senin seviyen: artış ve düşüş</h2>
+  <div class="line"><div class="card"><h3>Seviyen nasıl değişir</h3>
+    <p>1. seviyede başlıyorsun. Yükselmenin ana yolu bir canavarı yenmek: bu sana 1 seviye verir, bazı daha büyük canavarlar ise 2 verir. Canavar kartı kaç seviye verdiğini söyler. Bazı kartlar senin sevin doğrudan artırabilir veya azaltabilir; bir dövüşte kaybetmek de sana bir seviye götürebilir, eğer canavar kartında böyle yazıyorsa.</p>
+    <p>İki sınır var. Sevin <b>asla 1'in altına inmez</b>: 1. seviyedesin ve bir şey seviye alırsa, sadece 1'de kalırsın. Ve <b>asla 10'u geçmez</b>, çünkü 10 oyunun sonu.</p>
+    <p class="where">Nereye bakacağını: sevin için tuttuğun sayı. Kazanıma yalnızca sevin sayılır, gücün asla sayılmaz.</p>
+    <div class="ex"><b>Örnek:</b> 1. seviyedesin ve bir canavardan bir seviye kaybediyorsun. 1. seviyede kalırsın. Sonraki sırada 2 seviye veren bir canavarı yeniyorsun, bu yüzden 3. seviyeye çıkıyorsun.</div></div></div>
+
+  <h2 id="strength">Teçhizatın ve dövüş gücün</h2>
+  <div class="line"><div class="card"><h3>Gücün, sevin ve teçhizatın toplamıdır.</h3>
+    <p>Dövüş gücünü bulmak için sevin alıp, kullandığın tüm teçhizatın bonuslarını topla. Bir şey değişene kadar her dövüşteki güçün bu olacak.</p>
+    <p>Teçhizat bonusları genellikle pozitiftir, ancak toplam sıfırın altına düşebilir. Bu mümkün ve sadece seni daha zayıflaştırır: −3 teçhizat bonusu olan 2. seviyedeki bir oyuncunun dövüş gücü −1'dur. Evet, eksi bir. Saklanma vakti.</p>
+    <p class="where">Bakman gereken yer: sevin ve önündeki her bir teçhizat parçasındaki bonus sayısı.</p>
+    <div class="ex"><b>Örnek:</b> 4. seviyedesin ve önündeki teçhizat 2 + 3 + 1. Teçhizat bonusu 6, dolayısıyla güçün 4 + 6 = 10.</div></div></div>
+
+  <div class="line"><div class="card"><h3>Tek seferlik bonuslar</h3>
+    <p>İksirler ve benzeri kartlar yalnızca bir dövüş için geçerli bir bonus verir. O dövüş sırasında senin tarafının gücüne ekle, dövüş bittiğinde kaldırılır. Teçhizat bonusunu değiştirmezler ve bir sonraki dövüş üzerine geçmezler.</p>
+    <div class="ex"><b>Örnek:</b> gücün 10 ve bir dövüse değer 3'lik bir iksir atıyorsun. Bu dövüş için tarafının gücü 13 olur. Sonraki dövüşte tekrar 10'a dönersin.</div></div></div>
+
+  <h2 id="fight">Bir dövüş, adım adım</h2>
+  <ol class="steps">
+    <li><b>Tarafını hesapla.</b> Gücün (seviye + teçhizat), üzerine senin için oynanan tek seferlik bonuslar eklenir.</li>
+    <li><b>Yardımcı varsa ekle.</b> Başka bir oyuncu dovuşuna katılabilir. Toplam gücü, yani seviyesi ve teçhizatı, seninkine eklenir.</li>
+    <li><b>Canavarı hesapla.</b> Canavara yazılı seviyeyi al ve dövüş sırasında aldığı bonusları ekle (bonuslar negatif de olabilir ve canavarı zayıflatır). İki canavar varsa, ikisini bir araya topla.</li>
+    <li><b>Karşılaştır.</b> Eğer tarafın canavardan <b>daha güçlü</b> ise kazanırsın. Eşit olmak yetmez: <b>beraberlik canavara gider</b>, ama bir Savaşçı senin ya da yardımcının tarafında savaşıyorsa. O zaman beraberlik senindir.</li>
+    <li><b>Seviyeni topla.</b> Kazanıyorsan, canavarın verdiği seviye sayısı kadar yükseliyorsun, genellikle 1, bazen 2. İki canavar varsa, her ikisi için de seviye alırsın. Yardımcın yardım ettiği için seviye kazanmaz, tek bir istisna var: bir Elfik, başkasının canavarı öldürmesine yardım ettiği her canavar için bir seviye yükselir. Sonra tek seferlik bonuslar atılır.</li>
+  </ol>
+  <div class="tip"><b>Beraberlik kuralı tek cümlede:</b> eşit sayılar canavarın kazanması anlamına gelir, çağrıştıran tarafında bir Savaşçı yoksa. Bu, insanların en sık unuttuğu kural ve sürpriz şekilde birçok dövüşü kararlaştırıyor.</div>
+
+  <h2 id="run-away">Kaybetmek ve kaçmak</h2>
+  <p>Canavar daha güçlüyse ya da bir Savaşçı olmadan beraberlik olursa, dövüşü kaybettin. Ama henüz yakalanmadın: kaçabilirsin. Bir zar at. <b>5 veya 6</b> sortirsa kaçmışsın. 1, 2, 3 veya 4 sortirsa kaçamazsın ve canavar, kaybedene kartında ne yazıyorsa onu uygular. Bu size bir seviye, teçhizatından bazıları veya daha kötü bir şey olabilir, bu yüzden sayılarını hemen güncelle.</p>
+  <p>En kötü sonuç karakterinin ölmesidir. Temel oyunda hiçbir oyuncu elenmez: teçhizatını kaybedersin, bu yüzden teçhizat bonusun 0'a düşer, ama <b>sevin değişmeden kalır</b>. Sonra devam edersin.</p>
+  <div class="tip">Kaybedilen bir dövüşten sonra iki sayıyı kontrol et: sevin ve teçhizat bonusun. Gücün kendiliğinden düzülür, çünkü sadece bu iki sayının toplamıdır.</div>
+
+  <h2 id="who-wins">Nasıl kazanılır</h2>
+  <p>İlk oyuncu <b>10. seviye</b>ye ulaşınca kazanır. Bir şart var: son seviye, 9'dan 10'a, normalde <b>sadece bir canavar öldürerek kazanılır</b>. Sadece bir seviye veren bir kart seni 9'dan 10'a taşımaz, kart bunu söylüyorsa hariç.</p>
+  <p>Seviyen 10'u asla geçmez. Eğer 9. seviyesiniz ve 2 seviye veren bir canavarı yenerse, 10. seviyeye ulaşır, 11'e değil, ve aynı şekilde kazanırsınız.</p>
+  <div class="warn"><b>Bitişteki hatalar</b><ul>
+    <li>Kartla değil, savaşla 9'dan 10'a geçmek. 10. seviye için bir canavar öldürmeniz gerekir, kartın bunu açıkça izin vermediği sürece.</li>
+    <li>Yardımcının seviyesini vermek (yalnızca bir Elf seviye alır). Eğer bir canavarı öldürmek için birine yardım ediyorsun ve 9. seviyesin, seviyen artmaz: yalnızca savaşan oyuncu seviyeleri alır.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Yaygın hatalar</h2>
+  <div class="warn"><ul>
+    <li>Seviye ve güç arasında karışık olma. Güçle savaşırsın, ancak seviyenle oyunu kazanırsın.</li>
+    <li>Beraberliği bir zafer olarak adlandırma. Eşit güç, canavar kazanır demektir, eğer yanınızda bir Savaşçı yoksa.</li>
+    <li>Dövüşten sonra bir iksir bonusunu koruma. Tek seferlik bonuslar yalnızca bir dövüş için sürer.</li>
+    <li>Yalnızca yardımcının seviyesini ekleme. Yardımcı, seviyesi ve teçhizatı, tüm gücünü getirir.</li>
+    <li>1'den aşağı düşme. 1. seviye zemindir; oradan bir seviye kaybetmek bir şey değiştirmez.</li>
+    <li>Öldüğünüzde seviyenizi kaybetme. Ölüm, teçhizatınızı alır, seviyenizi değil.</li>
+  </ul></div>
+
+  <h2 id="examples">Örnekler</h2>
+  <div class="examples num">
+    <div class="card"><b>Sade güç</b><p>4 seviye ile 6 teçhizat bonusu. Gücünüz 4 + 6.</p><div class="big">Güç 10</div></div>
+    <div class="card"><b>Beraberlik</b><p>Güç 10, 10 güçlü bir canavar karşı. Bir Savaşçı yoksa, canavar kazanır. Eğer bir Savaşçıysan, sen kazanırsın.</p><div class="big">Canavar, veya Savaşçı</div></div>
+    <div class="card"><b>Sıfırdan aşağı teçhizat</b><p>2 seviye ile -3 teçhizat bonusu. Gücünüz 2 - 3.</p><div class="big">Güç -1</div></div>
+    <div class="card"><b>Bir yardımcısıyla</b><p>10'unuz, plus 3 seviye ve 2 teçhizatlı bir yardımcısı (bu 5), 10 güçlü bir canavar karşı. 15, 10'dan fazladır.</p><div class="big">Kazanırsın</div></div>
+    <div class="card"><b>Büyük final</b><p>9. seviyesin ve 2 seviye veren bir canavarı öldürdün. 10'da durursun, 11'de değil.</p><div class="big">10. seviye, oyunu kazanırsın</div></div>
+    <div class="card"><b>Kaçma</b><p>Kaybettin ve 4 attın: şansın yok, canavar kartında yazan şeyi yap. 5 veya 6, seni kurtaracaktı.</p><div class="big">Kaçmak için 5 veya 6</div></div>
+  </div>
+
+  <h2 id="whole-turn">Bir tam dövüş, sayıldı</h2>
+  <div class="card walk"><ol>
+    <li><b>Gücün:</b> 4 teçhizat bonusu ile 6 seviyesin. 6 + 4 = 10.</li>
+    <li><b>Canavar:</b> 12 seviye ve dövüşte +3 bonusu var. 12 + 3 = 15. 5 eksiksın.</li>
+    <li><b>Bir iksir:</b> 2 değerinde birini kullanırsın. Tarafın 10 + 2 = 12.</li>
+    <li><b>Bir yardımcısı:</b> 3 seviye ve 2 teçhizatlı başka bir oyuncu sana katılır. Gücü 3 + 2 = 5, bu yüzden tarafın 12 + 5 = 17.</li>
+    <li><b>Kıyasla:</b> 17 karşı 15. Tarfın daha güçlü, bu yüzden kazanırsın. (Eğer 15 karşı 15 olsaydı, yanında bir Savaşçı olmanız gerekirdi ki kazanırsın.)</li>
+    <li><b>Seviyeler:</b> canavar 1 seviye verir, bu yüzden 6'dan 7'ye geçersin. Yardımcın 3. seviyesinde kalır.</li>
+    <li><b>Temizleme:</b> iksir gitmiş. Gücün seviyen plus teçhizatına dönmüş: 7 + 4 = 11.</li>
+  </ol><div class="sum num">17 karşı 15: kazanırsın, seviye 6 → 7, şimdi güç 11</div></div>
+
+  <h2 id="common-questions">Sıkça sorulan sorular</h2>
+  <div class="faq">
+    <details open><summary>Beraberliği kim kazanır?</summary><p>Canavar, eğer yanınızda bir Savaşçı savaşmıyorsa. Eğer sen veya yardımcınız bir Savaşçıysan, beraberlik senin için bir zaferdir.</p></details>
+    <details><summary>Gücüm seviyemle aynı mı?</summary><p>Hayır. Güç, seviyen plus teçhizat bonusun, ve bu neyle savaşırsın. Yalnızca seviyen kazanmaya sayılır.</p></details>
+    <details><summary>Gücüm negatif olabilir mi?</summary><p>Evet. Eğer teçhizat bonusun sıfırdan aşağıysa, güç de sıfırdan aşağıya düşebilir: 2 seviye ile teçhizat -3, güç -1.</p></details>
+    <details><summary>Seviyem 1'den aşağı düşebilir mi?</summary><p>Hayır. 1. seviye en düşük. Eğer 1. seviyesin ve bir seviye kaybedersen, yalnızca 1'de kalırsın.</p></details>
+    <details><summary>Yardımcım da seviye atar mı?</summary><p>Hayır. Yalnızca canavarı öldürdüğü oyuncu seviyeleri alır. Yardımcı gücünü ekler ve o bitir.</p></details>
+    <details><summary>Bir kartla 10. seviyeye ulaşabilir miyim?</summary><p>Normalde hayır: 10. seviye yalnızca canavar öldürerek gelir. Tek istisna, bunu açıkça söyleyen bir kart.</p></details>
+    <details><summary>Öldüğümde ne olur?</summary><p>Teçhizatınızı kaybedersiniz, bu yüzden teçhizat bonusunuz 0'a düşer. Seviyen aynı kalır ve oyuna devam edersiniz.</p></details>
+    <details><summary>Eğer birden fazla canavarla savaşırım ne olur?</summary><p>İki canavarı da birleştir: seviyeleri ve bonusları. Eğer kazanırsan, iki canavardan da seviyeleri alırsın.</p></details>
+    <details><summary>Genişlemeler ne olacak?</summary><p>Bu kılavuz yalnızca temel oyunu kapsar; genişlemeler ve diğer Munchkin setleri kendi ırklarını, sınıflarını ve kurallarını ekler (biri hatta 20. seviyeye kadar oynar), bu yüzden kural kitaplarını kontrol et.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Canavarlara gözlerini mi dikmek istersin?</b><p>Score Night'te herkesin seviyesi, teçhizatı ve gücü tek ekranda; çatışmalar kendiliğinden toplanıyor, ve uygulama kimsenin öldürmeden 10. seviyeye sıyrılmasına izin vermiyor.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">Bu rehber resmi değil, kendi sözlerimizle yazıldı. Munchkin'in yayıneviyle bir ilgimiz yok. Oyun isimleri sahiplerine aittir. Tüm kurallar yayınevinin kural kitabında.</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "seviye {v}",
+ "termGear": "teçhizat {v}",
+ "termOnce": "tek seferlik {v}",
+ "termHelper": "yardımcı {v}",
+ "termBonuses": "bonuslar {v}",
+ "yourSide": "Senin tarafın: {expr} = {total}",
+ "monsterSum": "Canavar: {expr} = {total}",
+ "monsterPlain": "Canavar: {expr}",
+ "killMonster": "{you}, {mon}'den daha yüksek, bu yüzden canavarı öldürürsün.",
+ "tieWarriorWins": "{you} ve {mon} eşit. Beraberlik canavara gider, ama senin tarafında bir Savaşçı var, bu yüzden kazanıyorsun.",
+ "tieMonsterWins": "{you} ve {mon} eşit, ve beraberlik canavara gider. 1 daha fazla güç ya da senin tarafında bir Savaşçı olsaydı kazanırdı.",
+ "monsterWins": {
+  "one": "{you}, {mon}'den düşük, bu yüzden canavar kazanır. Kazanmak için {n} daha fazla güce ihtiyacın var.",
+  "other": "{you}, {mon}'den düşük, bu yüzden canavar kazanır. Kazanmak için {n} daha fazla güce ihtiyacın var."
+ },
+ "levelWin": "10. seviyeye ulaşıp oyunu kazanıyorsun!",
+ "levelUpTo9": "Bir seviye yükselip 9'a ulaşıyorsun. Canavar 2 seviye verirse 10'a ulaşır ve oyunu kazanırsın!",
+ "levelUp": "Bir seviye yükseliyorsun, {a}'ya (ya da canavar 2 seviye verirse {b}'ye).",
+ "helperNoLevel": "Yardımcın bir seviye almaz (yardımcı Elf değilse).",
+ "runAway": "Kaçmak için zar at: 5 ya da 6 seni kurtarır. Aksi takdirde canavar kartının dediğini yap.",
+ "headWin": "Kazandın!",
+ "headLose": "Canavar kazandı"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../tr/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../tr/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/tr/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Türkçe</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/" class="current">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Carcassonne&#x27;da puan nasıl sayılır — Bobr Studio</title>
+<meta name="description" content="Carcassonne temel oyununun puan sayımını anlatan sade bir rehber: yollar, şehirler, manastırlar ve tarlalar, oyun sırasında ve sonunda.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../tr/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Oyun kuralları</a><details class="langs"><summary>🌐 Türkçe</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/" class="current">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Oyun kuralları</a> › Carcassonne</div>
+  <h1>Carcassonne'da puan nasıl sayılır <span class="hand">temel oyun, adım adım</span></h1>
+  <p class="lead">Carcassonne'da puanlamalar iki farklı anda yapılır. Oyun sırasında, bir yol, şehir ya da manastır tamamlandığı anda puanlanır ve üzerindeki takipçiler evine döner. Son karo yerleştirildiğinde, hâlâ tamamlanmamış olan her şey daha az puanla puanlanır, ardından hemen herkesin kafasını karıştıran tarlalar gelir. Bu sayfa ikisini de örneklerle açıklar ve hesaplayıcı oyunun sonunu senin için sayar.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Senin oyun sonu sayımın</h3>
+      <p>Son karo yerleştirildikten sonra, en çok takipçiye (ya da eşit en çok) sahip olduğun tamamlanmamış yollar, şehirler ve manastırları, ayrıca en çok çiftçiye sahip olduğun tarlaları sadece gözden geçir. Hepsinin puanlarını topla.</p>
+      <div class="group">Tamamlanmayan şehirler</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">Şehir karoları<small>tamamlanmayan şehirlerinin bir parçası olan karolar</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="Bir şehir karo eksik">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="Bir şehir karo daha fazla">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Armalar<small>bu şehirlerin içindeki arma rozetleri</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="Bir arma eksik">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="Bir arma daha fazla">+</button></div></div>
+      <div class="group">Tamamlanmayan yollar</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Yol karoları<small>tamamlanmayan yollarının geçtiği karolar</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="Bir yol karo eksik">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="Bir yol karo daha fazla">+</button></div></div>
+      <div class="group">Tamamlanmayan manastırlar</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Manastırlar<small>tamamen çevrelenmemiş manastırların</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="Bir manastır eksik">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="Bir manastır daha fazla">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Çevredeki karolar<small>tüm 8 komşu sayılır, köşeler de; her biri en fazla 7</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="Bir çevredeki karo eksik">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="Bir çevredeki karo daha fazla">+</button></div></div>
+      <div class="group">Tarlalar</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Tamamlanan şehirler<small>kazandığın tarlalara dokunan, alan alan sayılan</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="Bir tamamlanan şehir eksik">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="Bir tamamlanan şehir daha fazla">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 puan</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Puanlamayı tamamen telefonunda tut</b><p>Score Night puanlama çubuğunu değiştirir: her yol, şehir ya da manastırı tamamlandıkça kaydet, ardından oyun sonu, her oyuncu için.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play'de al</a></div>
+      <ul><li>İnternet olmadan çalışır, 2‑5 oyuncu için</li><li>Artık puan çubuğunda kaybolan tur kalmadı</li><li>Her oyunun iki partisi ücretsiz</li></ul>
+      <div class="toc"><b>Bu sayfada</b><ol><li><a href="#when-to-count">Ne zaman sayılır</a></li><li><a href="#who-gets-points">Kim puan alır</a></li><li><a href="#roads">Yollar</a></li><li><a href="#cities">Şehirler ve armalar</a></li><li><a href="#monasteries">Manastırlar</a></li><li><a href="#fields">Tarlalar</a></li><li><a href="#field-examples">Tarla örnekleri</a></li><li><a href="#mistakes">Yaygın hatalar</a></li><li><a href="#who-wins">Kim kazanır</a></li><li><a href="#whole-game">Oyun sonu, sayıldı</a></li><li><a href="#common-questions">Sık sorulan sorular</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Ne zaman sayılır</h2>
+  <ol class="steps">
+    <li><b>Oyun sırasında, bir şey tamamlandığında.</b> Bir karo bir yolu, bir şehri ya da bir manastırı kapattığında, o özellik hemen puanlanır, diğer oyuncunun turunda olsa bile. Üzerinde en çok takipçi olan oyuncu işaretçisini puan çubuğu boyunca ilerletir, ardından o özelliğin tüm takipçileri sahiplerine geri döner, tekrar koyulmaya hazır.</li>
+    <li><b>Oyun sırasında başka bir şey puanlanmaz.</b> Tamamlanmamış özellikler bekler ve tarlalar sonuna kadar puanlanmaz. Bir tarlada oturan çiftçi tüm oyun boyunca orada kalır.</li>
+    <li><b>Son karo yerleştirildiğinde oyun biter.</b> Şimdi masada hâlâ olan tüm takipçilere bak. Her biri tamamlanmamış bir şeyin üzerinde: bir yol, bir şehir ya da bir manastır. Bunları, bir özellikte bir kere puanla, ancak tamamlanmış olanlardan daha az puanla (şehirler ve manastırlar daha az değerli, yollar aynı kalır).</li>
+    <li><b>Tarlalar sona erer.</b> Tüm tamamlanmayan özellik sayıldıktan sonra, tarsları çiftçilerle puanla. Bir tarla, yanındaki tamamlanmış şehirler için puan verir. Bunun sebebi, hiçbir şey değişmeyeceği anda puanla.</li>
+  </ol>
+  <div class="tip">Tahtayı ilerlerken en kolay temizlemek: bir özelliği puanla, onun takipçilerini alın ve bir sonrakiye geç. Sadece çiftçiler kaldığında, tarlasın vakti.</div>
+
+  <h2 id="who-gets-points">Kim puan alıyor?</h2>
+  <p>Yola, şehere veya tarla üstüne, zaten bir takipçi varsa bile senin de takipçinizi koyamazsın. Ancak, üzerinde takipçi bulunan iki ayrı parça daha sonra büyüp birleşebilir, ve ardından bir özelliğe birden fazla takipçi gelebilir. Puanlandığında, oradaki her oyuncunun takipçi sayısını say. En fazla takipçi olan oyuncu tüm puanları alır. Eğer iki veya daha fazla oyuncu en çok için beraberse, <b>herbirleri tam puanları alır</b>, hiçbir şey bölünmez. Daha az takipçi olanlar hiçbir şey alırmaz. Hiç takipçi olmayan bir özellik hiçbirine puan verir.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Örnek:</b> tamamlanmış bir şehir 5 karo ve 2 arma sahipse, 10 + 4 = 14 puan değerdir. Ayşe içindeki 2 takipçi, Mehmet de 2, ve sen 1'sin. Ayşe ve Mehmet her biri 14 puan alır. Sen hiçbir puan alamazsın, ama senin takipçin geri döner.</div></div></div>
+
+  <h2 id="roads">Yollar</h2>
+  <div class="line"><div class="card"><h3>Neyi sayarsın?</h3>
+    <p>Yolu bir ucundan diğerine takip et ve onu geçtiği karoları say. Bir yol, iki ucunun durmasıyla tamamlanır: bir kesişimde, bir şehirde, bir manastırda, ya da bir döngüde kendine gelmesi durumunda.</p>
+    <p><span class="when during">Oyun sırasında</span> Tamamlanmış yol her bir karo için 1 puan verir.</p>
+    <p><span class="when end">Oyun sonu</span> Tamamlanmayan yol her bir karo için 1 puan verir. Yollar, her iki durumda da aynı puan değeri olan tek özelliktir.</p>
+    <p class="where">Nerede bakılacak: yollar üzerinde duran takipçiler.</p>
+    <div class="ex"><b>Örnek:</b> yol bir kesişimden çıkar, 2 sade karo geçer ve şehrin kapısına var. Kesişim karosu ve şehir kapısı sayılırca 4 karo temas eder, bu 4 puandır. Eğer oyun sonunda 3 karolu yolunun hâlâ açık ucu varsa, 3 puan verir.</div></div></div>
+
+  <h2 id="cities">Şehirler ve arma</h2>
+  <div class="line"><div class="card"><h3>Neyi sayarsın?</h3>
+    <p>Şehrin herhangi bir kısmı bulunan karoları say, sonra arma say. Arma, bazı şehir tilesine basılan küçük arma emblemi. Bir şehir, duvarların tamamen çevrelenmesi ve boşluk veya açık kenar olmadan tamamlanmış sayildir.</p>
+    <p><span class="when during">Oyun sırasında</span> Tamamlanmış şehir her bir arma için 2 puan ve her birarma için 2 puan daha verir. En küçük şehir, arma olmadan 2 karo, 4 puandır.</p>
+    <p><span class="when end">Oyun sonu</span> Tamamlanmayan şehir her birarma için sadece 1 puan ve her birarma için 1 puan verir, bitmiş olsun halinin yarısı.</p>
+    <p class="where">Nerede bakılacak: şehir duvarları içindeki takipçi.</p>
+    <div class="ex"><b>Örnek:</b> 4 karo ve 1 arma bulunan tamamlanmış şehir, karolar için 4 × 2 = 8 ve arma için 2, toplam 10 puan. Oyun sonunda 3 karo ve 1 arma bulunan tamamlanmayan şehir, 3 + 1 = 4 puan verir.</div></div></div>
+
+  <h2 id="monasteries">Manastırlar</h2>
+  <div class="line"><div class="card"><h3>Neyi sayarsın?</h3>
+    <p>Bir manastır, kendi karosunun ortasında yer alır. Onun etrafındaki 8 boşluğu doldur: sol, sağ, üst, alt ve 4 köşe. Tüm 8, karolarla doldurulduğunda manastır tamamlanır.</p>
+    <p><span class="when during">Oyun sırasında</span> Tamamlanmış manastır 9 puan verir: manastır karosu için 1 ve onun etrafındaki 8 karo her biri için 1.</p>
+    <p><span class="when end">Oyun sonu</span> Tamamlanmayan manastır, manastır karosu için 1 puan ve var olan her bir kenar karo için 1 puan verir. Bu da 1 ile 8 arasında puan değeri demektir.</p>
+    <p class="where">Nerede bakılacak: manastırlar üzerindeki takipçi. Her zaman tek bir takipçi manastır üzerinde olabilir, bu yüzden paylaşım yok.</p>
+    <div class="ex"><b>Örnek:</b> oyun sonunda, senin manastırın etrafında 5 karo ve 3 boşluk var. Böylece 1 + 5 = 6 puandır.</div></div></div>
+
+  <h2 id="fields">Tarlalar</h2>
+  <div class="line"><div class="card"><h3>Neyi sayarsın?</h3>
+    <p>Bir tarla, yeşil ot uzunluğudur. Karolar üzerindeki ot, ot birbirine bağlı olduğu sürece uzar; yollar, şehir duvarları ve tahta üzerindeki karoların kenarı bunu keser, böylece bir büyük bahçe birden fazla ayrı tarla haline gelebilir. Tarlanda yatan takipçi, çiftçidir.</p>
+    <p><span class="when during">Oyun sırasında</span> Hiçbir şey. Tarlas oyun sonuna kadar puanlanmaz, çiftçiler yerlerinde kalır.</p>
+    <p><span class="when end">Oyun sonunda</span>Her seferinde bir çiftçi olan bir tarla al. O tarlayla duvarları dokunan her <b>bitmiş</b> şehri bul. O tarladaki en çok çiftçi olan oyuncu, bu şehirler için her biri için 3 puan alır. Tamamlanmamış şehirler tarlalara hiçbir şey vermez.</p>
+    <p class="where">Nereye bak: çimendeki çiftçileri, sonra tarlalarının kenarını dolaş ve dokunduğu her şehir duvarına bak.</p>
+    <div class="ex"><b>Örnek:</b> Çiftçinin tarlası 3 bitmiş şehir ve 1 tamamlanmamış şehre dokunuyor. Bu 3 × 3 = 9 puan; tamamlanmamış şehir sayılmaz.</div>
+    <p>Her tarla kendi başına puanlanır. Bir şehir iki farklı tarla dokunuyorsa, her ikisi için de sayılır. Ve aynı oyuncu iki tarlayı da kazanırsa, o şehir ona iki kez 3 puan kazandırır.</p></div></div>
+  <div class="tip"><b>Bir tarlanın şehirlerini bulmanın kolay bir yolu:</b> Çiftçiye bir parmak koy ve yolu veya duvarı geçmeden dışa doğru çimenleri izle. Parmakların geçtiği her bitmiş şehir duvarı bu tarlanın için bir kez sayılır, duvarın ne kadar uzun olursa olsun.</div>
+
+  <h2 id="field-examples">Tarım örnekleri</h2>
+  <div class="examples num">
+    <div class="card"><b>Bir tarla, birçok şehir</b><p>Çiftçinin tarlası büyük ve yalnız. Kenarlarında 4 bitmiş şehir ve 2 tamamlanmamış şehir var. Sadece bitmişler sayılır: 4 × 3.</p><div class="big">12 puan</div></div>
+    <div class="card"><b>İki tarlanın arasında bir şehir</b><p>Bir yol çimleri ikiye böler ve her iki yarım da aynı bitmiş şehre dokunur. Çiftçinin kuzey tarlasında, Anna'nın güney tarlasında. İki tarla var, bu yüzden her ikimiz de o şehre 3 puan alırız.</p><div class="big">Her biri 3</div></div>
+    <div class="card"><b>Paylaşılan bir tarla</b><p>Oyun sırasında bir araya gelen iki çiftçi olan tarla. Şimdi sen ve Anna her ikisiniz de 2 çiftçi ile orada ve 5 bitmiş şehre dokunuyor. Eşitliğiniz var, bu yüzden her ikisiniz de 5 × 3 alırsınız.</p><div class="big">Her biri 15</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>Azınlıkta</b><p>Aynı tarla, ama Annada 2 çiftçi var ve sende 1. Anna en çok, bu yüzden o 15'ini alır ve bu tarladan senin için hiçbir şey kalmaz.</p><div class="big">Sizin için 0</div></div>
+    <div class="card"><b>Bir oyuncu, iki tarla</b><p>İki farklı tarlada her birinde bir çiftçisin var ve bir bitmiş şehir ikisine dokunuyor. Her tarla onu ayrı ayrı sayar, bu yüzden o şehir sana 3 + 3 puan verir.</p><div class="big">6 puan</div></div>
+    <div class="card"><b>Hiç bitmiş şehir yok</b><p>Sadece tamamlanmamış şehirler veya hiç şehir dokunmayan bir çiftçi olan bir tarlada puan yok. Çiftçi sadece orada yatar.</p><div class="big">0 puan</div></div>
+  </div>
+
+  <h2 id="mistakes">Yaygın hatalar</h2>
+  <div class="warn"><b>Carcassonne puanlamasında insanların yaptığı hatalar</b><ul>
+    <li>Oyun sonunda bitmemiş şehirleri bitmiş şehirler gibi puanlamak. Bir bitmiş şehir karosu 2, bitmemiş bir karo sadece 1 değerlidir, ve aynı şey armalar için de geçerlidir.</li>
+    <li>Tamamlanmamış manastırın kendisini unutmak. 5 komşusu olan bir tamamlanmamış manastır 6, değil 5 değerlidir.</li>
+    <li>Tarlalar için bitmemiş şehirleri saymak. Tarlalar sadece bitmiş şehirler için puan alır.</li>
+    <li>Eşitlikte puanları bölmek. En çok takipçisi olan her oyuncu tam puanı alır.</li>
+    <li>Daha az takipçisi olan oyuncuyu puanlamak. Sadece en çok olan(lar) bir şey alır.</li>
+    <li>Oyun sırasında tarlaları puanlamak veya çiftçileri geri almak. Çiftçiler sona kadar kalır.</li>
+    <li>Oyun sırasında bir özelliğin puanlandığı zaman çiftçileri geri almayı unutmak.</li>
+    <li>Şehrin duvar parçalarını değil, karolarını saymak. Her karoyu bir kez say, o karodaki ne kadar şehir olursa olsun.</li>
+  </ul></div>
+
+  <h2 id="who-wins">Kim kazanır</h2>
+  <p>Son puanınız, oyunda puan izinde topladığınız her şey plus oyun sonu özellikleri ve tarlalar. En çok puana sahip oyuncu kazanır. İki oyuncunun da aynı toplamı varsa, zaferi paylaşırlar. İz daha kısa, çoğu son puandan, bu yüzden eğer puanlayıcınız onu döndürdüyse, turları unutmayın.</p>
+
+  <h2 id="whole-game">Bir oyun sonu, sayıldı</h2>
+  <div class="card walk"><p>Son karo yerleştirildi ve puan izindeki puanlayıcın gösterdiği, oyunda 64 puan topladığınız. Şimdi masada şunlar var:</p><ol>
+    <li><b>1 arma olan 3 karodan oluşan bir tamamlanmamış şehir</b> ve sadece çiftçinin: 3 + 1 = 4 puan.</li>
+    <li><b>2 karodan oluşan bir tamamlanmamış yol</b> çiftçinin: 2 puan.</li>
+    <li><b>5 karo çevresi olan bir tamamlanmamış manastır</b>: 1 + 5 = 6 puan.</li>
+    <li><b>İlk tarlan</b>, çiftçinin yalnız ve 3 bitmiş şehre dokunuyor: 3 × 3 = 9 puan.</li>
+    <li><b>İkinci tarlan</b> Anna ile paylaşılıyor, her biri 1 çiftçi ve 2 bitmiş şehre dokunuyor. Eşitliğiniz var, bu yüzden her ikisiniz de 2 × 3 = 6 puan alırsınız.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 puan</div><p>Yukarıdaki hesap makinesiyle bunu kontrol etmek için, 3 şehir karoları, 1 arma, 2 yol karoları, 5 çevredeki karolası olan 1 manastır ve tarlalar için 5 tamamlanan şehir (ilk tarladan 3, ikinci tarladan 2) gir. 64 puanına ekleyeceğin 27 puanı gösteriyor.</p></div>
+
+  <h2 id="common-questions">Sıkça sorulan sorular</h2>
+  <div class="faq">
+    <details open><summary>Üzerinde bir takipçi yoksa bir özelliği puan alır mısın?</summary><p>Hayır. Bir özelliği yalnızca en çok takipçiye sahip oyuncular puan alır. Takipçi olmayan bir tamamlanan şehir kimseye puan getirmez, ama yine de yanındaki tarlalardaki çiftçilere oyun sonunda yardımcı olabilir.</p></details>
+    <details><summary>Aynı turda bir özelliği bitirip üzerine bir takipçi koyarsam ne olur?</summary><p>Hemen puanlanır ve takipçi aynı turda sana geri döner.</p></details>
+    <details><summary>Eşitlik olduğunda puanları bölüyor muyuz?</summary><p>Hayır. En çok takipçiye sahip olan her eşit oyuncu tam puanı alır.</p></details>
+    <details><summary>Bir şehir iki tarlaya puan verebilir mi?</summary><p>Evet. Her tarla ayrı ayrı puanlanır, yani birden fazla tarlaya komşu bir şehir her biri için bir kez sayılır.</p></details>
+    <details><summary>Çiftçiler hiç geri döner mi?</summary><p>Hayır. Bir çiftçi oyun sonuna kadar kendi tarlasındadır, bu yüzden erken koymadan iki kez düşün.</p></details>
+    <details><summary>2 karelik bir şehir daha az puan alır mı?</summary><p>Hayır, mevcut kurallarda diğer şehirler gibi karo başına 2 puan, yani tamamlandığında 4 puan alır. Eski kural kitaplarında bazı detaylar farklıdır; eski bir kitapla oynuyorsan onu uygula.</p></details>
+    <details><summary>Genişlemeler ne olacak?</summary><p>Bu rehber sadece temel oyunu kapsar; Inns &amp; Cathedrals ya da Başrahip gibi genişlemeler yeni parçalar ekler ve bazı puanları değiştirir, bunları ayrı sayfalarda açıklayacağız.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Bunun hepsini elle saymak istemiyor musun?</b><p>Score Night'te bir yol, şehir veya manastır tamamlandığında üzerine dokunursun, puanı kim alacak seçersin ve sonunda kalanları girersin. Her toplam kendi kendine toplanır, her puanın kaydıyla birlikte.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Kendi kelimelerimizle yazılmış resmi olmayan bir rehber. Carcassonne yayıncısı ile bir bağlantısı yok. Oyun adları sahiplerine aittir. Tam kurallar yayıncının kural kitabında bulunur.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} puan",
+  "other": "{n} puan"
+ },
+ "tiles": {
+  "one": "{n} karo",
+  "other": "{n} karolar"
+ },
+ "shields": {
+  "one": "{n} arma",
+  "other": "{n} armalar"
+ },
+ "finishedCities": {
+  "one": "{n} tamamlanan şehir",
+  "other": "{n} tamamlanan şehirler"
+ },
+ "cityLine": "Tamamlanmayan şehirler: {tiles}, her biri 1 puan = {pts}",
+ "cityShieldLine": "Tamamlanmayan şehirler: {tiles} ve {shields}, her biri 1 puan = {pts}",
+ "roadLine": "Tamamlanmayan yollar: {tiles}, her biri 1 puan = {pts}",
+ "monasteryLine": {
+  "one": "{n} tamamlanmamış manastır: manastırın kendisi için 1 puan + çevresindeki {tiles} = {pts}",
+  "other": "{n} tamamlanmamış manastırlar: her manastır için 1 puan ({n}) + çevresindekiler {tiles} = {pts}"
+ },
+ "fieldLine": "Tarlalar: {cities}, her biri 3 puan = {pts}",
+ "addToTrack": "Bunu takibindeki puanına ekle",
+ "emptyHint": "Yukarıdaki masada kalanları ekle, puanlar buraya görünecek."
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../tr/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../tr/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/tr/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Türkçe</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/" class="current">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

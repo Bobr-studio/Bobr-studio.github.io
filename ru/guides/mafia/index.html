@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как вести Мафию — Bobr Studio</title>
+<meta name="description" content="Пошаговая памятка для ведущего Мафии: сколько каких ролей, как проходит первая ночь, полный порядок ночи, дневное голосование, ничья и кто побеждает.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #2A2E37; font: 700 24px Rubik; color: var(--cream); cursor: pointer; }
+  .step button:disabled { opacity: .4; cursor: default; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; color: var(--cream); }
+  .result { margin-top: 14px; color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 34px/1.1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; }
+  .result p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: #D9CFBF; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; border-radius: 16px; padding: 14px 20px; }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .say { display: block; margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: #262A32; font-style: italic; font-size: 15px; }
+  .tip { border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { border-left: 4px solid #D0645A; border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; } .warn li, .tip li { margin: 4px 0; }
+  .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+  .roles .card { padding: 16px 18px; } .roles p { margin: 6px 0 0; font-size: 15px; }
+  .roles .team { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  table.rules { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; }
+  table.rules th, table.rules td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.rules th { color: var(--river); font-weight: 500; } table.rules td:first-child { color: var(--river); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .ex { background: #262A32; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { border-radius: 14px; padding: 12px 18px; margin-top: 10px; }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 8px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--accent2); margin-top: 10px; }
+  @media (max-width: 720px) { .top { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } table.rules th, table.rules td { padding: 8px 6px; } }
+
+/* Настроение «нуар» для страницы Мафии: ночной город, приглушённый красный, латунь. Тёмная тема — контраст текста проверен (AA). */
+:root { --river: #F2E8D5; --river-2: #E3A58F; --cream: #F2E8D5; --ink: #DDD5C6; --muted: #ABA393; --line: #3A3E48; --accent: #A8352D; --accent2: #D9B66E; }
+body { background: #14161B radial-gradient(circle at 85% 0, rgba(168,53,45,.16), transparent 55%) no-repeat; color: var(--ink); }
+a { color: var(--river-2); }
+.studio { background: linear-gradient(180deg, #0D0E12, #1B1D24); }
+h1 .hand { color: #E8867A; }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .cta, .toc, ol.steps li, .faq details { background: #1D2027; border: 1px solid #2E323B; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.cta { border: 2px solid var(--accent); }
+.result { background: linear-gradient(135deg, #2A1416, #3A1C1D); }
+.tip { background: #262219; }
+.warn { background: #2C1B1C; }
+.step button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 1px; }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ru/guides/mafia/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/mafia/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/mafia/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/mafia/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/mafia/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/mafia/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/mafia/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/mafia/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/mafia/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/mafia/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/mafia/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/mafia/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/mafia/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/mafia/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/mafia/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ru/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Правила игр</a><details class="langs"><summary>🌐 Русский</summary><div class="menu"><a href="../../../guides/mafia/">English</a><a href="../../../ru/guides/mafia/" class="current">Русский</a><a href="../../../uk/guides/mafia/">Українська</a><a href="../../../pl/guides/mafia/">Polski</a><a href="../../../cs/guides/mafia/">Čeština</a><a href="../../../de/guides/mafia/">Deutsch</a><a href="../../../fr/guides/mafia/">Français</a><a href="../../../es/guides/mafia/">Español</a><a href="../../../pt/guides/mafia/">Português</a><a href="../../../tr/guides/mafia/">Türkçe</a><a href="../../../ja/guides/mafia/">日本語</a><a href="../../../ko/guides/mafia/">한국어</a><a href="../../../zh/guides/mafia/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Правила игр</a> › Мафия</div>
+  <h1>Как вести Мафию <span class="hand">спокойная памятка для ведущего</span></h1>
+  <p class="lead">Сегодня ведёте вы — может, впервые, а может, давно не вели, и порядок ночи подзабылся. Ниже всё по порядку, в каком понадобится: сколько мафии раздать на ваш стол, что происходит в первую ночь, кто когда просыпается, как идёт дневное голосование, что делать при ничьей и когда игра заканчивается.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Сколько каких ролей?</h3>
+      <p>Посчитайте игроков, которые получат роли. Ведущий не играет, себя не считайте.</p>
+      <div class="row"><span class="name">Игроки с ролями<small>от 5 до 16, без ведущего</small></span><div class="step"><button data-d="-1" aria-label="Меньше игроков">−</button><output id="n">9</output><button data-d="1" aria-label="Больше игроков">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts">2 мафии, 7 мирных</div><ul id="how" class="num"></ul><p id="why"></p></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Ведущий без шпаргалки</b><p>Score Night раздаёт роли, подсказывает, что сказать на каждом шаге, помнит, кто есть кто, и объявляет победителей.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ Скачать в Google Play</a></div>
+      <ul><li>Работает без интернета, для 5–16 игроков плюс ведущий</li><li>Две партии каждой игры — бесплатно, и во время игры никакой рекламы</li></ul>
+      <div class="toc"><b>На этой странице</b><ol><li><a href="#roles">Роли</a></li><li><a href="#before">Перед игрой</a></li><li><a href="#dealing">Раздача ролей</a></li><li><a href="#first-night">Первая ночь</a></li><li><a href="#night">Полная ночь по порядку</a></li><li><a href="#morning">Утро</a></li><li><a href="#day">День и голосование</a></li><li><a href="#ties">Ничья</a></li><li><a href="#game-end">Когда игра заканчивается</a></li><li><a href="#whole-game">Пример целой партии</a></li><li><a href="#host-tips">Советы для ведущего</a></li><li><a href="#mistakes">Частые ошибки</a></li><li><a href="#table-rules">Правила стола</a></li><li><a href="#common-questions">Частые вопросы</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="roles">Роли</h2>
+  <p>Команд две. Мафия знает своих; мирные не знают ничего и должны всё выяснить в разговоре. Каждый игрок получает одну роль, у ведущего роли нет.</p>
+  <div class="roles">
+    <div class="card"><span class="team">Мирный</span><h3>Мирные</h3><p>Ночью ничего не делают: спят с закрытыми глазами. Днём слушают, спорят и голосуют. Побеждают, когда выбыла вся мафия.</p></div>
+    <div class="card"><span class="team">Мафия</span><h3>Мафия</h3><p>Ночью вместе открывают глаза и молча выбирают жертву. Днём притворяются обычными мирными.</p></div>
+    <div class="card"><span class="team">Мафия</span><h3>Дон</h3><p>Глава мафии. Выбирает жертву вместе со всеми, а потом просыпается ещё раз и ищет комиссара: показывает на игрока, а ведущий кивает или качает головой.</p></div>
+    <div class="card"><span class="team">Мирный</span><h3>Комиссар</h3><p>Каждую ночь показывает на одного игрока, и если это мафия, ведущий кивает. Дон тоже считается мафией. Днём комиссар может осторожно рассказать, что узнал.</p></div>
+    <div class="card"><span class="team">Мирный</span><h3>Доктор</h3><p>Каждую ночь показывает на одного игрока, которого лечит. Если мафия выбрала того же человека, утром никто не выбывает.</p></div>
+  </div>
+
+  <h2 id="before">Перед игрой</h2>
+  <ol class="steps">
+    <li><b>Рассадите всех в круг</b>, вместе с ведущим. Так легче запомнить порядок: ночью люди показывают друг на друга, и проще уследить, когда знаешь, кто где сидит.</li>
+    <li><b>Посчитайте игроков без ведущего</b> и выберите роли. Нужно от 5 до 16 игроков. Помощник вверху показывает обычный состав: до 6 игроков — 1 мафия; от 7 до 9 — 2, и одна из них Дон; от 10 до 12 — 3; от 13 до 16 — 4. Комиссар есть всегда, доктор — с 6 игроков. Все остальные — мирные.
+      <span class="say">Пример: 9 игроков — это Дон, ещё 1 мафия, комиссар, доктор и 5 мирных.</span></li>
+    <li><b>Договоритесь о спорных правилах вслух</b>, пока никто не взял карту: что бывает при ничьей, открывают ли роль выбывшего, может ли доктор лечить себя. За разными столами это решают по-разному, а спорить на 40-й минуте невесело. Наши правила по умолчанию — ниже, в <a href="#table-rules">правилах стола</a>.</li>
+  </ol>
+  <div class="tip">Состав можно менять, если вашей компании так больше нравится. Ограничений два: мафия должна быть хотя бы одна, и её должно быть меньше, чем всех остальных вместе. Иначе игра закончится, не начавшись.</div>
+
+  <h2 id="dealing">Раздача ролей</h2>
+  <p>Каждый должен узнать свою роль так, чтобы её не видел никто другой. С бумажными картами перемешайте нужную колоду, раздайте каждому по карте рубашкой вверх, дайте всем посмотреть и спрятать. Ведущему нужно знать все роли, так что либо смотрите карты при раздаче, либо запишите роли, когда все посмотрели.</p>
+  <p>В Score Night телефон идёт по кругу: каждый проводит пальцем и держит, чтобы увидеть свою роль, отпускает, чтобы скрыть, и передаёт дальше. В конце телефон возвращается к ведущему, а он видит всех. Если компании привычнее свои карты, раздайте их, а роли просто впишите в приложение сами.</p>
+
+  <h2 id="first-night">Первая ночь: знакомство мафии</h2>
+  <p>Самая первая ночь короткая. Никто не выбывает: мафия просто узнаёт своих.</p>
+  <ol class="steps">
+    <li><b>Все закрывают глаза.</b> Скажите классическую фразу или что-нибудь атмосфернее.<span class="say">«Последний трамвай уходит в депо. Город засыпает».</span></li>
+    <li><b>Мафия открывает глаза и смотрит друг на друга.</b> Дайте им несколько секунд запомнить лица. Без разговоров и рукопожатий.<span class="say">«Мафия, откройте глаза и обменяйтесь многозначительными взглядами. Запомните друг друга».</span></li>
+    <li><b>Мафия закрывает глаза, город просыпается.</b> В первое утро объявлять нечего, так что сразу начинается первый день обсуждения.</li>
+  </ol>
+  <div class="tip">Некоторые столы пропускают знакомство, и мафия выбирает жертву уже в первую ночь. Так игра быстрее и жёстче. Годится любой вариант, если все знают о нём до начала.</div>
+
+  <h2 id="night">Полная ночь по порядку</h2>
+  <p>Со второй ночи начинается полный круг. Роли просыпаются по очереди, молча показывают и засыпают, прежде чем вы позовёте следующую. Вы смотрите, запоминаете и отвечаете кивком или качаете головой.</p>
+  <ol class="steps">
+    <li><b>Город засыпает.</b> Все закрывают глаза. Дождитесь тишины.</li>
+    <li><b>Мафия просыпается и выбирает жертву.</b> Открывают глаза, молча договариваются и показывают на одного игрока. Запомните, на кого, и отправьте мафию спать.<span class="say">«В задней комнате пахнет сигарами и заговором. Мафия, решайте — тихо, у стен есть уши».</span></li>
+    <li><b>Дон ищет комиссара.</b> Дон снова открывает глаза и показывает на одного игрока. Если это комиссар — кивните, если нет — покачайте головой. Своих Дону проверять незачем. Если Дон уже выбыл, пропустите этот шаг.</li>
+    <li><b>Комиссар кого-то проверяет.</b> Комиссар показывает на одного игрока. Кивните, если это мафия, покачайте головой, если нет. Дон здесь считается мафией, так что на Дона тоже кивок.</li>
+    <li><b>Доктор кого-то лечит.</b> Доктор показывает на одного игрока. Если мафия выбрала того же человека, жертва выживает. По нашим правилам доктор может вылечить себя один раз за игру и не может лечить одного и того же игрока две ночи подряд.<span class="say">«Доктор берёт чемоданчик и зонт — до рассвета будет дождь. Доктор, кого спасаем?»</span></li>
+  </ol>
+  <div class="tip">В приложении роль выбывшего игрока просто больше не вызывается, и ночь идёт дальше. Даже если Дон выбыл, остальная мафия выбирает жертву как обычно.</div>
+
+  <h2 id="morning">Утро: что произошло ночью</h2>
+  <p>Разбудите город и расскажите новости. Сначала про себя решите: если мафия выбрала того же, кого вылечил доктор, никто не выбыл. Иначе жертва выходит из игры.</p>
+  <div class="line"><div class="card">
+    <p>Объявляйте только итог, никогда не причины. Если кто-то выбыл, назовите его. Если нет, просто скажите, что ночь прошла тихо, и не упоминайте ни доктора, ни того, кого спасли: это лишняя подсказка мафии.</p>
+    <p>По умолчанию роль игрока, выбывшего ночью, <b>не</b> открывают. Некоторые столы открывают; смотрите <a href="#table-rules">правила стола</a>.</p>
+    <div class="ex"><b>Пример:</b> мафия выбрала Катю, доктор вылечил Катю. Утренние новости: «Серый рассвет, горький кофе, и на этот раз хорошая новость: все на месте».</div>
+  </div></div>
+  <p>После утренних новостей проверьте, не закончилась ли игра (смотрите <a href="#game-end">когда игра заканчивается</a>). Если нет, начинается день.</p>
+
+  <h2 id="day">День: обсуждение и голосование</h2>
+  <ol class="steps">
+    <li><b>Обсуждение.</b> Идите по кругу и дайте каждому высказаться по очереди. Таймер речи помогает держать темп; у нас — минута на человека. Здесь игроки делятся подозрениями и называют имена, а комиссар решает, сколько раскрыть.</li>
+    <li><b>Голосование.</b> Называйте кандидатов по очереди и спрашивайте, кто за то, чтобы его выгнать. Игроки поднимают руки, вы считаете. Кто набрал больше всех голосов, выбывает. Если голосов нет ни у кого, никто не выбывает.</li>
+    <li><b>Последнее слово.</b> Выгнанный игрок получает несколько секунд на последнее слово и выходит из круга. По умолчанию его роль <b>не</b> открывают.</li>
+    <li><b>Проверьте, не закончилась ли игра</b>, и если нет — город снова засыпает.</li>
+  </ol>
+
+  <h2 id="ties">Ничья</h2>
+  <p>Если больше всего голосов поровну у двух игроков или больше, по умолчанию мы переголосовываем только между ними. Если снова поровну, сегодня никто не выбывает, и город засыпает чуть более нервным.</p>
+  <p>Есть ещё два распространённых варианта: после второй ничьей выбывают <b>все</b>, у кого поровну, или переголосования нет вовсе, и при ничьей никто не уходит. Выберите вариант до начала игры, а не когда ничья уже случилась.</p>
+  <div class="line"><div class="card"><div class="ex"><b>Пример:</b> осталось 4 игрока. У Бориса 2 голоса, у Анны тоже 2. Переголосование между Борисом и Анной: теперь у Бориса 3, у Анны 1. Борис выбывает.</div></div></div>
+
+  <h2 id="game-end">Когда игра заканчивается и кто побеждает</h2>
+  <p>Проверяйте после каждого утра и каждого голосования:</p>
+  <ul>
+    <li><b>Мирные побеждают</b>, как только выбыла вся мафия, включая Дона.</li>
+    <li><b>Мафия побеждает</b>, как только её столько же, сколько всех остальных, или больше. С этого момента город уже не может её переголосовать.</li>
+  </ul>
+  <div class="line"><div class="card"><div class="ex"><b>Пример:</b> осталось 3 игрока, 1 мафия и 2 мирных: игра продолжается. Следующей ночью мафия убирает ещё одного, остаётся 1 на 1. Утром мафия побеждает.</div></div></div>
+  <p>Когда игра закончилась, откройте все роли, а если хотят — расскажите, что было ночами: кто кого проверял и кого спас доктор. Часто это самая весёлая часть вечера.</p>
+
+  <h2 id="whole-game">Пример целой партии</h2>
+  <p>7 игроков: Анна, Борис, Катя, Иван, Максим, Настя и Олег. Олег — Дон, Максим — мафия, Настя — комиссар, Катя — доктор, Анна, Борис и Иван — мирные. Правила стола по умолчанию.</p>
+  <div class="card walk num"><ol>
+    <li><b>Ночь 1:</b> Олег и Максим открывают глаза и видят друг друга. Никто не выбыл.</li>
+    <li><b>День 1:</b> никто пока ничего не знает, но Борис много говорит и набирает 4 голоса. Борис выбывает; он был мирным. Мафии 2, остальных 4.</li>
+    <li><b>Ночь 2:</b> мафия показывает на Катю. Дон проверяет Ивана: вы качаете головой. Комиссар проверяет Максима: вы киваете. Доктор лечит себя — так можно один раз за игру.</li>
+    <li><b>Утро 2:</b> мафия выбрала того, кого вылечил доктор, поэтому никто не выбыл.</li>
+    <li><b>День 2:</b> Настя осторожно наводит подозрения на Максима, и Максима выгоняют. Мафии 1, остальных 4.</li>
+    <li><b>Ночь 3:</b> Олег, оставшись один, показывает на Настю. Как Дон он проверяет Анну: вы качаете головой. Настя проверяет Олега: вы киваете. Катя уже лечила себя, поэтому лечит Ивана.</li>
+    <li><b>Утро 3:</b> Настя выбывает. Мафии 1, остальных 3: игра продолжается.</li>
+    <li><b>День 3:</b> у Олега и Анны по 2 голоса. Переголосование между ними: Олег 3, Анна 1. Олег выбывает.</li>
+  </ol><div class="sum">Мафии не осталось: мирные победили на третий день.</div></div>
+
+  <h2 id="host-tips">Советы для ведущего</h2>
+  <div class="tip"><ul>
+    <li><b>Держите одно и то же лицо.</b> Кивок — «да», покачивание — «нет», и всё с одинаково спокойным видом. Игроки следят за вами внимательнее, чем кажется.</li>
+    <li><b>Давайте каждой роли одинаковое время.</b> Если мафия выбрала за 2 секунды, а доктор думает 20, считайте про себя и выжидайте примерно одинаково для всех. Долгая пауза после одной роли и короткая после другой подскажут, кто ещё в игре.</li>
+    <li><b>Никогда не подсказывайте, кто действовал.</b> Не смотрите в сторону того, кто показывал, не говорите «хороший выбор», а утром объявляйте только итог.</li>
+    <li><b>Говорите, пока люди двигаются.</b> Короткая фраза из сюжета заглушит шорох, когда кто-то открывает глаза или поднимает руку.</li>
+    <li><b>Шутите по-доброму.</b> Шутите над ситуацией, а не над игроками: город, дождь, бармен, который ничего не видел. Никто не должен чувствовать себя лишним из-за того, что вылетел первым.</li>
+    <li><b>Нагнетайте к финалу.</b> Когда остаётся 4 игрока или меньше, скажите об этом перед ночью. Тут все садятся ровнее.</li>
+    <li><b>Держите темп.</b> Таймер речи и твёрдое «пора голосовать» спасут вечер от бесконечного спора.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Частые ошибки</h2>
+  <div class="warn"><ul>
+    <li>Называть утром, кого спас доктор. Просто скажите, что никто не выбыл.</li>
+    <li>Качать головой комиссару, когда он показал на Дона. Дон считается мафией, нужно кивнуть.</li>
+    <li>Забыть, кого доктор лечил прошлой ночью. По нашим правилам одного игрока нельзя лечить две ночи подряд, так что запишите или пусть запомнит приложение.</li>
+    <li>Проверять конец игры только после голосования. Игра может закончиться и утром, после ночной жертвы.</li>
+    <li>Открывать роль выбывшего, когда за столом договорились этого не делать. Сказанного не вернёшь.</li>
+    <li>Менять правило посреди уже прошедшей ночи. Новое правило действует со следующего шага, а не задним числом.</li>
+    <li>Считать себя игроком. У ведущего нет роли, его нельзя выбрать ночью, и он не голосует.</li>
+  </ul></div>
+
+  <h2 id="table-rules">Правила стола: как играем мы и как ещё бывает</h2>
+  <p>Мафия — народная игра, и почти в каждой компании в неё играют немного по-своему. Вот правила, с которых начинаем мы; всё из правой колонки тоже правильно, если за вашим столом так договорились.</p>
+  <div class="card" style="padding:8px 14px"><table class="rules">
+    <tr><th>Правило</th><th>Как у нас</th><th>Как ещё бывает</th></tr>
+    <tr><td>Первая ночь</td><td>Мафия только знакомится</td><td>Мафия сразу выбирает жертву</td></tr>
+    <tr><td>Ничья в голосовании</td><td>Переголосование; снова поровну — никто не уходит</td><td>Переголосование, снова поровну — уходят все, у кого поровну; или без переголосования — никто не уходит</td></tr>
+    <tr><td>Доктор лечит себя</td><td>Раз за игру</td><td>Никогда; или каждую ночь</td></tr>
+    <tr><td>Доктор лечит одного игрока две ночи подряд</td><td>Нельзя</td><td>Можно</td></tr>
+    <tr><td>Роль выбывшего днём</td><td>Не раскрывается</td><td>Раскрывается</td></tr>
+    <tr><td>Роль выбывшего ночью</td><td>Не раскрывается</td><td>Раскрывается</td></tr>
+    <tr><td>Комиссар ночью</td><td>Только проверяет</td><td>Проверяет или стреляет</td></tr>
+    <tr><td>Последнее слово</td><td>Да</td><td>Нет</td></tr>
+    <tr><td>Таймер речи</td><td>1 минута</td><td>Выкл., 30 секунд или 2 минуты</td></tr>
+  </table></div>
+  <p>Если ваш комиссар может стрелять, это так: вместо проверки он показывает на игрока, которого надо убрать. Доктор может спасти и его — точно так же, как жертву мафии.</p>
+
+  <h2 id="common-questions">Частые вопросы</h2>
+  <div class="faq">
+    <details open><summary>Сколько игроков нужно?</summary><p>Хотя бы 5 игроков с ролями плюс ведущий. Состав на этой странице рассчитан на 16 игроков, так что вместе с ведущим — стол до 17 человек.</p></details>
+    <details><summary>Ведущий играет?</summary><p>Нет. У ведущего нет роли, он знает все роли, его нельзя выбрать ночью, и он не голосует. Его дело — чтобы игра была честной и весёлой.</p></details>
+    <details><summary>Комиссар видит Дона как мафию?</summary><p>Да. Дон — часть мафии, поэтому комиссар получает кивок.</p></details>
+    <details><summary>Может ли Доктор лечить себя?</summary><p>По нашим правилам — раз за игру. За некоторыми столами нельзя никогда, за другими — хоть каждую ночь. Договоритесь до начала.</p></details>
+    <details><summary>А если никто не получил голосов?</summary><p>В этот день никто не уходит, и город засыпает.</p></details>
+    <details><summary>Стоит ли раскрывать роль выбывшего?</summary><p>По нашим правилам — нет, ни после голосования, ни после ночи. Если открывать, мирным легче; если нет, больше интриги. Оба варианта нормальные.</p></details>
+    <details><summary>Можно ли поменять правило посреди игры?</summary><p>Да, если весь стол согласен. Оно действует со следующего шага: прошедшая ночь или голосование не переигрываются.</p></details>
+    <details><summary>А дополнительные роли?</summary><p>Здесь классический набор: мафия, Дон, комиссар, доктор и мирные. Многие компании добавляют свои роли; о них — на другой странице.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Не хочется держать всё это в голове? И не нужно.</b><p>В приложении Score Night раздаёт роли, подсказывает, что говорить, — с забавными сюжетами, — помнит, кто есть кто и кого спас доктор, и объявляет, кто победил.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ Google Play</a></div>
+
+  <p class="disclaimer">Неофициальная памятка, написана своими словами. Мафия — народная игра для компании; правила за разными столами различаются.</p>
+<script type="application/json" id="guide-strings">
+{
+ "headline": "Мафия: {team}, мирные: {town}",
+ "donLine": "Дон: 1 (входит в мафию)",
+ "mafiaLine": "Мафия: {n}",
+ "detLine": "Комиссар: 1",
+ "docLine": "Доктор: 1",
+ "docNoneLine": "Доктор: нет, появляется с 6 игроков",
+ "townLine": "Мирные: {n}",
+ "tableLine": {
+  "one": "За столом вместе с ведущим: {n} человек",
+  "few": "За столом вместе с ведущим: {n} человека",
+  "many": "За столом вместе с ведущим: {n} человек",
+  "other": "За столом вместе с ведущим: {n} человека"
+ },
+ "why6": "До 6 игроков мафия одна и без Дона. Комиссар есть с 5 игроков, доктор — с 6.",
+ "why9": "От 7 до 9 игроков мафии двое: Дон и ещё один. Комиссар и доктор играют за мирных.",
+ "why12": "От 10 до 12 игроков мафии трое: Дон и ещё двое, против комиссара, доктора и мирных.",
+ "why16": "От 13 до 16 игроков мафии четверо: Дон и ещё трое, против комиссара, доктора и мирных.",
+ "whyTail": "Состав можно менять, если мафия есть хотя бы одна и её меньше, чем всех остальных.",
+ "whyJoin": "{reason} {tail}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+let n = 9;
+// Как в приложении: Lineup.defaultFor (score-night lib/games/mafia/logic.dart).
+function lineup(cnt) {
+  if (cnt <= 6) return { mafia: 1, don: 0, det: 1, doc: cnt === 6 ? 1 : 0 };
+  const team = cnt <= 9 ? 2 : cnt <= 12 ? 3 : 4;
+  return { mafia: team - 1, don: 1, det: 1, doc: 1 };
+}
+function draw() {
+  document.getElementById('n').textContent = n;
+  const l = lineup(n), team = l.mafia + l.don, town = n - team, civ = town - l.det - l.doc;
+  document.getElementById('pts').textContent = f(T.headline, { team, town });
+  const lines = [];
+  if (l.don) lines.push(T.donLine);
+  lines.push(f(T.mafiaLine, { n: l.mafia }));
+  lines.push(T.detLine);
+  lines.push(l.doc ? T.docLine : T.docNoneLine);
+  lines.push(f(T.townLine, { n: civ }));
+  lines.push(p(T.tableLine, n + 1));
+  document.getElementById('how').innerHTML = lines.map(x => `<li>${x}</li>`).join('');
+  const reason = T[n <= 6 ? 'why6' : n <= 9 ? 'why9' : n <= 12 ? 'why12' : 'why16'];
+  document.getElementById('why').textContent = f(T.whyJoin, { reason, tail: T.whyTail });
+  document.querySelectorAll('.step button').forEach(b => b.disabled = (+b.dataset.d < 0 ? n <= 5 : n >= 16));
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { n = Math.max(5, Math.min(16, n + +b.dataset.d)); draw(); });
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ru/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ru/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ru/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Русский</summary><div class="menu"><a href="../../../guides/mafia/">English</a><a href="../../../ru/guides/mafia/" class="current">Русский</a><a href="../../../uk/guides/mafia/">Українська</a><a href="../../../pl/guides/mafia/">Polski</a><a href="../../../cs/guides/mafia/">Čeština</a><a href="../../../de/guides/mafia/">Deutsch</a><a href="../../../fr/guides/mafia/">Français</a><a href="../../../es/guides/mafia/">Español</a><a href="../../../pt/guides/mafia/">Português</a><a href="../../../tr/guides/mafia/">Türkçe</a><a href="../../../ja/guides/mafia/">日本語</a><a href="../../../ko/guides/mafia/">한국어</a><a href="../../../zh/guides/mafia/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>マンチキンのレベルと戦闘の数え方 — Bobr Studio</title>
+<meta name="description" content="ベースゲームのマンチキンでレベル、装備、戦闘力がどう決まるか、そして誰が勝つかを教えてくれる戦闘計算機つきの解説です。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">ルールガイド</a><details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/" class="current">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">ルールガイド</a> › マンチキン</div>
+  <h1>マンチキンでレベルと戦闘を数える方法 <span class="hand">誰が強いか、誰が勝つか</span></h1>
+  <p class="lead">マンチキンは最後に得点をつけるゲームじゃありません。代わりに、ゲーム中ずっと注目するふたつの数字があります。あなたのレベルと戦闘力です。下の計算機なら、どんな戦いも一瞬で決着をつけ、なぜ勝ったか、なぜ負けたかをわかりやすく教えてくれます。さらに下では、レベルや装備、戦い、レベル10を目指す競争が、ステップバイステップで解説されています。例や、ほぼどのテーブルでも起こりがちな間違いも含めてです。</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>この戦いに勝つのは誰？</h3>
+      <p>戦いの両方の側を入力してください。あなたの戦闘力はレベルに装備を足したもので、モンスターの戦闘力はそのレベルにもらったボーナスを足したものです。</p>
+      <h4>あなた側</h4>
+      <div class="row"><span class="name">あなたのレベル<small>1から10まで</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="レベルダウン">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="レベルアップ">+</button></div></div>
+      <div class="row"><span class="name">あなたの装備ボーナス<small>使っている装備からのボーナスすべて；マイナスになることもあります</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="装備ボーナスを下げる">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="装備ボーナスを上げる">+</button></div></div>
+      <div class="row"><span class="name">使い捨てボーナス（ポーション等）<small>あなた側で使える一回限りのボーナス</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="使い捨てボーナスを下げる">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="使い捨てボーナスを上げる">+</button></div></div>
+      <div class="row"><span class="name">助っ人の戦闘力<small>助っ人のレベルと装備を足したもの；誰も助けなければ0のまま</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="助っ人の戦闘力を下げる">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="助っ人の戦闘力を上げる">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> 味方（あなたか助っ人）に戦士が戦っています。</label>
+      <h4>モンスター</h4>
+      <div class="row"><span class="name">モンスターのレベル<small>モンスターに書かれた数字；モンスターが2体の場合はレベルを足します</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="モンスターのレベルを下げる">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="モンスターのレベルを上げる">+</button></div></div>
+      <div class="row"><span class="name">モンスターのボーナス<small>モンスターを強く（または弱く）するためにプレイされたものすべて</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="モンスターのボーナスを下げる">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="モンスターのボーナスを上げる">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">あなたの勝ち！</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>テーブル全員のレベルをひとつにまとめましょう。</b><p>Score Nightは、全プレイヤーのレベル、装備、戦闘力を記録し、助っ人やボーナスを含めた戦いの決着をつけ、逃げる時のサイコロ振りも行ってくれます。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Playで入手</a></div>
+      <ul><li>オフラインでも使えます。3人から6人まで。</li><li>各ゲーム2回まで無料</li></ul>
+      <div class="toc"><b>このページの内容</b><ol><li><a href="#what-you-track">記録しておくこと</a></li><li><a href="#level">あなたのレベル</a></li><li><a href="#strength">装備と戦闘力</a></li><li><a href="#fight">戦い、ステップバイステップ</a></li><li><a href="#run-away">負けと逃走</a></li><li><a href="#who-wins">勝ち方</a></li><li><a href="#mistakes">よくある間違い</a></li><li><a href="#examples">例</a></li><li><a href="#whole-turn">戦い全体を数える</a></li><li><a href="#common-questions">よくある質問</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">記録しておくこと</h2>
+  <p>マンチキンに得点表はなく、最後に点を数えることもありません。ゲームを通じて、各プレイヤーはいくつかの項目を常に最新に保つ必要があり、戦いの後や呪いの後、新しい装備を手に入れた後など、変化のたびに更新します。各自が自分の数字を誰でも見える場所に書いておくと便利です。</p>
+  <ol class="steps">
+    <li><b>あなたのレベル。</b> みんなレベル1からスタートします。レベルは勝負を決める数字で、レベル10に最初に達した人がゲームに勝ちます。</li>
+    <li><b>あなたの装備ボーナス。</b> 使っているアイテムひとつひとつにボーナスがあります。それを全部足すと、装備ボーナスというひとつの数字になります。</li>
+    <li><b>あなたの戦闘力。</b> 戦いに使う数字です。あなたのレベルに装備ボーナスを足したもので、別々に覚えておく必要はありません。どちらかが変わるたびに、戦闘力も変わります。</li>
+    <li><b>あなたの性別とクラス。</b> カードによっては男性キャラクターや女性キャラクターにしか使えないものがあるので、自分がどちらかを全員に知っておいてもらいます。そして、自分のキャラクターが戦士なら、それを覚えておいてください。戦士は同点の戦いに勝ちます。</li>
+  </ol>
+  <div class="tip"><b>レベルと戦闘力は同じものではありません。</b> レベルは勝利にどれだけ近いかを示し、戦闘力はどれだけ強く戦えるかを示します。レベル4で装備ボーナスが6のヒーローは、戦闘力10で戦いますが、それでも勝利まであと6レベルあります。</div>
+
+  <h2 id="level">あなたのレベル：上がったり下がったり</h2>
+  <div class="line"><div class="card"><h3>レベルの変わり方</h3>
+    <p>レベル1からスタートです。モンスターを倒すのが主な上がり方です：1レベルもらえ、大きいモンスターだと2もらえます。モンスターのカードに書かれている数がその量です。いくつかのカードは直接レベルを上げたり下げたりします。モンスターとの勝負に負けると、カードの記述によってレベルが下がることもあります。</p>
+    <p>レベルには2つの限界があります。あなたのレベル<b>1より下がることはありません</b>：レベル1の場合、レベルを奪われてもそのままレベル１です。そして<b>10を超えることはありません</b>、なぜなら10はゲームの終わりだからです。</p>
+    <p class="where">どこを見るか：あなたが保持しているレベルの数字です。勝利に貢献するのはあなたのレベルだけで、戦闘力ではありません。</p>
+    <div class="ex"><b>例:</b> レベル1でモンスターにレベルを奪われました。レベルはそのままで、次ターンモンスターを倒して2レベルもらうと、3まで上がります。</div></div></div>
+
+  <h2 id="strength">装備と戦闘力</h2>
+  <div class="line"><div class="card"><h3>戦闘力はレベル＋装備です</h3>
+    <p>戦闘力を得るには、あなたのレベルに使用中のすべての装備のボーナスを足します。それが変更されるまで、その戦闘でのあなたの戦闘力です。</p>
+    <p>装備のボーナスは通常プラスですが、合計がマイナスになることもあります。それは許されており、単にあなたを弱くするだけです。レベル2の勇者で装備ボーナスが-3なら、戦闘力は-1です。ええ、マイナス１です。さぁ、隠れるしかありませんね。</p>
+    <p class="where">どこを見るか：あなたのレベル、そしてあなたの前にあるそれぞれの装備にかかっているボーナスの数字です。</p>
+    <div class="ex"><b>例:</b> レベル4で装備が2＋3＋1です。装備ボーナスは6なので、あなたの戦闘力は4＋6＝10です。</div></div></div>
+
+  <div class="line"><div class="card"><h3>使い捨てボーナス</h3>
+    <p>使い捨てボーナス（ポーション等）は、1回の戦闘だけでボーナスを与えます。その戦闘中はあなたの側の戦闘力に加算され、戦闘後は消えます。装備ボーナスを変更せず、次の戦闘には持ち越されません。</p>
+    <div class="ex"><b>例:</b> あなたの戦闘力は10で、ボーナス3のポーションを戦闘に使います。この場合、この戦闘でのあなたの側は13です。次の戦闘では、戦闘力は10に戻ります。</div></div></div>
+
+  <h2 id="fight">戦闘のステップ</h2>
+  <ol class="steps">
+    <li><b>あなたの側を数えます。</b> あなたの戦闘力（レベル＋装備）に、あなたのためにプレイされた使い捨てボーナスを足します。</li>
+    <li><b>助っ人がいれば加えます。</b> お手伝いするプレイヤーが1人でもいれば、その全戦闘力があなたの戦闘力に加算されます。彼らの戦闘力はレベル＋装備です。</li>
+    <li><b>モンスターを数えます。</b> モンスターに印刷されたレベルを取り、戦闘中にもらったボーナスを足します（ボーナスは負の値にもなり、弱体化させることもあります）。モンスターが2体の場合は、両方を足します。</li>
+    <li><b>比較</b> あなたの側の方がモンスターより<b>強い</b>ならば勝利です。同点の場合は<b>同点 — モンスターの勝ち</b>ですが、あなたや助っ人に戦士がいれば、あなたの勝ちです。</li>
+    <li><b>タイのルールを一行で</b> 数字が同じであれモンスターの勝ちですが、あなたや助っ人に戦士がいれば、あなたの勝ちです。よく忘れられがちなルールで、意外と多くの勝負を決めます。</li>
+  </ol>
+  <div class="tip"><b>タイのルールを一行で</b> 数字が同じであれモンスターの勝ちですが、あなたや助っ人に戦士がいれば、あなたの勝ちです。よく忘れられがちなルールで、意外と多くの勝負を決めます。</div>
+
+  <h2 id="run-away">負けと逃げ</h2>
+  <p>モンスターの方が強い場合、または戦士がいない同点の場合は負けです。でもまだ捕まりはしません：逃げるチャンスがあります。サイコロを振る。 <b>5または6</b> の目で逃げ切れます。1、2、3、4の場合は逃げられず、モンスターが負けにしたことをカード通りにしてきます。レベルや装備、あるいは何かを失う可能性があるので、すぐに数値を更新してください。</p>
+  <p>一番悪いのは、キャラが倒れることです。基本セットでは、誰も倒されない：装備を失うので、装備ボーナスが0になり、でも<b>レベルはそのままで</b>。その後も続けます。</p>
+  <div class="tip">負けの後、レベルと装備ボーナスの2つの数字を確認してください。戦闘力はただの2つを足しただけなので、自動的に修復されます。</div>
+
+  <h2 id="who-wins">勝利条件</h2>
+  <p><b>レベル10</b>に最初に到達した人の勝ち。ひとつだけ注意があります：通常、9から10までの最後のレベルは<b>モンスターを倒した時だけ</b>勝てます。レベルをただ与えるカードだけでは、9から10には行けません。カードが許可していない限りです。</p>
+  <p>レベルは最大10までです。例えばレベル9の状態で2レベル分のモンスターを倒しても、レベル11にはならず10で止まります。それでも優勝できますよ。</p>
+  <div class="warn"><b>ゲーム終了間近でよく犯す間違い</b><ul>
+    <li>戦闘ではなくカードを使って9から10に上がろうとすること。レベル10へは原則としてモンスターを倒す必要がありますが、カードに明記されている場合は除きます。</li>
+    <li>助っ人にもレベルが上がると勘違いすること（エルフクラスのみ対象）。レベル9で他のプレイヤーのモンスター倒しを手伝っても、あなたのレベルは上がりません。実際に戦闘したプレイヤーだけがレベルアップします。</li>
+  </ul></div>
+
+  <h2 id="mistakes">よくある間違い</h2>
+  <div class="warn"><ul>
+    <li>レベルと戦闘力をごっちゃにすること。戦闘に使うのは戦闘力ですが、ゲームの勝敗を決めるのはレベルです。</li>
+    <li>同点なのに勝ちだと思い込むこと。戦闘力が同点の場合はモンスターの勝ちですが、味方に戦士がいる場合は例外です。</li>
+    <li>戦闘が終わってもポーションのボーナスを適用し続けること。使い捨てボーナスはあくまで1回の戦闘分の効果だけです。</li>
+    <li>助っ人のレベルしか足さないこと。助っ人はレベルと装備、つまりその全戦闘力を持参してくるはずです。</li>
+    <li>レベル1以下になってしまったように思うこと。レベル1が下限です。ここでレベルを落としても、数値は変わりません。</li>
+    <li>死亡時にレベルまで失うと思い込むこと。死亡して失うのは装備だけで、レベルはそのままです。</li>
+  </ul></div>
+
+  <h2 id="examples">具体的な例</h2>
+  <div class="examples num">
+    <div class="card"><b>通常計算の戦闘力</b><p>装備ボーナスが＋6のレベル4の場合、戦闘力は 4 ＋ 6 です。</p><div class="big">戦闘力10</div></div>
+    <div class="card"><b>同点の場合</b><p>戦闘力10とモンスター10が対戦。戦士がいない場合はモンスターの勝ちですが、あなたが戦士なら勝ちです。</p><div class="big">モンスターの勝ち、または戦士の勝ち</div></div>
+    <div class="card"><b>装備ボーナスがマイナスの場合</b><p>装備ボーナスが－3のレベル2の場合、戦闘力は 2 － 3 です。</p><div class="big">戦闘力－1</div></div>
+    <div class="card"><b>助っ人を呼んだ場合</b><p>あなたの戦闘力10に、装備ボーナス＋2のレベル3の助っ人（戦闘力5）を加えた15、対モンスター10。15の方が大きいですね。</p><div class="big">あなたの勝ちです</div></div>
+    <div class="card"><b>ゲーム終了の瞬間</b><p>レベル9の状態で2レベル分のモンスターを倒しました。この場合、11ではなく10で止まります。</p><div class="big">レベル10到達、あなたの勝ちです</div></div>
+    <div class="card"><b>逃走フェーズ</b><p>負けになりサイコロを振って4が出た場合：残念ながらダメです。モンスターカードのペナルティを受けましょう。5か6なら逃げ切れたんですが。</p><div class="big">逃走するには5または6が必要</div></div>
+  </div>
+
+  <h2 id="whole-turn">戦闘全体の計算例</h2>
+  <div class="card walk"><ol>
+    <li><b>あなたの戦闘力：</b> 装備ボーナス＋4のレベル6。6 ＋ 4 ＝ 10 です。</li>
+    <li><b>モンスター側：</b> レベル12で、戦闘中に＋3のボーナス。12 ＋ 3 ＝ 15。5足りませんね。</li>
+    <li><b>ポーション使用：</b> 値が2のものを使います。味方側は 10 ＋ 2 ＝ 12。まだ3足りません。</li>
+    <li><b>助っ人追加：</b> 装備ボーナス＋2のレベル3のプレイヤーが加わります。その戦闘力は 3 ＋ 2 ＝ 5 なので、味方側は 12 ＋ 5 ＝ 17 です。</li>
+    <li><b>比較：</b> 17 対 15。味方側が強いため、勝ちです。（もし15 対 15の同点であれば、味方に戦士がいないと勝ち切れませんでした。）</li>
+    <li><b>レベルの計算：</b> このモンスターは1レベル分なので、あなたは6から7になります。助っ人はレベル3のままです。</li>
+    <li><b>片付け：</b> ポーションの効果は消えます。戦闘力は元のレベル＋装備に戻り、7 ＋ 4 ＝ 11 になります。</li>
+  </ol><div class="sum num">17 対 15：あなたの勝ち。レベル 6 → 7、戦闘力は11に戻りました。</div></div>
+
+  <h2 id="common-questions">よくある質問</h2>
+  <div class="faq">
+    <details open><summary>同点の場合は誰が勝ちますか？</summary><p>味方に戦士がいない場合はモンスターの勝ちです。あなたか助っ人のどちらかが戦士であれば、同点でもあなたの勝ちになります。</p></details>
+    <details><summary>戦闘力とレベルは同じものですか？</summary><p>いいえ、違います。戦闘力は「レベル＋装備ボーナス」の合計値で、戦闘時に使います。ゲームに勝つためにカウントされるのはレベルだけです。</p></details>
+    <details><summary>戦闘力はマイナスになることがありますか？</summary><p>はい、なります。装備ボーナスがマイナスの場合、戦闘力ももちろんマイナスに落ちます。例えばレベル2で装備ボーナス－3なら、戦闘力は－1ですね。</p></details>
+    <details><summary>レベルは1以下になることがありますか？</summary><p>いいえ、なりません。レベル1が下限です。レベル1の状態でレベルを落とすペナルティを受けても、1のまま変わりません。</p></details>
+    <details><summary>助っ人も一緒にレベルアップしますか？</summary><p>いいえ、上がりません。モンスターと実際に戦ったプレイヤーだけがレベルアップします。助っ人は戦闘力を貸すだけです。</p></details>
+    <details><summary>カードを使ってレベル10に到達できますか？</summary><p>原則としてはできません。レベル10へはモンスターを倒すことが必須です。唯一の例外は、カードのテキストに「これでレベル10になる」と明確に書かれている場合です。</p></details>
+    <details><summary>死亡した場合はどうなりますか？</summary><p>装備をすべて失い、装備ボーナスは0になります。レベルはそのまま変わりませんので、ゲームは続行できます。</p></details>
+    <details><summary>1度にモンスターを2体と戦った場合はどうしますか？</summary><p>両方のモンスターを合計して計算します。レベルもボーナスも足し合わせます。勝利した場合は、両方から得られるレベルをまとめて受け取れます。</p></details>
+    <details><summary>エクスパンションはどうですか？</summary><p>このガイドは基本ゲームのみを対象としています。拡張パックや他のマンチキンシリーズのセットでは、独自の種族やクラス、ルールが追加されています（レベル20まで遊ぶものもあります）ので、それぞれのルールブックをご確認ください。</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>モンスターの戦いを見ていたいですか？</b><p>Score Nightでは、参加者全員のレベル、装備、戦闘力が一つの画面に表示されます。戦闘によるポイントは自動で加算される仕組みです。また、アプリは誰も倒すことなくレベル10に達することを防ぎます。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">こちらは私たち独自の言葉で書かれた非公式のガイドです。「マンチキン」社のパブリッシャーとは提携しておりません。ゲームの名称はそれぞれの権利者に帰属します。完全なルールにつきましては、パブリッシャーが出しているルールブックをご確認ください。</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "レベル{v}",
+ "termGear": "装備{v}",
+ "termOnce": "一時ボーナス{v}",
+ "termHelper": "助っ人{v}",
+ "termBonuses": "ボーナス{v}",
+ "yourSide": "あなた側: {expr} = {total}",
+ "monsterSum": "モンスター: {expr} = {total}",
+ "monsterPlain": "モンスター: {expr}",
+ "killMonster": "{you}は{mon}より大きいので、モンスターを倒せます。",
+ "tieWarriorWins": "{you}対{mon}で同点です。同点ならふつうはモンスターの勝ちですが、あなた側に戦士がいるので勝ちです。",
+ "tieMonsterWins": "{you}対{mon}で同点、同点はモンスターの勝ちです。あと1の強さか、あなた側に戦士がいれば勝てます。",
+ "monsterWins": {
+  "other": "{you}は{mon}より小さいので、モンスターの勝ちです。勝つにはあと{n}必要です。"
+ },
+ "levelWin": "レベル10になり、ゲームに勝利です！",
+ "levelUpTo9": "レベル9に上がります。モンスターが2レベルくれるならレベル10、ゲームに勝利です！",
+ "levelUp": "レベル{a}に上がります（モンスターが2レベルくれるならレベル{b}）。",
+ "helperNoLevel": "助っ人はレベルが上がりません（エルフなら別です）。",
+ "runAway": "サイコロを振って逃げましょう。5か6なら逃げ切れます。それ以外ならモンスターカードの指示に従います。",
+ "headWin": "あなたの勝ち！",
+ "headLose": "モンスターの勝ち"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ja/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ja/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/" class="current">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

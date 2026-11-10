@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak liczyć punkty w grze Na skrzydłach — Bobr Studio</title>
+<meta name="description" content="Przewodnik krok po kroku, jak policzyć punkty w podstawowej wersji Na skrzydłach.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+:root{--forest:#234638;--leaf:#52775B;--sky:#DCEBF0;--feather:#9D6846;--paper:#F1F5E8;--ink:#24342D;--muted:#52645A;--line:#C7D5C9;--accent:#795238}
+body{background:var(--paper) radial-gradient(circle at 90% 0,#E3F0E8,transparent 55%);color:var(--ink)}
+.top{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin-top:22px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 14px #2346380d}
+h1,h2,h3{color:var(--forest)}h2::before{content:"";display:inline-block;width:20px;height:4px;background:var(--feather);margin:0 9px 4px 0;border-radius:3px}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}.step{display:flex;align-items:center;gap:8px}.step button{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--forest);font-size:21px}.step output{min-width:26px;text-align:center;font-weight:700}.result{margin-top:14px;padding:16px;border-radius:14px;background:var(--forest);color:white}.result strong{font-size:30px;color:#DDE9B6}.result ul{padding-left:20px;line-height:1.5}.tip{background:#EAF1DE;border-left:4px solid var(--leaf);padding:12px 16px;border-radius:8px;margin-top:12px}.toc{padding:14px 18px;margin-top:16px;background:#fff;border-radius:14px}.toc ol{columns:2}.side .cta{grid-template-columns:56px 1fr}.side .cta .btn{grid-column:1/-1;justify-content:center}
+ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:10px}ol.steps li{counter-increment:s;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px 14px 58px;position:relative}ol.steps li:before{content:counter(s);position:absolute;left:14px;top:13px;background:var(--forest);color:#fff;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;font-weight:bold}
+.line{margin-top:12px}.line .card{padding:18px 20px}.where{color:var(--muted);font-size:14px}.ex{margin-top:8px;padding:9px 12px;border-radius:9px;background:#EDF3E9}.examples{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.examples .big{font-size:22px;color:var(--forest);font-weight:bold}.walk ol{padding-left:22px}.walk li{margin:7px 0}.sum{font-size:22px;font-weight:bold;color:var(--forest);margin-top:12px}.faq details{background:white;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:9px 0}.faq summary{font-weight:bold;color:var(--forest);cursor:pointer}
+@media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/pl/guides/wingspan/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/wingspan/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/wingspan/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/wingspan/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/wingspan/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/wingspan/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/wingspan/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/wingspan/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/wingspan/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/wingspan/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/wingspan/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/wingspan/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/wingspan/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/wingspan/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/wingspan/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../pl/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Zasady gier</a><details class="langs"><summary>🌐 Polski</summary><div class="menu"><a href="../../../guides/wingspan/">English</a><a href="../../../ru/guides/wingspan/">Русский</a><a href="../../../uk/guides/wingspan/">Українська</a><a href="../../../pl/guides/wingspan/" class="current">Polski</a><a href="../../../cs/guides/wingspan/">Čeština</a><a href="../../../de/guides/wingspan/">Deutsch</a><a href="../../../fr/guides/wingspan/">Français</a><a href="../../../es/guides/wingspan/">Español</a><a href="../../../pt/guides/wingspan/">Português</a><a href="../../../tr/guides/wingspan/">Türkçe</a><a href="../../../ja/guides/wingspan/">日本語</a><a href="../../../ko/guides/wingspan/">한국어</a><a href="../../../zh/guides/wingspan/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Zasady gier</a> › Na skrzydłach</div>
+<h1>Jak liczyć punkty w grze Na skrzydłach <span class="hand">podstawowa gra</span></h1>
+<p class="lead">Na koniec gry weź planszę i karty każdego gracza, a potem policz wynik w 6 częściach. Cele rund wymagają jednego dodatkowego sprawdzenia: najpierw zobacz, którą stronę planszy celów użyliście w grze.</p>
+<div class="top"><div class="card calc"><h3>Pomocnik celów rund</h3><p>Wybierz stronę celów, której użyliście w grze, a potem wpisz wynik każdego gracza w danej rundzie. Pomocnik pokaże punkty za tę rundę.</p>
+<label for="side"><b>Strona planszy celów</b></label><select id="side"><option value="green">Zielona: porównuj graczy</option><option value="blue">Niebieska: punktuj swój wynik</option></select>
+<label for="round"><b>Runda</b></label><select id="round"><option value="0">Runda 1</option><option value="1">Runda 2</option><option value="2">Runda 3</option><option value="3">Runda 4</option></select>
+<div id="players"></div><button id="add" type="button">Dodaj gracza</button><div class="result"><strong id="out">0 punktów</strong><ul id="how"><li>Wpisz wyniki graczy w tej rundzie.</li></ul></div></div>
+<div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Niech Score Night prowadzi arkusz wyników</b><p>Wpisz każdą linię punktowania dla każdego gracza i porównaj końcowe sumy.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Pobierz na Google Play</a></div><div class="toc"><b>Na tej stronie</b><ol><li><a href="#when">Kiedy liczyć</a></li><li><a href="#birds">Karty ptaków</a></li><li><a href="#bonus">Karty bonusów</a></li><li><a href="#goals">Cele rund</a></li><li><a href="#eggs">Jaja</a></li><li><a href="#food">Pokarm na kartach</a></li><li><a href="#tucked">Wsunięte karty</a></li><li><a href="#mistakes">Częste błędy</a></li><li><a href="#winner">Zwycięzca i remisy</a></li><li><a href="#whole">Cała gra</a></li><li><a href="#faq">Pytania</a></li></ol></div></div></div>
+<section id="when"><h2>Kiedy liczyć</h2><ol class="steps"><li>Po 4. rundzie policz wynik każdego gracza. Możesz sumować cele rund w trakcie gry, a potem sprawdzić je ponownie na końcu.</li><li>Użyj tej samej kolejności dla wszystkich: ptaki, karty bonusów, cele rund, jaja, pokarm na kartach ptaków, potem karty wsunięte pod ptaki.</li><li>Zachowaj pozostałe żetony pokarmu osobno. Nie dają one punktów; decydują tylko o remisie w końcowym wyniku.</li></ol></section>
+<section id="birds"><h2>Karty ptaków</h2><div class="line"><div class="card"><b>Spójrz na punkty nadrukowane na każdym ptaku, który zagrałeś.</b><p>Dodaj te nadrukowane wartości. Karty ptaków są w rzędach na Twojej planszy; policz tylko ptaki, które zagrałeś.</p><p class="where">Gdzie szukać: wartość punktowa na każdej karcie ptaka w Twoim środowisku.</p><div class="ex">Jeśli Twoje zagrane ptaki pokazują 5, 8, 3 i 7 punktów, ta linia to 23 punkty.</div></div></div></section>
+<section id="bonus"><h2>Karty bonusów</h2><div class="line"><div class="card"><b>Przeczytaj każdą kartę bonusu, którą zachowałeś, i przyznaj punkty według jej warunku.</b><p>Sprawdź ptaki lub inne przedmioty wymienione na karcie, policz te, które spełniają warunek, i zastosuj instrukcję punktowania na karcie. Dodaj do siebie wyniki z kart bonusowych.</p><p class="where">Gdzie szukać: Twoje karty bonusów i ptaki lub przedmioty, o które one pytają.</p><div class="ex">Jeśli karta bonusowa daje 1 punkt za każdego kwalifikującego się ptaka, a Ty masz 4, to karta dodaje 4 punkty.</div><p>Karty bonusów nie wszystkie punktują tak samo, więc sprawdź warunek na każdej karcie, zamiast traktować je jak nadrukowane punkty ptaków.</p></div></div></section>
+<section id="goals"><h2>Cele rund</h2><div class="line"><div class="card"><b>Najpierw sprawdź, którą stronę planszy celów macie.</b><p>Niebieska strona punktuje Twój własny wynik: każdy kwalifikujący się element to 1 punkt, do maksimum 5 punktów w rundzie. Zielona strona porównuje wyniki wszystkich graczy i przyznaje punkty za miejsca. Policz każdą rundę oddzielnie, a potem dodaj swoje 4 wyniki rund.</p><p class="where">Gdzie szukać: płytki celów i odpowiednie ptaki, jaja, gniazda lub inne przedmioty na planszy każdego gracza, zgodnie z opisem na płytce.</p></div></div>
+<h3>Przykłady dla zielonej strony</h3><p>Dla zielonych celów tylko gracze z co najmniej 1 kwalifikującym się elementem zajmują miejsce. Gracze z remisem dzielą punkty za miejsca, które zajmują, zaokrąglając w dół; kolejne miejsce jest pomijane.</p><div class="examples"><div class="card"><div class="big">Runda 1: remis o 1. miejsce</div><p>Wyniki 3, 3 i 1. Pierwsze i drugie miejsce wartych 4 i 1 punkt, więc remisujący gracze dostają po 2. Gracz z 1 elementem jest 3. i dostaje 0.</p></div><div class="card"><div class="big">Runda 4: remis o 2. miejsce</div><p>Wyniki 5, 2 i 2. Lider dostaje 7. Remis dzieli 4 i 3, więc każdy remisujący gracz dostaje 3.</p></div><div class="card"><div class="big">Zero to brak miejsca</div><p>W rundzie 2 wyniki 2 i 0 dają 5 i 0 punktów. Gracz bez żadnych nie zajmuje 2. miejsca.</p></div></div><div class="tip">Na niebieskiej stronie 7 elementów daje 5 punktów, a nie 7. Na zielonej stronie remis zmienia punkty dla każdego remisującego gracza i pomija kolejne miejsce.</div></section>
+<section id="eggs"><h2>Jaja</h2><div class="line"><div class="card"><b>Policz każde jajo na kartach ptaków.</b><p>Każde jajo wart jest 1 punkt. Sprawdź wszystkie rzędy środowisk, żeby zaliczyć jaja na każdym ptaku.</p><p class="where">Gdzie szukać: żetony jaj leżące na kartach ptaków.</p><div class="ex">12 jaj dodaje 12 punktów.</div></div></div></section>
+<section id="food"><h2>Pokarm na kartach ptaków</h2><div class="line"><div class="card"><b>Policz pokarm na kartach ptaków jako zgromadzony pokarm.</b><p>Każdy żeton pokarmu zgromadzony na ptaku jest wart 1 punkt. Zlicz te żetony tylko raz; pokarm, który nadal masz w zapasie, nie wlicza się do tej linii punktowej.</p><p class="where">Gdzie szukać: żetony pokarmu na kartach ptaków, które magazynują pokarm.</p><div class="ex">3 żetony pokarmu zgromadzony to 3 punkty.</div></div></div></section>
+<section id="tucked"><h2>Karty wsunięte pod ptakami</h2><div class="line"><div class="card"><b>Zlicz karty wsunięte pod twoje karty ptaków.</b><p>Każda wsunięta karta jest warta 1 punkt, niezależnie od tego, ile punktów jest na niej wydrukowanych. Nie dodawaj ponownie wartości wydrukowanej na ptaku.</p><p class="where">Gdzie szukać: karty częściowo wsunięte pod twoich zagranych ptaków.</p><div class="ex">5 wsuniętych kart to 5 punktów.</div></div></div></section>
+<section id="mistakes"><h2>Częste błędy</h2><ul><li>Na niebieskiej stronie celów zatrzymaj się na 5 punktów za rundę, nawet jeśli zliczasz więcej niż 5 sztuk.</li><li>Na zielonej stronie zostaw graczy z 0 sztukami bez rankingu i dziel miejsca remisowe poprzez zaokrąglenie w dół.</li><li>Zlicz jaja, pokarm zgromadzony i wsunięte karty jako oddzielne linie punktowe.</li><li>Pozostały pokarm w twoim zapasie służy tylko jako rozstrzygnięcie remisu; nie dodaje się do punktów.</li><li>Zlicz wsunięte karty po 1 pkt za sztukę, a nie według punktów wydrukowanych na tych kartach.</li></ul></section>
+<section id="winner"><h2>Kto wygrywa?</h2><p>Dodaj 6 linii punktowych. Wygrywa ten, kto ma najwięcej punktów. Jeśli gracze się wyrównają, porównajcie swoje żetony pozostałego pokarmu; wygrywa ten z większą ilością jedzenia. Jeśli i tak jest remis, dzielicie zwycięstwo.</p></section>
+<section id="whole"><h2>Cała gra, policzona</h2><div class="card walk"><p>Załóżmy, że twoja plansza i karty dają ci 42 punkty za ptaki i 9 punktów z Karty bonusów. Twoje cele rundowe dają 2, 5, 3 i 4; masz 12 jaj, 3 żetony pokarmu zgromadzony i 5 wsuniętych kart.</p><ol><li>Karty ptaków dają 42 punkty.</li><li>Karty bonusów dają 9 punktów.</li><li>4 cele rundowe dają 14 punktów: 2 + 5 + 3 + 4.</li><li>Twoje 12 jaj daje 12 punktów.</li><li>Twoje 3 żetony pokarmu zgromadzony dają 3 punkty.</li><li>Twoje 5 wsuniętych kart daje 5 punktów.</li></ol><p class="sum">42 + 9 + 14 + 12 + 3 + 5 = 85 punktów.</p><p>Jeśli inny gracz też zdobył 85, porównajcie pozostały pokarm. Na przykład, 3 jedzenie jest lepsze niż 1 jedzenie.</p></div></section>
+<section id="faq" class="faq"><h2>Pytania, które zadają gracze</h2><details><summary>Czy pozostały pokarm liczy się do punktów?</summary><p>Nie. Odłóż go na rozwiązanie remisu w ogólnej liczbie punktów.</p></details><details><summary>Co się dzieje, gdy gracze wyrównują na zielonej stronie?</summary><p>Dodaj punkty za miejsca, które dzielicie i podziel je równo, zaokrąglając w dół. Następne miejsce pomijasz.</p></details><details><summary>Czy wsunięte karty liczą się za punkty wydrukowane na nich?</summary><p>Nie. Każda karta wsunięta pod ptaka jest warta 1 pkt za sztukę w tym końcowym zliczaniu.</p></details><details><summary>Czy to obejmuje rozszerzenia?</summary><p>Ten przewodnik dotyczy podstawowej gry; rozszerzenia mogą wprowadzić inne zasady punktowe.</p></details></section>
+<div class="cta" style="margin-top:28px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Trzymaj punkty każdego gracza w jednym miejscu</b><p>Score Night dodaje linie punktowe i pokazuje sumy z stołu.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Google Play</a></div>
+<p class="disclaimer">Nieoficjalny przewodnik Wingspan napisany własnymi słowami. Bobr Studio nie jest powiązane z wydawcą. Wingspan i jego komponenty należą do ich właścicieli; zapoznaj się z podręcznikiem zasad wydawcy, aby poznać pełne zasady.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} punkt",
+  "few": "{n} punkty",
+  "many": "{n} punktów",
+  "other": "{n} punkty"
+ },
+ "items": {
+  "one": "{n} sztuka",
+  "few": "{n} sztuki",
+  "many": "{n} sztuk",
+  "other": "{n} sztuki"
+ },
+ "player": "Gracz {n}",
+ "itemsAria": "{name} kwalifikujące sztuki",
+ "greenNone": "{name}: 0 sztuk, brak miejsca, 0 punktów",
+ "greenLine": "{name}: {items}, {pts}",
+ "cappedLine": "{name}: {items}, {pts} (maksymalnie {max})",
+ "round": "Runda {n}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const MAX_PTS = 5;
+const names = [f(T.player, { n: 1 })];
+let vals = [0];
+function render() {
+  const box = document.getElementById('players');
+  box.innerHTML = names.map((name, i) => '<label class="row">' + name + '<input type="number" min="0" value="' + vals[i] + '" data-i="' + i + '" aria-label="' + esc(f(T.itemsAria, { name })) + '"></label>').join('');
+  box.querySelectorAll('input').forEach(x => x.oninput = () => { vals[+x.dataset.i] = Math.max(0, +x.value || 0); draw(); });
+  draw();
+}
+function draw() {
+  const green = document.getElementById('side').value === 'green', round = +document.getElementById('round').value;
+  let pts = vals.map(n => green ? 0 : Math.min(n, MAX_PTS)), lines = [];
+  if (green) {
+    const ranking = [...new Set(vals.filter(n => n > 0))].sort((a, b) => b - a);
+    const table = [[4, 1, 0], [5, 2, 1], [6, 3, 2], [7, 4, 3]][round];
+    vals.forEach((v, i) => {
+      if (v > 0) {
+        const place = ranking.indexOf(v), tied = vals.filter(x => x === v).length;
+        let sum = 0;
+        for (let j = 0; j < tied; j++) sum += table[place + j] || 0;
+        pts[i] = Math.floor(sum / tied);
+      }
+    });
+    lines = vals.map((v, i) => v === 0 ? f(T.greenNone, { name: names[i] }) : f(T.greenLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]) }));
+  } else {
+    lines = vals.map((v, i) => f(T.cappedLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]), max: MAX_PTS }));
+  }
+  document.getElementById('out').textContent = f(T.round, { n: round + 1 });
+  document.getElementById('how').innerHTML = lines.map(x => '<li>' + x + '</li>').join('');
+}
+document.getElementById('side').onchange = draw;
+document.getElementById('round').onchange = draw;
+document.getElementById('add').onclick = () => {
+  if (names.length >= 5) return;
+  names.push(f(T.player, { n: names.length + 1 }));
+  vals.push(0);
+  render();
+  if (names.length >= 5) document.getElementById('add').disabled = true;
+};
+render();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../pl/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../pl/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/pl/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Polski</summary><div class="menu"><a href="../../../guides/wingspan/">English</a><a href="../../../ru/guides/wingspan/">Русский</a><a href="../../../uk/guides/wingspan/">Українська</a><a href="../../../pl/guides/wingspan/" class="current">Polski</a><a href="../../../cs/guides/wingspan/">Čeština</a><a href="../../../de/guides/wingspan/">Deutsch</a><a href="../../../fr/guides/wingspan/">Français</a><a href="../../../es/guides/wingspan/">Español</a><a href="../../../pt/guides/wingspan/">Português</a><a href="../../../tr/guides/wingspan/">Türkçe</a><a href="../../../ja/guides/wingspan/">日本語</a><a href="../../../ko/guides/wingspan/">한국어</a><a href="../../../zh/guides/wingspan/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

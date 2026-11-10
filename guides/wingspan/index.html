@@ -21,7 +21,18 @@ ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:10px}ol.step
 </style>
 <link rel="canonical" href="https://bobrstudio.dev/guides/wingspan/">
 <link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/wingspan/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/wingspan/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/wingspan/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/wingspan/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/wingspan/">
 <link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/wingspan/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/wingspan/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/wingspan/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/wingspan/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/wingspan/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/wingspan/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/wingspan/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/wingspan/">
 <link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/wingspan/">
 <style>
 .langs { position: relative; }
@@ -41,7 +52,7 @@ ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:10px}ol.step
       <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
       <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
     </a>
-    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/wingspan/" class="current">English</a><a href="../../de/guides/wingspan/">Deutsch</a></div></details></nav>
+    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/wingspan/" class="current">English</a><a href="../../ru/guides/wingspan/">Русский</a><a href="../../uk/guides/wingspan/">Українська</a><a href="../../pl/guides/wingspan/">Polski</a><a href="../../cs/guides/wingspan/">Čeština</a><a href="../../de/guides/wingspan/">Deutsch</a><a href="../../fr/guides/wingspan/">Français</a><a href="../../es/guides/wingspan/">Español</a><a href="../../pt/guides/wingspan/">Português</a><a href="../../tr/guides/wingspan/">Türkçe</a><a href="../../ja/guides/wingspan/">日本語</a><a href="../../ko/guides/wingspan/">한국어</a><a href="../../zh/guides/wingspan/">中文</a></div></details></nav>
   </div>
 </header>
 <main class="page"><div class="crumbs"><a href="../../guides/">Scoring guides</a> › Wingspan</div>
@@ -66,14 +77,65 @@ ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:10px}ol.step
 <section id="faq" class="faq"><h2>Questions players ask</h2><details><summary>Does leftover food score points?</summary><p>No. Keep it aside for resolving a tie on total points.</p></details><details><summary>What happens when players tie on a green goal?</summary><p>Add the points for the places they share and divide evenly, rounding down. The next place is skipped.</p></details><details><summary>Do tucked cards score their printed points?</summary><p>No. Each card tucked under a bird is worth 1 point for this end-game count.</p></details><details><summary>Does this cover expansions?</summary><p>This guide covers the base game; expansions can add different scoring rules.</p></details></section>
 <div class="cta" style="margin-top:28px"><img src="../../assets/score-night-icon.png" alt=""><div><b>Keep every player's score in one place</b><p>Score Night adds the scoring lines and shows the table totals.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Google Play</a></div>
 <p class="disclaimer">Unofficial Wingspan guide written in our own words. Bobr Studio is not affiliated with the publisher. Wingspan and its components belong to their respective owners; consult the publisher's rulebook for the full rules.</p>
+<script type="application/json" id="guide-strings">
+{
+  "points": {"one": "{n} point", "other": "{n} points"},
+  "items": {"one": "{n} item", "other": "{n} items"},
+  "player": "Player {n}",
+  "itemsAria": "{name} qualifying items",
+  "greenNone": "{name}: 0 items, no place, 0 points",
+  "greenLine": "{name}: {items}, {pts}",
+  "cappedLine": "{name}: {items}, {pts} (maximum {max})",
+  "round": "Round {n}"
+}
+</script>
 <script>
-const names=['Player 1'];let vals=[0];
-function render(){const box=document.getElementById('players');box.innerHTML=names.map((n,i)=>'<label class="row">'+n+'<input type="number" min="0" value="'+vals[i]+'" data-i="'+i+'" aria-label="'+n+' qualifying items"></label>').join('');box.querySelectorAll('input').forEach(x=>x.oninput=()=>{vals[+x.dataset.i]=Math.max(0,+x.value||0);draw()});draw()}
-function draw(){const green=document.getElementById('side').value==='green',round=+document.getElementById('round').value;let pts=vals.map(n=>green?0:Math.min(n,5)),lines=[];
-if(green){const ranking=[...new Set(vals.filter(n=>n>0))].sort((a,b)=>b-a);const table=[[4,1,0],[5,2,1],[6,3,2],[7,4,3]][round];vals.forEach((v,i)=>{if(v>0){const place=ranking.indexOf(v);const tied=vals.filter(x=>x===v).length;let sum=0;for(let j=0;j<tied;j++)sum+=table[place+j]||0;pts[i]=Math.floor(sum/tied)}});lines=vals.map((v,i)=>v===0?names[i]+': 0 items, no place, 0 points':names[i]+': '+v+(v===1?' item, ':' items, ')+pts[i]+(pts[i]===1?' point':' points'))}
-else lines=vals.map((v,i)=>names[i]+': '+v+' items, '+pts[i]+' points (maximum 5)');
-document.getElementById('out').textContent='Round '+(round+1);document.getElementById('how').innerHTML=lines.map((x,i)=>'<li>'+x+'</li>').join('')}
-document.getElementById('side').onchange=draw;document.getElementById('round').onchange=draw;document.getElementById('add').onclick=()=>{if(names.length>=5)return;names.push('Player '+(names.length+1));vals.push(0);render();if(names.length>=5)document.getElementById('add').disabled=true};render();
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const MAX_PTS = 5;
+const names = [f(T.player, { n: 1 })];
+let vals = [0];
+function render() {
+  const box = document.getElementById('players');
+  box.innerHTML = names.map((name, i) => '<label class="row">' + name + '<input type="number" min="0" value="' + vals[i] + '" data-i="' + i + '" aria-label="' + esc(f(T.itemsAria, { name })) + '"></label>').join('');
+  box.querySelectorAll('input').forEach(x => x.oninput = () => { vals[+x.dataset.i] = Math.max(0, +x.value || 0); draw(); });
+  draw();
+}
+function draw() {
+  const green = document.getElementById('side').value === 'green', round = +document.getElementById('round').value;
+  let pts = vals.map(n => green ? 0 : Math.min(n, MAX_PTS)), lines = [];
+  if (green) {
+    const ranking = [...new Set(vals.filter(n => n > 0))].sort((a, b) => b - a);
+    const table = [[4, 1, 0], [5, 2, 1], [6, 3, 2], [7, 4, 3]][round];
+    vals.forEach((v, i) => {
+      if (v > 0) {
+        const place = ranking.indexOf(v), tied = vals.filter(x => x === v).length;
+        let sum = 0;
+        for (let j = 0; j < tied; j++) sum += table[place + j] || 0;
+        pts[i] = Math.floor(sum / tied);
+      }
+    });
+    lines = vals.map((v, i) => v === 0 ? f(T.greenNone, { name: names[i] }) : f(T.greenLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]) }));
+  } else {
+    lines = vals.map((v, i) => f(T.cappedLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]), max: MAX_PTS }));
+  }
+  document.getElementById('out').textContent = f(T.round, { n: round + 1 });
+  document.getElementById('how').innerHTML = lines.map(x => '<li>' + x + '</li>').join('');
+}
+document.getElementById('side').onchange = draw;
+document.getElementById('round').onchange = draw;
+document.getElementById('add').onclick = () => {
+  if (names.length >= 5) return;
+  names.push(f(T.player, { n: names.length + 1 }));
+  vals.push(0);
+  render();
+  if (names.length >= 5) document.getElementById('add').disabled = true;
+};
+render();
 </script></main>
 <footer class="studio"><div class="wrap">
   <a class="bobr" translate="no" href="../../index.html">bobr
@@ -83,7 +145,7 @@ document.getElementById('side').onchange=draw;document.getElementById('round').o
   <span>© 2026 <span translate="no">Bobr Studio</span></span>
   <a href="../../index.html#apps">All apps</a>
   <a href="https://bobrstudio.dev/legal/score-night/">Privacy · <span translate="no">Score Night</span></a>
-  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/wingspan/" class="current">English</a><a href="../../de/guides/wingspan/">Deutsch</a></div></details>
+  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/wingspan/" class="current">English</a><a href="../../ru/guides/wingspan/">Русский</a><a href="../../uk/guides/wingspan/">Українська</a><a href="../../pl/guides/wingspan/">Polski</a><a href="../../cs/guides/wingspan/">Čeština</a><a href="../../de/guides/wingspan/">Deutsch</a><a href="../../fr/guides/wingspan/">Français</a><a href="../../es/guides/wingspan/">Español</a><a href="../../pt/guides/wingspan/">Português</a><a href="../../tr/guides/wingspan/">Türkçe</a><a href="../../ja/guides/wingspan/">日本語</a><a href="../../ko/guides/wingspan/">한국어</a><a href="../../zh/guides/wingspan/">中文</a></div></details>
 </div></footer>
 </body>
 </html>

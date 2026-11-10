@@ -60,7 +60,18 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
 </style>
 <link rel="canonical" href="https://bobrstudio.dev/de/guides/munchkin/">
 <link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
 <link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
 <link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
 <style>
 .langs { position: relative; }
@@ -80,7 +91,7 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
       <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
       <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
     </a>
-    <nav><a class="guides-link" href="../../../guides/">Anleitungen</a><details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../de/guides/munchkin/" class="current">Deutsch</a></div></details></nav>
+    <nav><a class="guides-link" href="../../../guides/">Anleitungen</a><details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/" class="current">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
   </div>
 </header>
 <main class="page"><div class="crumbs"><a href="../../../guides/">Anleitungen</a> › Munchkin</div>
@@ -207,41 +218,70 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
   <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Du willst lieber die Monster im Auge behalten?</b><p>In Score Night stehen Stufe, Ausrüstung und Kampfstärke aller Spieler auf einem Bildschirm, Kämpfe rechnen sich von selbst, und die App lässt niemanden ohne erlegtes Monster auf Stufe 10 schleichen.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
 
   <p class="disclaimer">Inoffizielle Anleitung, in unseren eigenen Worten geschrieben. Wir stehen in keiner Verbindung zum Verlag von Munchkin. Die Spielnamen gehören ihren jeweiligen Inhabern. Die vollständigen Regeln stehen im Regelheft des Verlags.</p>
+<script type="application/json" id="guide-strings">
+{
+  "termLevel": "Stufe {v}",
+  "termGear": "Ausrüstung {v}",
+  "termOnce": "Einmal-Bonus {v}",
+  "termHelper": "Helfer {v}",
+  "termBonuses": "Boni {v}",
+  "yourSide": "Deine Seite: {expr} = {total}",
+  "monsterSum": "Monster: {expr} = {total}",
+  "monsterPlain": "Monster: {expr}",
+  "killMonster": "{you} ist mehr als {mon}, also besiegst du das Monster.",
+  "tieWarriorWins": "{you} gegen {mon} ist ein Gleichstand. Bei Gleichstand gewinnt eigentlich das Monster, aber auf deiner Seite kämpft ein Krieger, also gewinnst du.",
+  "tieMonsterWins": "{you} gegen {mon} ist ein Gleichstand, und der geht ans Monster. 1 Kampfstärke mehr oder ein Krieger auf deiner Seite würde den Kampf gewinnen.",
+  "monsterWins": {"one": "{you} ist weniger als {mon}, also gewinnt das Monster. Dir fehlen noch {n} Kampfstärke zum Sieg.", "other": "{you} ist weniger als {mon}, also gewinnt das Monster. Dir fehlen noch {n} Kampfstärke zum Sieg."},
+  "levelWin": "Du steigst auf Stufe 10 auf und gewinnst das Spiel!",
+  "levelUpTo9": "Du steigst eine Stufe auf, auf 9. Gibt das Monster 2 Stufen, erreichst du Stufe 10 und gewinnst das Spiel!",
+  "levelUp": "Du steigst eine Stufe auf, auf {a} (oder auf {b}, wenn das Monster 2 Stufen gibt).",
+  "helperNoLevel": "Dein Helfer bekommt keine Stufe (es sei denn, er ist ein Elf).",
+  "runAway": "Würfle zum Weglaufen: Bei einer 5 oder 6 entkommst du. Sonst passiert, was auf der Monsterkarte steht.",
+  "headWin": "Du gewinnst!",
+  "headLose": "Das Monster gewinnt"
+}
+</script>
 <script>
-  const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
-  const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
-  const n = x => x < 0 ? '−' + (-x) : String(x);
-  const term = (name, x) => ` + ${name} ${n(x)}`;
-  function fight(s, warrior) {
-    const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
-    let side = `Stufe ${s.lvl}` + term('Ausrüstung', s.gear);
-    if (s.once) side += term('Einmal-Bonus', s.once);
-    if (s.help) side += term('Helfer', s.help);
-    const lines = [`Deine Seite: ${side} = ${n(you)}`,
-      s.mbon ? `Monster: Stufe ${s.mlvl}${term('Boni', s.mbon)} = ${n(mon)}` : `Monster: Stufe ${s.mlvl}`];
-    const won = you > mon || (you === mon && warrior);
-    if (you > mon) lines.push(`${n(you)} ist mehr als ${n(mon)}, also besiegst du das Monster.`);
-    else if (you === mon && warrior) lines.push(`${n(you)} gegen ${n(mon)} ist ein Gleichstand. Bei Gleichstand gewinnt eigentlich das Monster, aber auf deiner Seite kämpft ein Krieger, also gewinnst du.`);
-    else if (you === mon) lines.push(`${n(you)} gegen ${n(mon)} ist ein Gleichstand, und der geht ans Monster. 1 Kampfstärke mehr oder ein Krieger auf deiner Seite würde den Kampf gewinnen.`);
-    else lines.push(`${n(you)} ist weniger als ${n(mon)}, also gewinnt das Monster. Dir fehlen noch ${mon - you + (warrior ? 0 : 1)} Kampfstärke zum Sieg.`);
-    if (won) {
-      lines.push(s.lvl >= 9 ? 'Du steigst auf Stufe 10 auf und gewinnst das Spiel!'
-        : s.lvl === 8 ? 'Du steigst eine Stufe auf, auf 9. Gibt das Monster 2 Stufen, erreichst du Stufe 10 und gewinnst das Spiel!'
-        : `Du steigst eine Stufe auf, auf ${s.lvl + 1} (oder auf ${s.lvl + 2}, wenn das Monster 2 Stufen gibt).`);
-      if (s.help) lines.push("Dein Helfer bekommt keine Stufe (es sei denn, er ist ein Elf).");
-    } else lines.push('Würfle zum Weglaufen: Bei einer 5 oder 6 entkommst du. Sonst passiert, was auf der Monsterkarte steht.');
-    return { won, head: won ? 'Du gewinnst!' : 'Das Monster gewinnt', lines };
-  }
-  function draw() {
-    for (const k in v) document.getElementById(k).textContent = n(v[k]);
-    const r = fight(v, document.getElementById('warrior').checked);
-    document.getElementById('pts').textContent = r.head;
-    document.getElementById('box').classList.toggle('lost', !r.won);
-    document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
-  }
-  document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
-  document.getElementById('warrior').onchange = draw;
-  draw();
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
 </script></main>
 <footer class="studio"><div class="wrap">
   <a class="bobr" translate="no" href="../../../de/index.html">bobr
@@ -251,7 +291,7 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
   <span>© 2026 <span translate="no">Bobr Studio</span></span>
   <a href="../../../de/index.html#apps">All apps</a>
   <a href="https://bobrstudio.dev/legal/score-night/de/">Privacy · <span translate="no">Score Night</span></a>
-  <details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../de/guides/munchkin/" class="current">Deutsch</a></div></details>
+  <details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/" class="current">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
 </div></footer>
 </body>
 </html>

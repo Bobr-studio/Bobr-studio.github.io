@@ -59,7 +59,18 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
 </style>
 <link rel="canonical" href="https://bobrstudio.dev/de/guides/seven-wonders/">
 <link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/seven-wonders/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/seven-wonders/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/seven-wonders/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/seven-wonders/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/seven-wonders/">
 <link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/seven-wonders/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/seven-wonders/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/seven-wonders/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/seven-wonders/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/seven-wonders/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/seven-wonders/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/seven-wonders/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/seven-wonders/">
 <link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/seven-wonders/">
 <style>
 .langs { position: relative; }
@@ -79,10 +90,10 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
       <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
       <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
     </a>
-    <nav><a class="guides-link" href="../../../guides/">Anleitungen</a><details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../de/guides/seven-wonders/" class="current">Deutsch</a></div></details></nav>
+    <nav><a class="guides-link" href="../../../guides/">Anleitungen</a><details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../ru/guides/seven-wonders/">Русский</a><a href="../../../uk/guides/seven-wonders/">Українська</a><a href="../../../pl/guides/seven-wonders/">Polski</a><a href="../../../cs/guides/seven-wonders/">Čeština</a><a href="../../../de/guides/seven-wonders/" class="current">Deutsch</a><a href="../../../fr/guides/seven-wonders/">Français</a><a href="../../../es/guides/seven-wonders/">Español</a><a href="../../../pt/guides/seven-wonders/">Português</a><a href="../../../tr/guides/seven-wonders/">Türkçe</a><a href="../../../ja/guides/seven-wonders/">日本語</a><a href="../../../ko/guides/seven-wonders/">한국어</a><a href="../../../zh/guides/seven-wonders/">中文</a></div></details></nav>
   </div>
 </header>
-<main class="page"><div class="crumbs"><a href="../../../guides/">Wertungsanleitungen</a> › 7 Wonders</div>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Anleitungen</a> › 7 Wonders</div>
   <h1>7 Wonders Forschung berechnen <span class="hand">und wie du alles andere zählst</span></h1>
   <p class="lead">Die Forschung ist der Teil der 7-Wonders-Wertung, bei dem jeder vergisst, wie man ihn zählt. Sag dem Rechner, welche Symbole auf deinen grünen Karten zu sehen sind, und er zählt die Punkte zusammen und zeigt dir, wie er darauf kommt. Weiter unten wird jede andere Punkteart Schritt für Schritt erklärt, mit Beispielen und den Fehlern, die am häufigsten passieren.</p>
 
@@ -192,30 +203,45 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
   <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Keine Lust, das alles von Hand zu zählen?</b><p>In Score Night gibst du ein, was auf dem Tisch liegt, und jede Zeile, auch die Forschung, rechnet sich für jeden Spieler von selbst.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dseven-wonders">▶ Google Play</a></div>
 
   <p class="disclaimer">Inoffizielle Anleitung in unseren eigenen Worten. Nicht mit dem Verlag von 7 Wonders verbunden. Spielnamen gehören ihren Inhabern. Die vollständigen Regeln stehen in der Anleitung des Verlags.</p>
+<script type="application/json" id="guide-strings">
+{
+  "points": {"one": "{n} Punkt", "other": "{n} Punkte"},
+  "symbol": {"tablet": {"one": "Steintafel", "other": "Steintafeln"}, "compass": {"one": "Zirkel", "other": "Zirkel"}, "gear": {"one": "Zahnrad", "other": "Zahnräder"}},
+  "pileLine": "{n} {symbol}: {n} × {n} = {pts}",
+  "pileNone": "Keine {symbol}: {pts}",
+  "picks": {"one": "Dein gewähltes Symbol geht an: {list} (das bringt am meisten)", "other": "Deine gewählten Symbole gehen an: {list} (das bringt am meisten)"},
+  "sets": {"one": "{n} vollständiges Set aus allen drei Symbolen: {n} × {bonus} = {pts}", "other": "{n} vollständige Sets aus allen drei Symbolen: {n} × {bonus} = {pts}"},
+  "noSet": "Noch kein vollständiges Set: Für die 7 Bonuspunkte brauchst du von jedem Symbol mindestens eine Karte"
+}
+</script>
 <script>
-  const v = { t: 3, c: 2, g: 1, w: 0 };
-  const sci = (t, c, g) => t*t + c*c + g*g + 7*Math.min(t, c, g);
-  const names = ['Steintafel', 'Zirkel', 'Zahnrad'];
-  function best(t, c, g, w, picks) {
-    if (!w) return { p: sci(t, c, g), t, c, g, picks };
-    return [best(t+1, c, g, w-1, [...picks, 0]), best(t, c+1, g, w-1, [...picks, 1]), best(t, c, g+1, w-1, [...picks, 2])].reduce((a, b) => b.p > a.p ? b : a);
-  }
-  const plural = { tablet: 'Steintafeln', compass: 'Zirkel', gear: 'Zahnräder' };
-  const single = { tablet: 'Steintafel', compass: 'Zirkel', gear: 'Zahnrad' };
-  const pile = (n, w) => n === 0 ? `Keine ${plural[w]}: 0 Punkte`
-    : `${n} ${n === 1 ? single[w] : plural[w]}: ${n} × ${n} = ${n*n} Punkt${n*n === 1 ? '' : 'e'}`;
-  function draw() {
-    for (const k in v) document.getElementById(k).textContent = v[k];
-    const r = best(v.t, v.c, v.g, v.w, []), s = Math.min(r.t, r.c, r.g);
-    document.getElementById('pts').textContent = `${r.p} Punkt${r.p === 1 ? '' : 'e'}`;
-    const lines = [];
-    if (r.picks.length) lines.push((r.picks.length > 1 ? 'Deine gewählten Symbole gehen an: ' : 'Dein gewähltes Symbol geht an: ') + r.picks.map(i => names[i]).join(', ') + ' (das bringt am meisten)');
-    lines.push(pile(r.t, 'tablet'), pile(r.c, 'compass'), pile(r.g, 'gear'));
-    lines.push(s ? `${s} vollständige${s > 1 ? ' Sets' : 's Set'} aus allen drei Symbolen: ${s} × 7 = ${7*s} Punkte` : 'Noch kein vollständiges Set: Für die 7 Bonuspunkte brauchst du von jedem Symbol mindestens eine Karte');
-    document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
-  }
-  document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(0, Math.min(k === 'w' ? 3 : 20, v[k] + +b.dataset.d)); draw(); });
-  draw();
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { t: 3, c: 2, g: 1, w: 0 };
+const sci = (t, c, g) => t*t + c*c + g*g + 7*Math.min(t, c, g);
+const KINDS = ['tablet', 'compass', 'gear'];
+function best(t, c, g, w, picks) {
+  if (!w) return { p: sci(t, c, g), t, c, g, picks };
+  return [best(t+1, c, g, w-1, [...picks, 0]), best(t, c+1, g, w-1, [...picks, 1]), best(t, c, g+1, w-1, [...picks, 2])].reduce((a, b) => b.p > a.p ? b : a);
+}
+const pile = (n, kind) => n === 0
+  ? f(T.pileNone, { symbol: p(T.symbol[kind], 0), pts: p(T.points, 0) })
+  : f(T.pileLine, { n, symbol: p(T.symbol[kind], n), pts: p(T.points, n*n) });
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = best(v.t, v.c, v.g, v.w, []), s = Math.min(r.t, r.c, r.g);
+  document.getElementById('pts').textContent = p(T.points, r.p);
+  const lines = [];
+  if (r.picks.length) lines.push(p(T.picks, r.picks.length, { list: r.picks.map(i => p(T.symbol[KINDS[i]], 1)).join(', ') }));
+  lines.push(pile(r.t, 'tablet'), pile(r.c, 'compass'), pile(r.g, 'gear'));
+  lines.push(s ? p(T.sets, s, { bonus: 7, pts: p(T.points, 7*s) }) : T.noSet);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(0, Math.min(k === 'w' ? 3 : 20, v[k] + +b.dataset.d)); draw(); });
+draw();
 </script></main>
 <footer class="studio"><div class="wrap">
   <a class="bobr" translate="no" href="../../../de/index.html">bobr
@@ -225,7 +251,7 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
   <span>© 2026 <span translate="no">Bobr Studio</span></span>
   <a href="../../../de/index.html#apps">All apps</a>
   <a href="https://bobrstudio.dev/legal/score-night/de/">Privacy · <span translate="no">Score Night</span></a>
-  <details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../de/guides/seven-wonders/" class="current">Deutsch</a></div></details>
+  <details class="langs"><summary>🌐 Deutsch</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../ru/guides/seven-wonders/">Русский</a><a href="../../../uk/guides/seven-wonders/">Українська</a><a href="../../../pl/guides/seven-wonders/">Polski</a><a href="../../../cs/guides/seven-wonders/">Čeština</a><a href="../../../de/guides/seven-wonders/" class="current">Deutsch</a><a href="../../../fr/guides/seven-wonders/">Français</a><a href="../../../es/guides/seven-wonders/">Español</a><a href="../../../pt/guides/seven-wonders/">Português</a><a href="../../../tr/guides/seven-wonders/">Türkçe</a><a href="../../../ja/guides/seven-wonders/">日本語</a><a href="../../../ko/guides/seven-wonders/">한국어</a><a href="../../../zh/guides/seven-wonders/">中文</a></div></details>
 </div></footer>
 </body>
 </html>

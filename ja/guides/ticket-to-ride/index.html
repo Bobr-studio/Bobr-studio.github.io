@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>チケット・トゥ・ライドの得点計算 — Bobr Studio</title>
+<meta name="description" content="USAマップの基本版チケット・トゥ・ライドで点数を数える、わかりやすいステップバイステップのガイドです。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:start;margin-top:22px}
+  .calc h3{margin-bottom:4px}.calc>p{margin:0 0 10px;color:var(--muted);font-size:15px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .row span.name{font-weight:500;line-height:1.25}.row small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+  .ticket-entry{margin-top:12px}.ticket-remove{padding:8px 12px;border:0;border-radius:9px;background:var(--accent);color:#fff;font:600 14px Rubik,sans-serif;cursor:pointer}.ticket-list{margin:8px 0 0;padding:0;list-style:none}.ticket-list li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}.ticket-remove{padding:4px 8px;background:var(--river-2)}
+  .bonus-check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px}.bonus-check input{width:18px;height:18px;accent-color:var(--accent)}
+  .step{display:flex;align-items:center;gap:6px}.step button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:#fff;font:700 22px Rubik;color:var(--river);cursor:pointer}
+  .step output{min-width:28px;text-align:center;font:700 22px Fredoka,sans-serif}
+  .result{margin-top:14px;background:var(--river);color:var(--cream);border-radius:16px;padding:16px 20px}.result .pts{font:700 36px/1 Fredoka,sans-serif;color:var(--accent2);margin-bottom:8px}.result ul{margin:0;padding-left:18px;font-size:15px;line-height:1.5}
+  .side .cta{grid-template-columns:56px 1fr}.side .cta img{width:56px;height:56px}.side .cta .btn{grid-column:1/-1;justify-content:center}
+  .side ul{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:16px}.toc{margin-top:18px;background:#fff;border-radius:16px;padding:14px 20px;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  .toc b{color:var(--river)}.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:30px}.toc li{margin:2px 0}
+  ol.steps{list-style:none;padding:0;margin:14px 0 0;counter-reset:s;display:grid;gap:12px}ol.steps li{counter-increment:s;background:#fff;border-radius:16px;padding:14px 18px 14px 62px;position:relative;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  ol.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--river);color:var(--cream);font:700 17px Fredoka;display:flex;align-items:center;justify-content:center}
+  ol.steps b,.card b{color:var(--river)}.tip,.warn{border-radius:10px;padding:12px 16px;margin-top:14px}.tip{background:#FBF1DE;border-left:4px solid var(--accent2)}.warn{background:#FDEDEA;border-left:4px solid #B13D2E}
+  .examples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}.examples .card{padding:16px 18px}.examples p{margin:6px 0 0;font-size:15px}.examples .big{font:700 25px Fredoka,sans-serif;color:var(--accent)}
+  .line{margin-top:14px}.line .card{padding:20px 22px}.line p{margin:8px 0 0}.line .where{color:var(--muted);font-size:14px}.line .ex{background:#F3F0E9;border-radius:10px;padding:8px 12px;font-size:15px;margin-top:10px}
+  .faq details{background:#fff;border-radius:14px;padding:12px 18px;margin-top:10px;box-shadow:0 4px 14px rgba(15,46,58,.06)}.faq summary{font:600 18px Fredoka,sans-serif;color:var(--river);cursor:pointer}.faq p{margin:8px 0 2px}
+  .walk{margin-top:12px}.walk ol{margin:0;padding-left:22px}.walk li{margin:6px 0}.walk .sum{font:700 22px Fredoka,sans-serif;color:var(--river);margin-top:10px}
+  :root{--river:#252C30;--river-2:#414B50;--cream:#F3EBDD;--ink:#252B2D;--muted:#5B605E;--line:#D2C5B0;--accent:#8B4528;--accent2:#B87543}
+  body{background:var(--cream) radial-gradient(circle at 20% 0,#FCF8EF,transparent 60%)}.studio{background:linear-gradient(180deg,#252C30,#414B50)}
+  h1,h2{letter-spacing:.3px}h2::before{content:"";display:inline-block;width:22px;height:4px;background:var(--accent2);border-radius:2px;vertical-align:middle;margin-right:10px}
+  .card,.line .card,ol.steps li,.faq details{border:1px solid #E1D2B8}.result{background:linear-gradient(135deg,#252A2C,#41484A)}.tip{background:#FBF1DE}
+  @media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}ol.steps li{padding-left:56px}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ja/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">ルールガイド</a><details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/" class="current">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">ルールガイド</a> › チケット・トゥ・ライド</div>
+<h1>チケット・トゥ・ライド <span class="hand">USA基本版</span> の得点計算</h1>
+<p class="lead">路線のポイントは、ゲーム中に路線を取ったときにほとんど獲得済みです。最後に盤面からもう一度数え直せば、取り忘れや記憶違いが結果を変えることはありません。それから達成チケットを足し、未達成チケットを引き、最長路線ボーナスを確認します。</p>
+<div class="top">
+  <div class="card calc"><h3>路線とチケットを数える</h3><p>盤面の自分のプラスチック列車を見てください。取った路線ごとに、その長さの欄に1つずつ足していきます。</p>
+    <div class="row"><span class="name">列車1両の路線<small>各1点</small></span><div class="step"><button data-k="1" data-d="-1" aria-label="列車1両の路線を1つ取り消す">−</button><output id="r1">0</output><button data-k="1" data-d="1" aria-label="列車1両の路線を1つ追加">+</button></div></div>
+    <div class="row"><span class="name">列車2両の路線<small>各2点</small></span><div class="step"><button data-k="2" data-d="-1" aria-label="列車2両の路線を1つ取り消す">−</button><output id="r2">0</output><button data-k="2" data-d="1" aria-label="列車2両の路線を1つ追加">+</button></div></div>
+    <div class="row"><span class="name">列車3両の路線<small>各4点</small></span><div class="step"><button data-k="3" data-d="-1" aria-label="列車3両の路線を1つ取り消す">−</button><output id="r3">0</output><button data-k="3" data-d="1" aria-label="列車3両の路線を1つ追加">+</button></div></div>
+    <div class="row"><span class="name">列車4両の路線<small>各7点</small></span><div class="step"><button data-k="4" data-d="-1" aria-label="列車4両の路線を1つ取り消す">−</button><output id="r4">0</output><button data-k="4" data-d="1" aria-label="列車4両の路線を1つ追加">+</button></div></div>
+    <div class="row"><span class="name">列車5両の路線<small>各10点</small></span><div class="step"><button data-k="5" data-d="-1" aria-label="列車5両の路線を1つ取り消す">−</button><output id="r5">0</output><button data-k="5" data-d="1" aria-label="列車5両の路線を1つ追加">+</button></div></div>
+    <div class="row"><span class="name">列車6両の路線<small>各15点</small></span><div class="step"><button data-k="6" data-d="-1" aria-label="列車6両の路線を1つ取り消す">−</button><output id="r6">0</output><button data-k="6" data-d="1" aria-label="列車6両の路線を1つ追加">+</button></div></div>
+    <label for="ticket-value"><b>目的地チケット</b></label><div class="ticket-entry"><input id="ticket-value" type="number" min="1" max="30" value="8" aria-label="チケットの点数"><select id="ticket-status" aria-label="チケットの状態"><option value="yes">達成</option><option value="no">未達成</option></select><button id="add-ticket" type="button">追加</button></div><ul class="ticket-list" id="ticket-list"></ul><label class="bonus-check"><input id="longest-bonus" type="checkbox"> 私が最長路線を持っている、単独または同点 (+10点)</label>
+    <div class="result"><div class="pts" id="pts" aria-live="polite">0点</div><ul id="how"></ul></div>
+  </div>
+  <div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Score Night に卓全体の計算を任せる</b><p>各プレイヤーの路線、チケット、最長路線を入力すれば、合計点と勝者がわかります。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Google Playで入手</a></div>
+    <div class="toc"><b>このページの内容</b><ol><li><a href="#when-to-count">いつ数えるか</a></li><li><a href="#routes">路線のポイント</a></li><li><a href="#tickets">目的地チケット</a></li><li><a href="#longest">最長路線</a></li><li><a href="#mistakes">よくある間違い</a></li><li><a href="#examples">チケットの例</a></li><li><a href="#winner">勝者は誰か</a></li><li><a href="#whole-game">一局まるごと計算してみた</a></li><li><a href="#faq">質問</a></li></ol></div>
+  </div>
+</div>
+<section id="when-to-count"><h2>いつ数えるか</h2><ol class="steps"><li><b>ゲーム終了時に、自分の駒とカードを揃えます。</b> USAマップに置いたプラスチック列車、目的地チケット、最長連続路線を持っているかを確認してください。</li><li><b>盤面から路線ポイントを数えます。</b> これらのポイントは通常、路線を取ったときにゲーム中に獲得します。今もう一度各路線を数え直せば、取り忘れや計算間違いを防げます。</li><li><b>すべての目的地チケットを得点化します。</b> 自分のネットワークで2都市がつながっていればその点数を足し、つながっていなければ引きます。</li><li><b>最長路線ボーナスを足して、合計点を比べます。</b> 最長路線で同点のプレイヤー全員がボーナスを得られます。</li></ol></section>
+<section id="routes"><h2>路線のポイント</h2><div class="line"><div class="card"><b>マップ上のプラスチック列車から始めます。</b><p>取った路線ごとに、何両分の長さか数えます。長さごとにグループ分けして、各グループの点数を出します。長い路線ほど高得点です。</p><p class="where">見る場所: 盤面上の自分のプラスチック列車。</p><div class="ex">たとえば、列車4両の路線が2本なら各7点で、そのグループだけで14点になります。</div></div></div><div class="examples"><div class="card"><div class="big">1両 → 1点</div><p>短い路線1本で1点増えます。</p></div><div class="card"><div class="big">3両 → 4点</div><p>1路線に3両なら4点です、3点ではありません。</p></div><div class="card"><div class="big">6両 → 15点</div><p>6両の路線は15点です。</p></div></div><div class="tip">上の計算機は長さごとに路線を数え、各グループを明示するので、自分の数え直しと比較できます。</div></section>
+<section id="tickets"><h2>目的地チケット</h2><div class="line"><div class="card"><b>手元の目的地チケットを取り出し、1枚ずつ確認します。</b><p>達成チケットはカードに書かれた数字を足します。未達成チケットは同じ数字を引きます。これをチケット1枚ずつやってから、プラスとマイナスを合わせます。</p><p class="where">見る場所: 手元に残した目的地カード。点数は各カードに印刷されています。</p><div class="ex">達成した12点のチケットは12点加わります。未達成チケットの9点は9点引かれます。合わせて3点の変動になります。</div><p><b>チケットが達成されたかどうかはどうわかりますか？</b> チケットに書かれた2つの都市を地図上で見つけます。自分の列車だけで、途切れることなく1本の線で1つの都市からもう1つの都市へ辿り着ける場合だけ、チケットは達成となります。線は曲がってもよく、他の都市を通っても構いません。最短である必要もありませんが、途中に途切れがあってはならず、他のプレイヤーの路線が割り込んでいてもいけません。どこかで途切れていると、チケットは未達成となり、その点数は引かれます。</p></div></div></section>
+<section id="longest"><h2>最長路線</h2><div class="line"><div class="card"><b>誰が最長路線を持っているか確認しましょう。</b><p>最長路線で同点になったプレイヤーは、それぞれ10点のボーナスを得ます。</p><p class="where">見るべきところ：地図上に各プレイヤーが置いた列車です。ボーナスはゲーム終了時に確認します。</p><div class="ex">2人のプレイヤーがそれぞれ最長7列車の路線を持っている場合、両方に10点が加わります。</div><p><b>測り方はどうすればよいですか？</b> 各プレイヤーは、自分の列車で作る最も長い途切れのない線を探し、そこに含まれる列車の数を数えます（車両数を数えるので、路線の数や都市の数ではありません）。線は同じ都市を何度通っても構いませんし、ループを作ってもかまいません。ただし、1つの路線は1回しか数えられません。脇に枝分かれしている部分は数えません：1つの進み方を選び、それに沿ってのみ数えます。最も車両数が多いプレイヤーが10点を得ます。何人かで同点の場合、それぞれが10点を得ます。</p></div></div></section>
+<section id="mistakes"><h2>よくある間違い</h2><ul><li>列車の数をそのまま得点として数えないでください。3列車の路線は4点、6列車の路線は15点です。</li><li>未達成チケットを引くのを忘れないでください。その点数は得点を減らすことになります。</li><li>最長路線で同点になったとき、ボーナスを1人のプレイヤーだけに与えないでください。</li><li>他のプレイヤーの列車を、自分の路線得点に含めないでください。</li></ul></section>
+<section id="examples"><h2>目的地チケットの例</h2><div class="examples"><div class="card"><div class="big">達成：+8</div><p>達成した8点のチケットは、8点を加えます。</p></div><div class="card"><div class="big">未達成：−8</div><p>未達成の8点のチケットは、8点を引きます。</p></div><div class="card"><div class="big">2枚のチケット：+12 − 9</div><p>12点の達成チケット1枚と、9点の未達成チケット1枚で、トータル3点のプラスになります。</p></div></div></section>
+<section id="winner"><h2>勝者は誰？</h2><p>路線得点、達成チケットの点数を足し、未達成チケットの点数を引き、最長路線ボーナスがあれば加えます。合計が最も高いプレイヤーが勝ちます。点数で同点になった場合、達成チケットの枚数を比べます。それでも同点なら、最長路線を持つプレイヤーを比べます。それでも同じなら、勝ち分けとなります。</p></section>
+<section id="whole-game"><h2>ゲーム全体を計算する</h2><div class="card walk"><p>ボード上に、1列車の路線が2本、2列車の路線が3本、3列車の路線が2本、4列車の路線が2本、5列車の路線が1本、6列車の路線が1本あると想像してください。</p><ol><li>1列車の路線は、合わせて2点です。</li><li>2列車の路線は、合わせて6点です：3本、それぞれ2点。</li><li>3列車の路線は、合わせて8点です：2本、それぞれ4点。</li><li>4列車の路線は、合わせて14点です：2本、それぞれ7点。</li><li>5列車の路線は10点、6列車の路線は15点です。路線得点の合計は55点となります。</li><li>チケットは12点と8点が達成済み、さらに9点の未達成チケットが1枚あります。20点を足し、9点を引くと、チケットによる得点変動は11点です。</li><li>最長路線を共有しているので、10点を加えます。</li></ol><p class="sum">路線得点55点、チケット11点、最長路線ボーナス10点を合わせて、76点です。</p></div></section>
+<section id="faq" class="faq"><h2>プレイヤーからの質問</h2><details><summary>プレイ中に得点を入れた場合、路線得点を再度数える必要がありますか？</summary><p>はい。路線得点は通常、路線を獲得したときに入れますが、最後にもう一度数え直すことで間違いに気づきやすくなります。</p></details><details><summary>チケットの点数が自分の路線得点より大きい場合はどうなりますか？</summary><p>それでも得点に入れましょう。未達成チケットは記載された点数を引かれ、マイナスの合計になることもあります。</p></details><details><summary>複数のプレイヤーが最長路線ボーナスを受け取れますか？</summary><p>はい。最長路線で同点になったプレイヤーは、誰もが10点を得ます。</p></details><details><summary>合計点で同点になった場合はどうなりますか？</summary><p>達成チケットが多いプレイヤーが同点を制します。それでも同点なら、最長路線を比べます。それでも同じなら、勝ち分けとなります。</p></details><details><summary>他の地図や拡張セットにも対応していますか？</summary><p>このページは、USAマップのベースゲームのみを対象としています。他の地図や拡張セットでは、異なる得点ルールが適用されることがあります。</p></details></section>
+<div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>手作業で全ての路線を追加したくないですか？</b><p>Score Night は、カウント中に路線、チケット、ボーナス、プレイヤーの合計をまとめて管理します。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Google Play</a></div>
+<p class="disclaimer">非公式ガイドを私たちの言葉で書きました。チケット・トゥ・ライドの出版社とは関係ありません。ゲーム名は各所有者に帰属します。完全なルールは出版社のルールブックにあります。</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "other": "{n}点"
+ },
+ "routes": {
+  "other": "{n}本"
+ },
+ "trains": {
+  "other": "{n}両"
+ },
+ "routeLine": "{trains}のルート{routes}: {count} × {each} = {pts}",
+ "completedLine": {
+  "other": "達成した目的地チケット{n}枚: +{pts}"
+ },
+ "unfinishedLine": {
+  "other": "未達成の目的地チケット{n}枚: −{pts}"
+ },
+ "longestBonus": "最長路線ボーナス: +{pts}",
+ "emptyHint": "上でルートを追加すると、ここに得点が表示されます。",
+ "ticketDone": {
+  "other": "{n}点の達成チケット"
+ },
+ "ticketOpen": {
+  "other": "{n}点の未達成チケット"
+ },
+ "remove": "削除",
+ "removeAria": "チケット{n}を削除"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const points = { 1: 1, 2: 2, 3: 4, 4: 7, 5: 10, 6: 15 };
+const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+const tickets = [];
+const LONGEST = 10;
+function draw() {
+  let total = 0, lines = [];
+  for (const n of Object.keys(points)) {
+    const count = counts[n], each = points[n];
+    document.getElementById('r' + n).textContent = count;
+    total += count * each;
+    if (count) lines.push(f(T.routeLine, { routes: p(T.routes, count), trains: p(T.trains, +n), count, each, pts: p(T.points, count * each) }));
+  }
+  tickets.forEach(ticket => total += ticket.completed ? ticket.value : -ticket.value);
+  const done = tickets.filter(ticket => ticket.completed), open = tickets.filter(ticket => !ticket.completed);
+  const sum = list => list.reduce((s, ticket) => s + ticket.value, 0);
+  if (tickets.length) lines.push(p(T.completedLine, done.length, { pts: p(T.points, sum(done)) }));
+  if (open.length) lines.push(p(T.unfinishedLine, open.length, { pts: p(T.points, sum(open)) }));
+  if (document.getElementById('longest-bonus').checked) { total += LONGEST; lines.push(f(T.longestBonus, { pts: p(T.points, LONGEST) })); }
+  document.getElementById('pts').textContent = p(T.points, total);
+  if (!lines.length) lines = [T.emptyHint];
+  document.getElementById('how').innerHTML = lines.map(line => `<li>${line}</li>`).join('');
+  document.getElementById('ticket-list').innerHTML = tickets.map((ticket, index) => `<li>${p(ticket.completed ? T.ticketDone : T.ticketOpen, ticket.value)} <button type="button" class="ticket-remove" data-remove="${index}" aria-label="${esc(f(T.removeAria, { n: index + 1 }))}">${T.remove}</button></li>`).join('');
+  document.querySelectorAll('.ticket-remove').forEach(button => button.onclick = () => { tickets.splice(Number(button.dataset.remove), 1); draw(); });
+}
+document.querySelectorAll('.step button').forEach(button => button.onclick = () => { const n = button.dataset.k; counts[n] = Math.max(0, counts[n] + Number(button.dataset.d)); draw(); });
+document.getElementById('add-ticket').onclick = () => {
+  const value = Number(document.getElementById('ticket-value').value);
+  if (!Number.isInteger(value) || value < 1 || value > 30) return;
+  tickets.push({ value, completed: document.getElementById('ticket-status').value === 'yes' });
+  draw();
+};
+document.getElementById('longest-bonus').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ja/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ja/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/" class="current">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

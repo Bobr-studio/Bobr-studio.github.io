@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>マフィアの開催方法 — Bobr Studio</title>
+<meta name="description" content="マフィアの司会者向けステップバイステップガイド：各役職の人数、最初の夜、夜の流れ、昼の投票、同票の場合とゲーム終了のタイミング。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #2A2E37; font: 700 24px Rubik; color: var(--cream); cursor: pointer; }
+  .step button:disabled { opacity: .4; cursor: default; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; color: var(--cream); }
+  .result { margin-top: 14px; color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 34px/1.1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; }
+  .result p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: #D9CFBF; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; border-radius: 16px; padding: 14px 20px; }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .say { display: block; margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: #262A32; font-style: italic; font-size: 15px; }
+  .tip { border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { border-left: 4px solid #D0645A; border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; } .warn li, .tip li { margin: 4px 0; }
+  .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+  .roles .card { padding: 16px 18px; } .roles p { margin: 6px 0 0; font-size: 15px; }
+  .roles .team { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  table.rules { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; }
+  table.rules th, table.rules td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.rules th { color: var(--river); font-weight: 500; } table.rules td:first-child { color: var(--river); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .ex { background: #262A32; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { border-radius: 14px; padding: 12px 18px; margin-top: 10px; }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 8px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--accent2); margin-top: 10px; }
+  @media (max-width: 720px) { .top { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } table.rules th, table.rules td { padding: 8px 6px; } }
+
+/* Настроение «нуар» для страницы Мафии: ночной город, приглушённый красный, латунь. Тёмная тема — контраст текста проверен (AA). */
+:root { --river: #F2E8D5; --river-2: #E3A58F; --cream: #F2E8D5; --ink: #DDD5C6; --muted: #ABA393; --line: #3A3E48; --accent: #A8352D; --accent2: #D9B66E; }
+body { background: #14161B radial-gradient(circle at 85% 0, rgba(168,53,45,.16), transparent 55%) no-repeat; color: var(--ink); }
+a { color: var(--river-2); }
+.studio { background: linear-gradient(180deg, #0D0E12, #1B1D24); }
+h1 .hand { color: #E8867A; }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .cta, .toc, ol.steps li, .faq details { background: #1D2027; border: 1px solid #2E323B; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.cta { border: 2px solid var(--accent); }
+.result { background: linear-gradient(135deg, #2A1416, #3A1C1D); }
+.tip { background: #262219; }
+.warn { background: #2C1B1C; }
+.step button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 1px; }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ja/guides/mafia/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/mafia/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/mafia/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/mafia/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/mafia/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/mafia/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/mafia/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/mafia/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/mafia/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/mafia/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/mafia/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/mafia/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/mafia/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/mafia/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/mafia/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">ルールガイド</a><details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/mafia/">English</a><a href="../../../ru/guides/mafia/">Русский</a><a href="../../../uk/guides/mafia/">Українська</a><a href="../../../pl/guides/mafia/">Polski</a><a href="../../../cs/guides/mafia/">Čeština</a><a href="../../../de/guides/mafia/">Deutsch</a><a href="../../../fr/guides/mafia/">Français</a><a href="../../../es/guides/mafia/">Español</a><a href="../../../pt/guides/mafia/">Português</a><a href="../../../tr/guides/mafia/">Türkçe</a><a href="../../../ja/guides/mafia/" class="current">日本語</a><a href="../../../ko/guides/mafia/">한국어</a><a href="../../../zh/guides/mafia/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">ルールガイド</a> › マフィア</div>
+  <h1>マフィアの進行方法 <span class="hand">司会者のための落ち着いたガイド</span></h1>
+  <p class="lead">今夜は司会を務めます、もしかしたら初めてかもしれませんし、久しぶりで夜の流れがぼやけてしまっているかもしれません。以下に、必要な順番で全てが記載されています：テーブルごとのマフィアの配布数、最初の夜に何が起こるか、誰が目を覚ますか、昼の投票の仕組み、同票の場合の対処法とゲーム終了のタイミング。</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>各役職の人数は？</h3>
+      <p>役職を受けるプレイヤーの数を数えます。司会はプレイしないので、自分は数えないでください。</p>
+      <div class="row"><span class="name">役職を持つプレイヤー<small>5人から16人、司会は含まない</small></span><div class="step"><button data-d="-1" aria-label="プレイヤーが少ない場合">−</button><output id="n">9</output><button data-d="1" aria-label="プレイヤーが多い場合">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts">2人のマフィア、7人の市民</div><ul id="how" class="num"></ul><p id="why"></p></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>チートシートなしの司会</b><p>Score Nightは役職を配り、各ステップで何を言うべきか教えてくれ、誰が誰かを覚えていて、誰が勝ったかを発表します。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ Google Playで入手</a></div>
+      <ul><li>インターネットなしで動作、5人から16人プラス司会まで</li><li>2つのゲームを無料で試せ、ゲーム中は広告なし</li></ul>
+      <div class="toc"><b>このページの内容</b><ol><li><a href="#roles">役職</a></li><li><a href="#before">ゲーム前に</a></li><li><a href="#dealing">役職を配る</a></li><li><a href="#first-night">最初の夜</a></li><li><a href="#night">夜の流れ、順番通り</a></li><li><a href="#morning">朝</a></li><li><a href="#day">昼と投票</a></li><li><a href="#ties">同票の場合</a></li><li><a href="#game-end">ゲーム終了のタイミング</a></li><li><a href="#whole-game">ゲームの始まりから終わりまで</a></li><li><a href="#host-tips">司会者のコツ</a></li><li><a href="#mistakes">よくあるミス</a></li><li><a href="#table-rules">テーブルルール</a></li><li><a href="#common-questions">よくある質問</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="roles">役職</h2>
+  <p>2つのチームがあります。マフィアは仲間を知っていますが、市民は何も知らず、話し合いで推理する必要があります。各プレイヤーは1つの役職を持ち、司会は役職を持ちません。</p>
+  <div class="roles">
+    <div class="card"><span class="team">市民</span><h3>市民</h3><p>夜の行動なし：目を閉じて寝ます。昼は話を聞き、議論し、投票します。マフィア全員が脱落したら勝利です。</p></div>
+    <div class="card"><span class="team">マフィア</span><h3>マフィア</h3><p>夜は一緒に目を覚まし、黙って被害者を選びます。昼は普通の市民を演じます。</p></div>
+    <div class="card"><span class="team">マフィア</span><h3>ドン</h3><p>マフィアのリーダー。他のメンバーと一緒に被害者を選び、さらに目を覚まし、刑事を探します：プレイヤーを指さし、司会がうなずいたり首を振ったりします。</p></div>
+    <div class="card"><span class="team">市民</span><h3>刑事</h3><p>毎晩、1人のプレイヤーを指さし、司会がそのプレイヤーがマフィアならうなずきます。ドンもマフィアとしてカウントされます。昼は、刑事は慎重に自分の発見を共有できます。</p></div>
+    <div class="card"><span class="team">市民</span><h3>医者</h3><p>毎晩、1人のプレイヤーを指さして保護します。マフィアが同じ人を選んだ場合、朝には誰も脱落しません。</p></div>
+  </div>
+
+  <h2 id="before">ゲーム前に</h2>
+  <ol class="steps">
+    <li><b>全員を円形に座らせます</b>、司会を含めて。順番を覚えるのに役立ちます：夜はお互いを指さすので、誰がどこに座っているかを知っていると、ずっと簡単に追えます。</li>
+    <li><b>司会を除いたプレイヤーの数を数え</b>、役職を選びます。5人から16人のプレイヤーが必要です。上部のヘルパーに通常の組み合わせが表示されます：6人までのプレイヤーには1人のマフィア；7人から9人までは2人、そのうち1人はドン；10人から12人までは3人；13人から16人までは4人。刑事は常にゲームに参加し、6人から医者が参加します。残りの全員は市民です。
+      <span class="say">例：9人のプレイヤーはドン、もう1人のマフィア、刑事、医者、5人の市民を意味します。</span></li>
+    <li><b>揉めそうなルールは声に出して合意しておきましょう</b>最初のカードが配られる前に：同票のときどうするか、脱落した人の役職を公開するか、医者は自分を守れるか。テーブルによって全部違いますし、40分後に言い争いになるのは楽しくありません。こちらで使っているデフォルトは、下の<a href="#table-rules">テーブルルール</a>にあります。</li>
+  </ol>
+  <div class="tip">そのグループの好みに合わせて役職の組み合わせは変えてOKです。制限は2つだけ：マフィアは最低1人、かつマフィアの人数はそれ以外の全員より少なく。じゃないとゲームが始まる前に終わっちゃいます。</div>
+
+  <h2 id="dealing">役職を配る</h2>
+  <p>各プレイヤーは、誰にも見られずに自分の役職を確認する必要があります。紙のカードなら、適切なセットをシャッフルし、伏せて1枚ずつ配って、各自がこっそり見て隠し持つ形に。司会は全員の役職を把握しておく必要があるので、配りながら確認するか、全員が見終わった後にメモしておきましょう。</p>
+  <p>Score Night ならスマホを円になって回します：各プレイヤーがスワイプして長押しで役職を見て、離して隠し、次の人へ渡す。最後は司会の手元に戻って、全員の役職が見られる仕組みです。手持ちのカードでやりたいグループは、カードを配って自分でアプリに役職を入力すればOKです。</p>
+
+  <h2 id="first-night">最初の夜：マフィアが顔合わせ</h2>
+  <p>最初の夜は短いです。誰も脱落せず、マフィア同士が顔を見合わせるだけ。</p>
+  <ol class="steps">
+    <li><b>全員、目を閉じて。</b> 定番のセリフでも、ちょっと雰囲気のある一言でもOKです。<span class="say">「終電が車庫に戻る。街が眠りにつく。」</span></li>
+    <li><b>マフィア、目を開けて互いを確認して。</b> 数秒かけて顔を見て覚えてもらいます。喋らない、握手しない。<span class="say">「マフィア、目を開けて意味深な視線を交わせ。仲間を覚えておけ。」</span></li>
+    <li><b>マフィア、目を閉じて。街、目を開けて。</b> 最初の朝は発表するニュースがないので、そのまま最初の昼の話し合いへ進みます。</li>
+  </ol>
+  <div class="tip">最初の夜からいきなり襲撃をさせるテーブルもあります。テンポが速く、シビアになります。どっちでもOK、配る前に全員が知ってれば問題ありません。</div>
+
+  <h2 id="night">通常の夜、順番通りに</h2>
+  <p>2夜目からはフルの順番で進みます。各役職が順に起きて、指さしで静かにアクションし、次の役職が呼ばれる前に寝る。司会は見て、覚えて、うなずくか首を振るかで答えるだけ。</p>
+  <ol class="steps">
+    <li><b>街が眠りにつく。</b> 全員目を閉じて。静かになるまで待ちます。</li>
+    <li><b>マフィア、目を開けて襲撃先を決めて。</b> 目を開けて、無言で相談し、一人を指さす。誰を指したか覚えて、また寝かせます。<span class="say">「裏部屋には葉巻と謀略の匂い。マフィア、決めろ——静かに、壁に耳ありだ。」</span></li>
+    <li><b>ドン、刑事を探して。</b> ドンがもう一度目を開けて、一人を指さす。それが刑事ならうなずき、違えば首を振る。ドンは仲間のマフィアを調べられません（意味がないから）。ドンがすでに脱落していればこのステップは飛ばします。</li>
+    <li><b>刑事、誰かを調べて。</b> 刑事が一人を指さす。その人がマフィアならうなずき、違えば首を振る。ドンもマフィア扱いなので、ドンを指したらうなずきます。</li>
+    <li><b>医者、誰かを守って。</b> 医者が一人を指さす。マフィアが同じ人を指していれば、その人は助かる。デフォルトでは医者は自分を1回だけ守れて、同じ人を2夜連続で守ることはできません。<span class="say">「医者がバッグと傘を持って出た——夜明けまで雨だ。医者、誰を救う？」</span></li>
+  </ol>
+  <div class="tip">アプリでは、すでに脱落している人の役職は呼ばれなくなり、夜は次の役職へスムーズに進みます。ドンが脱落していても、残りのマフィアは普段通り襲撃先を決めます。</div>
+
+  <h2 id="morning">朝：夜に何が起きたか</h2>
+  <p>街を起こしてニュースを伝えます。発表前に頭の中で整理して：マフィアの襲撃先と医者が守った人が同じなら、誰も脱落しません。違えば襲撃された人がゲームから抜けます。</p>
+  <div class="line"><div class="card">
+    <p>結果だけを発表してください。理由を伝える必要はありません。誰かが脱落した場合は、その人を挙げてください。誰も脱落しなかった場合は、「静かな夜でした」とだけ伝えてください。医者や誰が助けられたといった情報はマフィアに有利な情報となってしまうからです。</p>
+    <p>通常は、夜に脱落したプレイヤーの役職は<b>明かされません</b>。テーブルによっては公開するものもありますので、<a href="#table-rules">テーブルルール</a>をご確認ください。</p>
+    <div class="ex"><b>例：</b> マフィアが佳奈さんを狙い、医者が佳奈さんを庇いました。朝のニュース：「灰色の朝、苦いコーヒーですが、今回ばかりは良い知らせです。全員がまだここにいます。」</div>
+  </div></div>
+  <p>朝のニュースの後、ゲームが終わっているかどうかを確認してください（<a href="#game-end">ゲームの終了条件</a>をご覧ください）。まだなら、昼の議論が始まります。</p>
+
+  <h2 id="day">昼の行動：議論と投票</h2>
+  <ol class="steps">
+    <li><b>議論です。</b> 円を回りながら、順番に全員が話す機会を設けます。短い発言タイマーで進行を止めないようにします。一人あたり1分を使用します。ここでプレイヤーは疑念を共有したり、名前を挙げて議論をしたりし、刑事はどれだけ情報を出すかを判断します。</li>
+    <li><b>投票です。</b> 候補者を一人ずつ呼び出し、「誰を脱落させたいですか？」と尋ねます。プレイヤーは手を挙げ、司会が数えます。最多得票者が出ゲームから脱落します。誰も票を集めなかった場合は、誰も脱落しません。</li>
+    <li><b>最後の一言</b>です。投票で脱落したプレイヤーには、最後の言葉を言うための数秒が与えられ、その後、円の外へ移動します。デフォルトでは、彼らの役職は<b>明かされません</b>。</li>
+    <li><b>ゲームの終了を確認</b>し、続行する場合は、次の夜に向けて街が再び眠りにつきます。</li>
+  </ol>
+
+  <h2 id="ties">同票</h2>
+  <p>2人以上のプレイヤーが最多票を分け合った場合、標準設定ではそのプレイヤー間での再投票を行います。それでも同票になった場合は、今日誰も脱落せず、街は以前よりも少し不安な気持ちで眠りにつきます。</p>
+  <p>他にも一般的な方法が二つあります。2度目の同票の後に<b>全ての</b>同票プレイヤーが脱落する方法、または再投票なしで同票の場合に誰も脱落しないと決める方法です。同票が発生したときではなく、ゲームの前にどちらか一つ決めてください。</p>
+  <div class="line"><div class="card"><div class="ex"><b>例：</b> 4人が残っています。健太さんが2票、陽子さんが2票を獲得しました。健太さんと陽子さんの間で再投票が行われ、健太さんが3票、陽子さんが1票を獲得しました。健太さんが脱落します。</div></div></div>
+
+  <h2 id="game-end">ゲームの終了と勝者について</h2>
+  <p>毎朝と投票のたびに確認してください：</p>
+  <ul>
+    <li>ドンを含め、全てのマフィアのメンバーが脱落すると、<b>市民の勝利</b>となります。</li>
+    <li>全体の人数と同じくらい、あるいはそれ以上のマフィアが揃うと、<b>マフィアの勝利</b>となります。その時点では、市民側が投票で勝つことはできなくなります。</li>
+  </ul>
+  <div class="line"><div class="card"><div class="ex"><b>例：</b> 3人が残っていて、マフィアが1人、市民が2人の場合：ゲームは続行します。次の夜、マフィアがさらに一人脱落させると、1対1になります。その日の朝にマフィアが勝利します。</div></div></div>
+  <p>ゲームが終わったら、全員の役職を公開し、もし望む人がいれば、夜のストーリー（誰が誰を調べたか、医者が誰を救ったかなど）を話してください。これがしばしばこの夜の最高の瞬間となります。</p>
+
+  <h2 id="whole-game">ゲーム全体：最初から最後まで</h2>
+  <p>7人のプレイヤー：陽子、隼人、佳奈、蓮、悟、美咲、健太。健太さんがドン、悟さんはマフィア、美咲さんは刑事、佳奈さんは医者、陽子さん、隼人さん、蓮さんは市民です。標準テーブルルールです。</p>
+  <div class="card walk num"><ol>
+    <li><b>夜1：</b> 健太さんと悟さんが目を開け、お互いを見ます。誰も脱落しません。</li>
+    <li><b>昼1：</b> まだ誰も何も知りませんが、隼人さんがたくさん発言し、4票を獲得しました。隼人さんが脱落します。彼は市民チームのメンバーの一人でした。マフィア2人、他4人です。</li>
+    <li><b>夜2：</b> マフィアが佳奈さんを指差します。ドンは蓮さんを調べます：首を振ります。刑事は悟さんを調べます：うなずきます。医者は自己治療を行いますが、これはゲーム中に一度だけ可能です。</li>
+    <li><b>朝2：</b> マフィアは医者が庇った人物を狙ったため、誰も脱落しませんでした。</li>
+    <li><b>昼2：</b> 美咲さんは慎重に悟さんへの疑いを向け、悟さんが投票で脱落します。マフィア1人、他4人です。</li>
+    <li><b>夜3：</b> 今や一人になった健太さんが美咲さんを指差します。ドンとして、彼は陽子さんを調べます：首を振ります。美咲さんは健太さんを調べます：うなずきます。佳奈さんはすでに自己治療を使用済みなので、蓮さんを庇います。</li>
+    <li><b>朝3：</b> 美咲さんが脱落しました。マフィア1人、他3人です：ゲームは続行します。</li>
+    <li><b>昼3：</b> 健太さんと陽子さんがそれぞれ2票を獲得しました。二人の間で再投票が行われ、健太さんが3票、陽子さんが1票を獲得しました。健太さんが脱落します。</li>
+  </ol><div class="sum">マフィアが残りません：市民は昼3に勝利します。</div></div>
+
+  <h2 id="host-tips">司会の方へのヒント</h2>
+  <div class="tip"><ul>
+    <li><b>いつも同じ表情を保ちましょう</b>。頷きは「はい」、首を振るのは「いいえ」ですが、どちらも穏やかな表情でお願いします。プレイヤーはあなたが思っている以上に注意深く見ているんですよ。</li>
+    <li><b>すべての役職に同じくらいの時間をかけましょう。</b> マフィアが2秒で決めても、医者が20秒考えても、心の中で数えてだいたい同じ長さで待ちます。ある役職の後だけ長く間が空き、別の役職の後が短いと、誰がまだ生きているかバレてしまいます。</li>
+    <li><b>誰が動いたか絶対に匂わせないでください。</b> 指さした人の方を見ない、「ナイスチョイス」と言わない、朝には結果だけを告げます。</li>
+    <li><b>みんなが動いている間も語り続けましょう。</b> 短いストーリのひとことで、誰かが目を開ける音や腕を上げる気配をかき消せます。</li>
+    <li><b>ユーモアは優しく。</b> プレイヤーではなく状況をネタにします：街、雨、何も見ていないバーテンダー。最初に脱落した人が責められていると感じないように。</li>
+    <li><b>終盤は緊張感を高めましょう。</b> 残り4人以下になったら、夜が来る前にそう伝えます。みんな背筋を伸ばす瞬間です。</li>
+    <li><b>テンポをキープしましょう。</b> 発言タイマーと毅然とした「では投票へ」で、延々と言い合いになるのを防げます。</li>
+  </ul></div>
+
+  <h2 id="mistakes">よくある間違い</h2>
+  <div class="warn"><ul>
+    <li>朝に「医者が誰を助けたか」を言ってしまう。ただ「今夜は犠牲者なし」とだけ伝えます。</li>
+    <li>刑事がドンを指さしたときに首を振ってしまう。ドンはマフィア扱いなので、うなずくのが正解です。</li>
+    <li>医者が前夜誰を守ったか忘れる。初期設定では同じ人を2夜連続で守れないので、メモするかアプリに任せましょう。</li>
+    <li>投票の後だけでゲーム終了を判定する。夜の犠牲者が出た朝にも終わることがあります。</li>
+    <li>テーブルで「役職は明かさない」と決めていたのに、脱落者の役職を口にしてしまう。一度言ったら取り消せません。</li>
+    <li>すでに終わった夜のルールを後から変える。新しいルールは次のステップから適用し、過去には遡りません。</li>
+    <li>自分をプレイヤーに数えてしまう。司会には役職がなく、夜に選ばれず、投票もしません。</li>
+  </ul></div>
+
+  <h2 id="table-rules">テーブルルール：初期設定とよくある別ルール</h2>
+  <p>マフィアは民衆遊戯なので、グループごとに少しずつルールが違います。左列が私たちの初期設定で、右列のどれも合意があれば正解です。</p>
+  <div class="card" style="padding:8px 14px"><table class="rules">
+    <tr><th>ルール</th><th>初期設定</th><th>他の遊び方</th></tr>
+    <tr><td>最初の夜</td><td>マフィアは顔合わせだけ</td><td>マフィアがすぐ犠牲者を決める</td></tr>
+    <tr><td>投票が同数</td><td>決選投票、また同数なら誰も脱落しない</td><td>決選投票、また同数なら同数全員脱落；または決選投票なしで誰も脱落しない</td></tr>
+    <tr><td>医者が自分を守る</td><td>ゲーム中1回まで</td><td>絶対に不可；または毎晩可</td></tr>
+    <tr><td>医者が同じ人を2夜連続で守る</td><td>不可</td><td>可</td></tr>
+    <tr><td>昼に脱落した人の役職</td><td>明かさない</td><td>明かす</td></tr>
+    <tr><td>夜に脱落した人の役職</td><td>明かさない</td><td>明かす</td></tr>
+    <tr><td>刑事の夜の行動</td><td>調べるだけ</td><td>調べるか撃つか選べる</td></tr>
+    <tr><td>最後の一言</td><td>あり</td><td>なし</td></tr>
+    <tr><td>発言タイマー</td><td>1分</td><td>なし、30秒、2分</td></tr>
+  </table></div>
+  <p>刑事が「撃つ」を選べる場合はこうなります：調べる代わりに一人を指さして排除します。その人も医者なら助けられます。マフィアの襲撃とまったく同じ扱いです。</p>
+
+  <h2 id="common-questions">よくある質問</h2>
+  <div class="faq">
+    <details open><summary>何人から遊べますか？</summary><p>役職持ちが最低5人、それに司会1人を加えて最低6人。このページの役職構成は最大16人までなので、司会込みで最大17人まで遊べます。</p></details>
+    <details><summary>司会もプレイしますか？</summary><p>しません。司会には役職がなく、全員の役職を知り、夜に選ばれず、投票もしません。公平で楽しい進行役に徹します。</p></details>
+    <details><summary>刑事が調べたとき、ドンはマフィアと出ますか？</summary><p>はい。ドンはマフィアの一員なので、司会はうなずきます。</p></details>
+    <details><summary>医者は自分を守れますか？</summary><p>初期設定ではゲーム中1回だけ。テーブルによっては絶対不可、毎晩可の場合もあります。始める前に決めておきましょう。</p></details>
+    <details><summary>誰も票を集めなかったら？</summary><p>その日は誰も脱落せず、街は眠りにつきます。</p></details>
+    <details><summary>脱落者の役職を明かすべき？</summary><p>初期設定では明かしません。投票後も夜後も明かさないのが基本です。明かすと市民側が有利になり、明かさなければ謎が残ります。どちらでもOKです。</p></details>
+    <details><summary>途中でルールを変えていい？</summary><p>全員が納得すればOKです。ただし次のステップから適用：すでに終わった夜や投票をやり直すことはありません。</p></details>
+    <details><summary>追加役職は？</summary><p>このガイドはクラシック構成（マフィア、ドン、刑事、医者、市民）を扱っています。独自役職を入れるグループも多いですが、それらは別ページで紹介します。</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>これ全部頭で覚える必要はありませんよ。</b><p>Score Nightでは、アプリが役職を配り、面白いストーリーと共に何を言うべきか教えてくれます。誰が誰なのか、医者が誰を助けたのか、そして誰が勝ったのかも記録してくれるんです。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ Google Play</a></div>
+
+  <p class="disclaimer">これは、私たちが独自に言葉で書いた非公式ガイドです。マフィアは伝統的なパーティーゲームですが、テーブルごとにハウスルールが異なります。</p>
+<script type="application/json" id="guide-strings">
+{
+ "headline": "マフィア{team}人、市民側{town}人",
+ "donLine": "ドン: 1人（マフィアの一員）",
+ "mafiaLine": "マフィア: {n}人",
+ "detLine": "刑事: 1人",
+ "docLine": "医者: 1人",
+ "docNoneLine": "医者: なし（6人から登場）",
+ "townLine": "市民: {n}人",
+ "tableLine": {
+  "other": "司会を含めたテーブルの人数: {n}人"
+ },
+ "why6": "6人まではマフィア1人で、ドンはいません。刑事は5人から、医者は6人から入ります。",
+ "why9": "7〜9人ではマフィアは2人、ドンともう1人です。刑事と医者は市民側です。",
+ "why12": "10〜12人ではマフィアは3人、ドンともう2人で、刑事・医者・市民と戦います。",
+ "why16": "13〜16人ではマフィアは4人、ドンともう3人で、刑事・医者・市民と戦います。",
+ "whyTail": "マフィアが1人以上いて、ほかの全員より少なければ、構成はテーブルごとに変えてかまいません。",
+ "whyJoin": "{reason}{tail}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+let n = 9;
+// Как в приложении: Lineup.defaultFor (score-night lib/games/mafia/logic.dart).
+function lineup(cnt) {
+  if (cnt <= 6) return { mafia: 1, don: 0, det: 1, doc: cnt === 6 ? 1 : 0 };
+  const team = cnt <= 9 ? 2 : cnt <= 12 ? 3 : 4;
+  return { mafia: team - 1, don: 1, det: 1, doc: 1 };
+}
+function draw() {
+  document.getElementById('n').textContent = n;
+  const l = lineup(n), team = l.mafia + l.don, town = n - team, civ = town - l.det - l.doc;
+  document.getElementById('pts').textContent = f(T.headline, { team, town });
+  const lines = [];
+  if (l.don) lines.push(T.donLine);
+  lines.push(f(T.mafiaLine, { n: l.mafia }));
+  lines.push(T.detLine);
+  lines.push(l.doc ? T.docLine : T.docNoneLine);
+  lines.push(f(T.townLine, { n: civ }));
+  lines.push(p(T.tableLine, n + 1));
+  document.getElementById('how').innerHTML = lines.map(x => `<li>${x}</li>`).join('');
+  const reason = T[n <= 6 ? 'why6' : n <= 9 ? 'why9' : n <= 12 ? 'why12' : 'why16'];
+  document.getElementById('why').textContent = f(T.whyJoin, { reason, tail: T.whyTail });
+  document.querySelectorAll('.step button').forEach(b => b.disabled = (+b.dataset.d < 0 ? n <= 5 : n >= 16));
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { n = Math.max(5, Math.min(16, n + +b.dataset.d)); draw(); });
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ja/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ja/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/mafia/">English</a><a href="../../../ru/guides/mafia/">Русский</a><a href="../../../uk/guides/mafia/">Українська</a><a href="../../../pl/guides/mafia/">Polski</a><a href="../../../cs/guides/mafia/">Čeština</a><a href="../../../de/guides/mafia/">Deutsch</a><a href="../../../fr/guides/mafia/">Français</a><a href="../../../es/guides/mafia/">Español</a><a href="../../../pt/guides/mafia/">Português</a><a href="../../../tr/guides/mafia/">Türkçe</a><a href="../../../ja/guides/mafia/" class="current">日本語</a><a href="../../../ko/guides/mafia/">한국어</a><a href="../../../zh/guides/mafia/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

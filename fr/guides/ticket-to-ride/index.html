@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comment compter les points aux Aventuriers du Rail — Bobr Studio</title>
+<meta name="description" content="Un guide clair, étape par étape, pour compter les points dans la version de base de Ticket to Ride sur la carte des États-Unis.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:start;margin-top:22px}
+  .calc h3{margin-bottom:4px}.calc>p{margin:0 0 10px;color:var(--muted);font-size:15px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .row span.name{font-weight:500;line-height:1.25}.row small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+  .ticket-entry{margin-top:12px}.ticket-remove{padding:8px 12px;border:0;border-radius:9px;background:var(--accent);color:#fff;font:600 14px Rubik,sans-serif;cursor:pointer}.ticket-list{margin:8px 0 0;padding:0;list-style:none}.ticket-list li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}.ticket-remove{padding:4px 8px;background:var(--river-2)}
+  .bonus-check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px}.bonus-check input{width:18px;height:18px;accent-color:var(--accent)}
+  .step{display:flex;align-items:center;gap:6px}.step button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:#fff;font:700 22px Rubik;color:var(--river);cursor:pointer}
+  .step output{min-width:28px;text-align:center;font:700 22px Fredoka,sans-serif}
+  .result{margin-top:14px;background:var(--river);color:var(--cream);border-radius:16px;padding:16px 20px}.result .pts{font:700 36px/1 Fredoka,sans-serif;color:var(--accent2);margin-bottom:8px}.result ul{margin:0;padding-left:18px;font-size:15px;line-height:1.5}
+  .side .cta{grid-template-columns:56px 1fr}.side .cta img{width:56px;height:56px}.side .cta .btn{grid-column:1/-1;justify-content:center}
+  .side ul{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:16px}.toc{margin-top:18px;background:#fff;border-radius:16px;padding:14px 20px;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  .toc b{color:var(--river)}.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:30px}.toc li{margin:2px 0}
+  ol.steps{list-style:none;padding:0;margin:14px 0 0;counter-reset:s;display:grid;gap:12px}ol.steps li{counter-increment:s;background:#fff;border-radius:16px;padding:14px 18px 14px 62px;position:relative;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  ol.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--river);color:var(--cream);font:700 17px Fredoka;display:flex;align-items:center;justify-content:center}
+  ol.steps b,.card b{color:var(--river)}.tip,.warn{border-radius:10px;padding:12px 16px;margin-top:14px}.tip{background:#FBF1DE;border-left:4px solid var(--accent2)}.warn{background:#FDEDEA;border-left:4px solid #B13D2E}
+  .examples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}.examples .card{padding:16px 18px}.examples p{margin:6px 0 0;font-size:15px}.examples .big{font:700 25px Fredoka,sans-serif;color:var(--accent)}
+  .line{margin-top:14px}.line .card{padding:20px 22px}.line p{margin:8px 0 0}.line .where{color:var(--muted);font-size:14px}.line .ex{background:#F3F0E9;border-radius:10px;padding:8px 12px;font-size:15px;margin-top:10px}
+  .faq details{background:#fff;border-radius:14px;padding:12px 18px;margin-top:10px;box-shadow:0 4px 14px rgba(15,46,58,.06)}.faq summary{font:600 18px Fredoka,sans-serif;color:var(--river);cursor:pointer}.faq p{margin:8px 0 2px}
+  .walk{margin-top:12px}.walk ol{margin:0;padding-left:22px}.walk li{margin:6px 0}.walk .sum{font:700 22px Fredoka,sans-serif;color:var(--river);margin-top:10px}
+  :root{--river:#252C30;--river-2:#414B50;--cream:#F3EBDD;--ink:#252B2D;--muted:#5B605E;--line:#D2C5B0;--accent:#8B4528;--accent2:#B87543}
+  body{background:var(--cream) radial-gradient(circle at 20% 0,#FCF8EF,transparent 60%)}.studio{background:linear-gradient(180deg,#252C30,#414B50)}
+  h1,h2{letter-spacing:.3px}h2::before{content:"";display:inline-block;width:22px;height:4px;background:var(--accent2);border-radius:2px;vertical-align:middle;margin-right:10px}
+  .card,.line .card,ol.steps li,.faq details{border:1px solid #E1D2B8}.result{background:linear-gradient(135deg,#252A2C,#41484A)}.tip{background:#FBF1DE}
+  @media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}ol.steps li{padding-left:56px}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/fr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../fr/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Règles des jeux</a><details class="langs"><summary>🌐 Français</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/" class="current">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Règles des jeux</a> › Ticket to Ride</div>
+<h1>Comment compter les points aux Aventuriers du Rail <span class="hand">jeu de base, carte des États-Unis</span></h1>
+<p class="lead">La plupart des points de route sont gagnés lorsque vous prenez ces routes pendant la partie. À la fin, recomptez-les à partir du plateau pour qu'une route manquée ou mal mémorisée ne change pas le résultat. Ensuite, ajoutez les Destinations réalisées, soustrayez les Destinations non réalisées et vérifiez le bonus pour le Chemin le plus long.</p>
+<div class="top">
+  <div class="card calc"><h3>Compter les Routes et les Destinations</h3><p>Regardez vos trains en plastique sur le plateau. Pour chaque Route que vous avez prise, ajoutez un point correspondant à sa longueur.</p>
+    <div class="row"><span class="name">Routes avec 1 train<small>Chaque en vaut 1 point</small></span><div class="step"><button data-k="1" data-d="-1" aria-label="Retirer la dernière Route avec 1 train">−</button><output id="r1">0</output><button data-k="1" data-d="1" aria-label="Ajouter une Route avec 1 train">+</button></div></div>
+    <div class="row"><span class="name">Routes avec 2 trains<small>Chaque en vaut 2 points</small></span><div class="step"><button data-k="2" data-d="-1" aria-label="Retirer la dernière Route avec 2 trains">−</button><output id="r2">0</output><button data-k="2" data-d="1" aria-label="Ajouter une Route avec 2 trains">+</button></div></div>
+    <div class="row"><span class="name">Routes avec 3 trains<small>Chaque en vaut 4 points</small></span><div class="step"><button data-k="3" data-d="-1" aria-label="Retirer la dernière Route avec 3 trains">−</button><output id="r3">0</output><button data-k="3" data-d="1" aria-label="Ajouter une Route avec 3 trains">+</button></div></div>
+    <div class="row"><span class="name">Routes avec 4 trains<small>Chaque en vaut 7 points</small></span><div class="step"><button data-k="4" data-d="-1" aria-label="Retirer la dernière Route avec 4 trains">−</button><output id="r4">0</output><button data-k="4" data-d="1" aria-label="Ajouter une Route avec 4 trains">+</button></div></div>
+    <div class="row"><span class="name">Routes avec 5 trains<small>Chaque en vaut 10 points</small></span><div class="step"><button data-k="5" data-d="-1" aria-label="Retirer la dernière Route avec 5 trains">−</button><output id="r5">0</output><button data-k="5" data-d="1" aria-label="Ajouter une Route avec 5 trains">+</button></div></div>
+    <div class="row"><span class="name">Routes avec 6 trains<small>Chaque en vaut 15 points</small></span><div class="step"><button data-k="6" data-d="-1" aria-label="Retirer la dernière Route avec 6 trains">−</button><output id="r6">0</output><button data-k="6" data-d="1" aria-label="Ajouter une Route avec 6 trains">+</button></div></div>
+    <label for="ticket-value"><b>Destinations</b></label><div class="ticket-entry"><input id="ticket-value" type="number" min="1" max="30" value="8" aria-label="Valeur de la destination"><select id="ticket-status" aria-label="Statut de la destination"><option value="yes">Réalisée</option><option value="no">Non réalisée</option></select><button id="add-ticket" type="button">Ajouter</button></div><ul class="ticket-list" id="ticket-list"></ul><label class="bonus-check"><input id="longest-bonus" type="checkbox"> J'ai le Chemin le plus long, seul ou en cas d'égalité (+10 points)</label>
+    <div class="result"><div class="pts" id="pts" aria-live="polite">0 point</div><ul id="how"></ul></div>
+  </div>
+  <div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Laissez Score Night additionner l'ensemble du tableau</b><p>Entrez les Routes, les Destinations et le Chemin le plus long pour chaque joueur, puis consultez les totaux et le vainqueur.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Obtenez-le sur Google Play</a></div>
+    <div class="toc"><b>Sur cette page</b><ol><li><a href="#when-to-count">Quand compter</a></li><li><a href="#routes">Points de Route</a></li><li><a href="#tickets">Destinations</a></li><li><a href="#longest">Chemin le plus long</a></li><li><a href="#mistakes">Erreurs courantes</a></li><li><a href="#examples">Exemples de Destinations</a></li><li><a href="#winner">Qui gagne</a></li><li><a href="#whole-game">Une partie complète, comptée</a></li><li><a href="#faq">Questions</a></li></ol></div>
+  </div>
+</div>
+<section id="when-to-count"><h2>Quand compter</h2><ol class="steps"><li><b>À la fin de la partie, réunissez vos propres pièces et cartes.</b> Vérifiez les trains en plastique que vous avez placés sur la carte des États-Unis, vos Destinations et si vous avez le Chemin le plus long.</li><li><b>Comptez les points de Route sur le plateau.</b> Ces points sont habituellement pris pendant la partie lorsque vous prenez une Route. Les recompter maintenant est une vérification utile en cas de clic manqué ou de total erroné.</li><li><b>Notez chaque Destination.</b> Ajoutez sa Valeur de la destination quand ses deux villes sont reliées par votre réseau. Soustrayez sa Valeur de la destination si elles ne le sont pas.</li><li><b>Ajoutez le bonus du Chemin le plus long, puis comparez les totaux.</b> Tous les joueurs en cas d’égalité pour le Chemin le plus long reçoivent le bonus.</li></ol></section>
+<section id="routes"><h2>Points de Route</h2><div class="line"><div class="card"><b>Commencez avec les trains en plastique sur la carte.</b><p>Pour chaque Route que vous avez prise, comptez combien de pièces de train elle fait. Regroupez les Routes par longueur, puis notez chaque groupe. Les routes les plus longues valent plus que les routes courtes.</p><p class="where">Où regarder : vos propres trains en plastique sur le plateau.</p><div class="ex">Par exemple, deux Routes de quatre trains valent sept points chacune, donc ce groupe vaut quatorze points.</div></div></div><div class="examples"><div class="card"><div class="big">1 train → 1 point</div><p>Une courte Route ajoute un point.</p></div><div class="card"><div class="big">3 trains → 4 points</div><p>Trois trains sur une Route donnent quatre points, et non trois.</p></div><div class="card"><div class="big">6 trains → 15 points</div><p>Une Route de six trains vaut quinze points.</p></div></div><div class="tip">Le calculateur ci-dessus compte les Routes par longueur et détaille chaque groupe, vous permettant de comparer son résultat avec votre propre recompte.</div></section>
+<section id="tickets"><h2>Destinations</h2><div class="line"><div class="card"><b>Prenez vos Destinations de votre main et vérifiez-les une par une.</b><p>Une Destination réalisée ajoute le nombre imprimé dessus. Une Destination non réalisée soustrait ce même nombre. Faites ceci une Destination à la fois, puis combinez les plus et les moins.</p><p class="where">Où regarder : les cartes de Destinations que vous avez gardées. Leur Valeur de la destination est imprimée sur chaque carte.</p><div class="ex">Une destination réalisée valant douze points en ajoute douze. Une destination non réalisée valant neuf points en retire neuf, ce qui fait au total une variation de trois points.</div><p><b>Comment savoir si une destination est réalisée ?</b> Repérez les deux villes indiquées sur la carte Destination sur le plateau. La destination compte seulement si vous pouvez aller d'une ville à l'autre en suivant une chaîne ininterrompue de vos propres wagons. La chaîne peut tourner, traverser d'autres villes, et n'a pas à être le chemin le plus court, mais il ne doit y avoir aucun trou ni aucune route d'un autre joueur au milieu. Si la chaîne est coupée quelque part, la destination n'est pas réalisée et sa valeur est retirée.</p></div></div></section>
+<section id="longest"><h2>Le chemin le plus long</h2><div class="line"><div class="card"><b>Vérifiez quel joueur ou quels joueurs ont le chemin le plus long.</b><p>Chaque joueur à égalité pour le chemin le plus long reçoit dix points de bonus.</p><p class="where">Où regarder : les wagons que chaque joueur a posés sur la carte. Le bonus est vérifié à la fin.</p><div class="ex">Si deux joueurs ont chacun un chemin le plus long de sept wagons, les deux ajoutent dix points.</div><p><b>Comment le mesurer ?</b> Chaque joueur cherche sa plus longue ligne ininterrompue de ses propres wagons et compte les wagons qui la composent (wagons, pas routes et pas villes). La ligne peut passer plusieurs fois par la même ville et même faire une boucle, mais chaque route ne peut être comptée qu'une seule fois. Les embranchements qui partent sur le côté ne comptent pas : choisissez un passage et comptez seulement le long de celui-ci. Celui qui a le plus de wagons gagne 10 points ; si plusieurs joueurs sont à égalité, chacun d'eux reçoit 10 points.</p></div></div></section>
+<section id="mistakes"><h2>Erreurs courantes</h2><ul><li>Ne comptez pas le nombre de wagons comme des points. Une route de trois wagons vaut quatre points, et une de six en vaut quinze.</li><li>N'oubliez pas de soustraire les destinations non réalisées. Leurs valeurs peuvent faire perdre des points.</li><li>N'attribuez pas le bonus du chemin le plus long à un seul joueur quand plusieurs joueurs sont à égalité pour le chemin le plus long.</li><li>Ne comptez pas les wagons d'un autre joueur comme faisant partie de vos points de route.</li></ul></section>
+<section id="examples"><h2>Exemples de cartes Destination</h2><div class="examples"><div class="card"><div class="big">Réalisée : +8</div><p>Une destination réalisée de huit points en ajoute huit.</p></div><div class="card"><div class="big">Non réalisée : −8</div><p>Une destination non réalisée de huit points en retire huit.</p></div><div class="card"><div class="big">Deux destinations : +12 − 9</div><p>Une destination réalisée valant douze points et une non réalisée valant neuf points font un gain net de trois points.</p></div></div></section>
+<section id="winner"><h2>Qui gagne ?</h2><p>Additionnez les points de route, les valeurs des destinations réalisées, soustrayez les valeurs des destinations non réalisées, et ajoutez le bonus du chemin le plus long le cas échéant. Le joueur avec le total le plus haut gagne. En cas d'égalité de points, comparez le nombre de destinations réalisées par chaque joueur ; si encore égalité, comparez qui a le chemin le plus long. Si c'est encore égal, la victoire est partagée.</p></section>
+<section id="whole-game"><h2>Une partie entière, comptée</h2><div class="card walk"><p>Imaginez que vos wagons sur le plateau montrent deux routes de 1 wagon, trois routes de 2 wagons, deux routes de 3 wagons, deux routes de 4 wagons, une route de 5 wagons et une route de 6 wagons.</p><ol><li>Les routes de 1 wagon rapportent 2 points au total.</li><li>Les routes de 2 wagons rapportent 6 points au total : 3 routes, 2 points chacune.</li><li>Les routes de 3 wagons rapportent 8 points au total : 2 routes, 4 points chacune.</li><li>Les routes de 4 wagons rapportent 14 points au total : 2 routes, 7 points chacune.</li><li>La route de 5 wagons rapporte 10 points, et celle de 6 wagons en rapporte 15. Total des points de route : 55.</li><li>Vos destinations valent 12 et 8, toutes deux réalisées, plus une valant 9 qui ne l'est pas. Ajoutez 20, retirez 9, et les destinations modifient le score de 11 points.</li><li>Vous partagez le chemin le plus long, donc ajoutez 10 points.</li></ol><p class="sum">55 points de route, plus 11 des destinations, plus 10 pour le chemin le plus long : 76 points.</p></div></section>
+<section id="faq" class="faq"><h2>Questions que les joueurs posent</h2><details><summary>Dois-je recompter les points de route s'ils ont déjà été marqués pendant la partie ?</summary><p>Oui. Les points de route sont normalement marqués quand vous prenez les routes, mais les recompter à la fin aide à repérer les erreurs.</p></details><details><summary>Et si une destination vaut plus que mes points de route ?</summary><p>Marquez-la quand même. Une destination non réalisée soustrait sa valeur imprimée et peut vous laisser un total négatif.</p></details><details><summary>Plusieurs joueurs peuvent-ils obtenir le bonus du chemin le plus long ?</summary><p>Oui. Chaque joueur à égalité pour le chemin le plus long reçoit dix points.</p></details><details><summary>Qu'arrive-t-il en cas d'égalité au total des points ?</summary><p>Le joueur avec plus de destinations réalisées l'emporte. Si encore égalité, comparez les chemins les plus longs ; si ceux-ci sont aussi à égalité, la victoire est partagée.</p></details><details><summary>Est-ce que ça couvre les autres cartes ou extensions ?</summary><p>Cette page ne couvre que le jeu de base sur la carte USA. Les autres cartes et extensions peuvent utiliser des règles de scoring différentes.</p></details></section>
+<div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Plutôt que d’ajouter chaque ligne à la main ?</b><p>Score Night conserve les routes, les Destinations, les bonus et les totaux des joueurs ensemble pendant que vous comptez.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Google Play</a></div>
+<p class="disclaimer">Guide non officiel rédigé avec nos propres mots. Aucun lien avec l’éditeur des Aventuriers du Rail. Les noms de jeux appartiennent à leurs détenteurs. Les règles complètes se trouvent dans le livret de l’éditeur.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} point",
+  "other": "{n} points"
+ },
+ "routes": {
+  "one": "{n} route",
+  "other": "{n} routes"
+ },
+ "trains": {
+  "one": "{n} train",
+  "other": "{n} trains"
+ },
+ "routeLine": "{routes} de {trains}: {count} × {each} = {pts}",
+ "completedLine": {
+  "one": "{n} destination réalisée : +{pts}",
+  "other": "{n} destinations réalisées : +{pts}"
+ },
+ "unfinishedLine": {
+  "one": "{n} destination ratée : −{pts}",
+  "other": "{n} destinations ratées : −{pts}"
+ },
+ "longestBonus": "Prime pour le chemin le plus long : +{pts}",
+ "emptyHint": "Ajoutez vos routes ci-dessus, et les points apparaîtront ici",
+ "ticketDone": {
+  "one": "Destination réalisée d'une valeur de {n} point",
+  "other": "Destination réalisée d'une valeur de {n} points"
+ },
+ "ticketOpen": {
+  "one": "Destination non réalisée d'une valeur de {n} point",
+  "other": "Destination non réalisée d'une valeur de {n} points"
+ },
+ "remove": "Retirer",
+ "removeAria": "Retirer la destination {n}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const points = { 1: 1, 2: 2, 3: 4, 4: 7, 5: 10, 6: 15 };
+const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+const tickets = [];
+const LONGEST = 10;
+function draw() {
+  let total = 0, lines = [];
+  for (const n of Object.keys(points)) {
+    const count = counts[n], each = points[n];
+    document.getElementById('r' + n).textContent = count;
+    total += count * each;
+    if (count) lines.push(f(T.routeLine, { routes: p(T.routes, count), trains: p(T.trains, +n), count, each, pts: p(T.points, count * each) }));
+  }
+  tickets.forEach(ticket => total += ticket.completed ? ticket.value : -ticket.value);
+  const done = tickets.filter(ticket => ticket.completed), open = tickets.filter(ticket => !ticket.completed);
+  const sum = list => list.reduce((s, ticket) => s + ticket.value, 0);
+  if (tickets.length) lines.push(p(T.completedLine, done.length, { pts: p(T.points, sum(done)) }));
+  if (open.length) lines.push(p(T.unfinishedLine, open.length, { pts: p(T.points, sum(open)) }));
+  if (document.getElementById('longest-bonus').checked) { total += LONGEST; lines.push(f(T.longestBonus, { pts: p(T.points, LONGEST) })); }
+  document.getElementById('pts').textContent = p(T.points, total);
+  if (!lines.length) lines = [T.emptyHint];
+  document.getElementById('how').innerHTML = lines.map(line => `<li>${line}</li>`).join('');
+  document.getElementById('ticket-list').innerHTML = tickets.map((ticket, index) => `<li>${p(ticket.completed ? T.ticketDone : T.ticketOpen, ticket.value)} <button type="button" class="ticket-remove" data-remove="${index}" aria-label="${esc(f(T.removeAria, { n: index + 1 }))}">${T.remove}</button></li>`).join('');
+  document.querySelectorAll('.ticket-remove').forEach(button => button.onclick = () => { tickets.splice(Number(button.dataset.remove), 1); draw(); });
+}
+document.querySelectorAll('.step button').forEach(button => button.onclick = () => { const n = button.dataset.k; counts[n] = Math.max(0, counts[n] + Number(button.dataset.d)); draw(); });
+document.getElementById('add-ticket').onclick = () => {
+  const value = Number(document.getElementById('ticket-value').value);
+  if (!Number.isInteger(value) || value < 1 || value > 30) return;
+  tickets.push({ value, completed: document.getElementById('ticket-status').value === 'yes' });
+  draw();
+};
+document.getElementById('longest-bonus').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../fr/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../fr/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/fr/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Français</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/" class="current">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

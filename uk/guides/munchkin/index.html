@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Як рахувати рівні й бої в Манчкіні — Bobr Studio</title>
+<meta name="description" content="Як влаштовані рівні, шмотки й сила в базовому Манчкіні, плюс калькулятор бою, який пояснює, хто переміг.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../uk/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Правила ігор</a><details class="langs"><summary>🌐 Українська</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/" class="current">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Правила ігор</a> › Манчкін</div>
+  <h1>Як рахувати рівні й бої в Манчкіні: <span class="hand">хто сильніший і хто переміг</span></h1>
+  <p class="lead">У Манчкіні очок наприкінці не рахують. Натомість усю гру ви стежите за двома числами: своїм рівнем і силою в бою. Калькулятор нижче вирішить будь-який бій за секунду й простими словами пояснить, чому ви перемогли чи програли. Далі крок за кроком і з прикладами розібрано рівні, шмотки, бої та гонку до 10-го рівня — і непорозуміння, які трапляються майже за кожним столом.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Хто виграє цей бій?</h3>
+      <p>Введіть обидві сторони бою. Ваша сила — це рівень плюс шмотки, а сила монстра — його рівень плюс усі бонуси, які йому підкинули.</p>
+      <h4>Ваша сторона</h4>
+      <div class="row"><span class="name">Ваш рівень<small>від 1 до 10</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="Знизити рівень">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="Підвищити рівень">+</button></div></div>
+      <div class="row"><span class="name">Бонус від шмоток<small>сума бонусів усіх одягнених шмоток; може бути меншою за нуль</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="Менший бонус від шмоток">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="Більший бонус від шмоток">+</button></div></div>
+      <div class="row"><span class="name">Разові бонуси<small>зілля та інші бонуси на один бій для вашої сторони</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="Менший разовий бонус">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="Більший разовий бонус">+</button></div></div>
+      <div class="row"><span class="name">Сила помічника<small>його рівень плюс його шмотки; залиште 0, якщо ніхто не допомагає</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="Менша сила помічника">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="Більша сила помічника">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> На нашому боці воїн (ви або ваш помічник)</label>
+      <h4>Монстр</h4>
+      <div class="row"><span class="name">Рівень монстра<small>число на картці монстра; для двох монстрів додайте їхні рівні</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="Знизити рівень монстра">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="Підвищити рівень монстра">+</button></div></div>
+      <div class="row"><span class="name">Бонуси монстра<small>усе, що зіграли, щоб його посилити (або послабити)</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="Менший бонус монстра">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="Більший бонус монстра">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">Ви виграли!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Рівні всього столу — в одному місці</b><p>Score Night стежить за рівнем, шмотками й силою кожного гравця, вирішує бої з помічниками й бонусами і навіть кидає кубик, коли ви змиваєтеся.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Завантажити в Google Play</a></div>
+      <ul><li>Працює без інтернету, для 3–6 гравців</li><li>Дві партії кожної гри — безкоштовно</li></ul>
+      <div class="toc"><b>На цій сторінці</b><ol><li><a href="#what-you-track">За чим слідкувати</a></li><li><a href="#level">Ваш рівень</a></li><li><a href="#strength">Шмотки та сила</a></li><li><a href="#fight">Бій крок за кроком</a></li><li><a href="#run-away">Програш і змивка</a></li><li><a href="#who-wins">Як виграти</a></li><li><a href="#mistakes">Часті помилки</a></li><li><a href="#examples">Приклади</a></li><li><a href="#whole-turn">Приклад цілого бою</a></li><li><a href="#common-questions">Часті запитання</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">За чим слідкувати</h2>
+  <p>У Манчкіні немає аркуша очок і підрахунку наприкінці. Усю гру кожен стежить за кількома речами, і вони постійно змінюються: після кожного бою, кожного прокляття й кожної нової шмотки. Зручно, коли числа кожного записані там, де їх бачать усі.</p>
+  <ol class="steps">
+    <li><b>Ваш рівень.</b> Усі починають з 1-го рівня. Рівнем ви й виграєте: хто першим дійде до 10-го рівня, той переміг.</li>
+    <li><b>Бонус від шмоток.</b> Кожна одягнена шмотка дає бонус. Додайте їх — вийде одне число, ваш бонус від шмоток.</li>
+    <li><b>Ваша сила в бою.</b> Це число, з яким ви б'єтеся: рівень плюс бонус від шмоток. Окремо його вести не треба — воно змінюється, щойно змінюється одне з двох.</li>
+    <li><b>Ваша стать і клас.</b> Деякі карти діють лише на чоловіків або лише на жінок, тож усі мають знати, хто ви. А якщо ваш персонаж — воїн, пам'ятайте: воїни виграють бої, що закінчилися внічию.</li>
+  </ol>
+  <div class="tip"><b>Рівень і сила — не одне й те саме.</b> Рівень показує, як близько ви до перемоги, а сила — як сильно ви б'єте. Герой 4-го рівня з бонусом від шмоток 6 б'ється із силою 10, але до перемоги йому ще 6 рівнів.</div>
+
+  <h2 id="level">Ваш рівень: угору й униз</h2>
+  <div class="line"><div class="card"><h3>Як змінюється ваш рівень</h3>
+    <p>Ви починаєте з 1-го рівня. Головний спосіб піднятися — перемогти монстра: це дає 1 рівень, а деякі великі монстри дають 2. Скільки саме, написано на карті монстра. Деякі карти піднімають або опускають рівень напряму, а програний бій може коштувати рівня, якщо так сказано на карті монстра.</p>
+    <p>Є дві межі. Рівень <b>ніколи не опускається нижче 1</b>: якщо ви на 1-му рівні й щось забирає рівень, ви просто лишаєтеся на 1-му. І він <b>ніколи не піднімається вище 10</b>, бо 10 — це кінець гри.</p>
+    <p class="where">Де дивитися: число, яким ви позначаєте свій рівень. Для перемоги рахується лише рівень, а не сила.</p>
+    <div class="ex"><b>Приклад:</b> ви на 1-му рівні, і монстр забирає рівень. Ви лишаєтеся на 1-му. Наступного ходу ви перемагаєте монстра, який дає 2 рівні, і піднімаєтеся на 3-й.</div></div></div>
+
+  <h2 id="strength">Ваші шмотки й сила</h2>
+  <div class="line"><div class="card"><h3>Сила — це рівень плюс шмотки</h3>
+    <p>Щоб дізнатися свою силу, візьміть рівень і додайте бонуси всіх одягнених шмоток. З цією силою ви б'єтеся в кожному бою, доки щось не зміниться.</p>
+    <p>Бонуси від шмоток зазвичай додатні, але в сумі можуть піти нижче нуля. Так буває, і це просто робить вас слабшим: у героя 2-го рівня з бонусом від шмоток −3 сила −1. Так, мінус один. Час ховатися.</p>
+    <p class="where">Де дивитися: ваш рівень плюс бонус на кожній шмотці перед вами.</p>
+    <div class="ex"><b>Приклад:</b> 4-й рівень і шмотки на 2 + 3 + 1. Бонус від шмоток — 6, отже сила 4 + 6 = 10.</div></div></div>
+
+  <div class="line"><div class="card"><h3>Разові бонуси</h3>
+    <p>Зілля й подібні карти дають бонус лише на один бій. Додайте їх до сили своєї сторони на цей бій, а після бою вони зникають. Бонус від шмоток вони не змінюють і в наступний бій не переходять.</p>
+    <div class="ex"><b>Приклад:</b> ваша сила 10, і в бою ви п'єте зілля на +3. У цьому бою у вашої сторони 13. У наступному знову 10.</div></div></div>
+
+  <h2 id="fight">Бій крок за кроком</h2>
+  <ol class="steps">
+    <li><b>Порахуйте свою сторону.</b> Ваша сила (рівень плюс шмотки) плюс усі разові бонуси, зіграні за вас.</li>
+    <li><b>Додайте помічника, якщо він є.</b> У бій може вступити ще один гравець. Його сила повністю — рівень плюс шмотки — додається до вашої.</li>
+    <li><b>Порахуйте монстра.</b> Візьміть рівень на карті монстра й додайте всі бонуси, які йому зіграли в бою (бонус може бути й від'ємним, тоді монстр слабший). Якщо монстрів двоє, додайте їх.</li>
+    <li><b>Порівняйте.</b> Якщо ваша сторона <b>сильніша</b> за монстра, ви перемогли. Порівну — замало: <b>за нічиєї перемагає монстр</b>, якщо тільки на вашому боці немає воїна (ви або ваш помічник). Тоді нічия на вашу користь.</li>
+    <li><b>Заберіть рівні.</b> Якщо ви перемогли, ви піднімаєтеся на стільки рівнів, скільки дає монстр: зазвичай на 1, іноді на 2. За двох монстрів ви отримуєте рівні за обох. Помічник за допомогу рівнів не отримує, крім одного випадку: ельф отримує рівень за кожного монстра, якого допоміг убити. Після бою разові бонуси скидаються.</li>
+  </ol>
+  <div class="tip"><b>Правило нічиєї одним рядком:</b> порівну — перемагає монстр, якщо на вашому боці немає воїна. Це правило забувають найчастіше, а вирішує воно напрочуд багато боїв.</div>
+
+  <h2 id="run-away">Програш і змивка</h2>
+  <p>Якщо монстр сильніший або нічия без воїна, бій програно. Але вас ще не спіймали: можна спробувати змитися. Киньте кубик. На <b>5 або 6</b> ви змилися. На 1, 2, 3 чи 4 не вийшло, і монстр робить із вами те, що написано на його карті. Це може коштувати рівня, частини шмоток або чогось гіршого, тож одразу оновіть свої числа.</p>
+  <p>Найгірше — якщо персонаж гине. У базовій грі ніхто не вибуває: ви втрачаєте шмотки, бонус від них падає до 0, але <b>рівень лишається тим самим</b>. І гра йде далі.</p>
+  <div class="tip">Після програшу перевірте два числа: рівень і бонус від шмоток. Сила перерахується сама, адже це просто їхня сума.</div>
+
+  <h2 id="who-wins">Як перемогти</h2>
+  <p>Перемагає той, хто першим дійде до <b>10-го рівня</b>. Є одна тонкість: останній рівень, з 9-го на 10-й, зазвичай <b>можна отримати лише за вбитого монстра</b>. Карта, яка просто дає рівень, не підніме вас з 9-го на 10-й, якщо на ній не сказано, що можна.</p>
+  <p>Вище 10-го рівня не буває. Якщо ви на 9-му й перемагаєте монстра на 2 рівні, ви зупиняєтеся на 10-му, а не на 11-му — але перемога все одно ваша.</p>
+  <div class="warn"><b>Помилки на фініші</b><ul>
+    <li>Піднятися з 9-го на 10-й картою, а не в бою. 10-й рівень дається лише за вбитого монстра, якщо сама карта прямо не дозволяє інакше.</li>
+    <li>Давати рівень помічникові (рівень отримує лише ельф). Якщо ви на 9-му рівні допомогли комусь убити монстра, ви не піднімаєтеся: рівні отримує лише той, хто бився.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Часті помилки</h2>
+  <div class="warn"><ul>
+    <li>Плутати рівень і силу. У бою ви змагаєтеся силою, а гру виграєте рівнем.</li>
+    <li>Вважати нічию перемогою. За рівної сили перемагає монстр, якщо на вашому боці немає воїна.</li>
+    <li>Залишати бонус від зілля після бою. Разові бонуси діють лише один бій.</li>
+    <li>Додавати лише рівень помічника. Помічник приносить у бій і рівень, і шмотки — всю свою силу.</li>
+    <li>Опускатися нижче 1-го рівня. 1-й рівень — це дно: втрата рівня на ньому нічого не змінює.</li>
+    <li>Втрачати рівень під час смерті. Смерть забирає лише шмотки, але не рівень.</li>
+  </ul></div>
+
+  <h2 id="examples">Приклади</h2>
+  <div class="examples num">
+    <div class="card"><b>Чиста сила</b><p>4-й рівень і бонус від шмоток +6. Ваша сила: 4 + 6.</p><div class="big">Сила 10</div></div>
+    <div class="card"><b>Нічия</b><p>Сила 10 проти монстра із силою 10. Без воїна перемагає монстр. Якщо ви воїн — перемагаєте ви.</p><div class="big">Монстр або воїн</div></div>
+    <div class="card"><b>Шмотки в мінусі</b><p>2-й рівень і бонус від шмоток −3. Ваша сила: 2 − 3.</p><div class="big">Сила −1</div></div>
+    <div class="card"><b>З помічником</b><p>Ваші 10 плюс помічник 3-го рівня зі шмотками на +2 (разом 5) проти монстра із силою 10. 15 більше за 10.</p><div class="big">Ви перемагаєте</div></div>
+    <div class="card"><b>Великий фінал</b><p>Ви на 9-му рівні й убиваєте монстра, що дає 2 рівні. Ви зупиняєтеся на 10-му, а не на 11-му.</p><div class="big">10-й рівень, ви виграли гру</div></div>
+    <div class="card"><b>Спроба змитися</b><p>Ви програли й викинули 4: не пощастило, виконуйте те, що написано на карті монстра. На 5 чи 6 ви б змилися.</p><div class="big">5 або 6, щоб змитися</div></div>
+  </div>
+
+  <h2 id="whole-turn">Приклад цілого бою</h2>
+  <div class="card walk"><ol>
+    <li><b>Ваша сила:</b> ви на 6-му рівні, бонус від шмоток +4. 6 + 4 = 10.</li>
+    <li><b>Монстр:</b> 12-й рівень і бонус +3 у бою. 12 + 3 = 15. Вам бракує 5.</li>
+    <li><b>Зілля:</b> ви п'єте зілля на +2. У вашої сторони тепер 10 + 2 = 12. Усе ще бракує 3.</li>
+    <li><b>Помічник:</b> до вас приєднується гравець 3-го рівня зі шмотками на +2. Його сила 3 + 2 = 5, і у вашої сторони тепер 12 + 5 = 17.</li>
+    <li><b>Порівняння:</b> 17 проти 15. Ваша сторона сильніша — ви перемогли. (А за 15 на 15 для перемоги на вашому боці потрібен був би воїн.)</li>
+    <li><b>Рівні:</b> монстр дає 1 рівень, ви піднімаєтеся з 6-го на 7-й. Помічник лишається на 3-му.</li>
+    <li><b>Бонуси скидаються:</b> зілля випито. Ваша сила знову «рівень плюс шмотки»: 7 + 4 = 11.</li>
+  </ol><div class="sum num">17 проти 15: ви перемагаєте, рівень 6 → 7, сила тепер 11</div></div>
+
+  <h2 id="common-questions">Часті запитання</h2>
+  <div class="faq">
+    <details open><summary>Хто перемагає за нічиєї?</summary><p>Монстр, якщо на вашому боці немає воїна. Якщо ви або ваш помічник — воїн, нічия вважається вашою перемогою.</p></details>
+    <details><summary>Моя сила дорівнює моєму рівню?</summary><p>Ні. Сила — це рівень плюс бонус від шмоток, нею ви й б'єтеся. А для перемоги рахується лише рівень.</p></details>
+    <details><summary>Чи може моя сила бути від'ємною?</summary><p>Так. Якщо бонус від шмоток від'ємний, сила теж може піти в мінус: 2-й рівень зі шмотками на −3 дає силу −1.</p></details>
+    <details><summary>Чи може мій рівень впасти нижче 1?</summary><p>Ні. 1-й рівень — найнижчий. Якщо ви втрачаєте рівень на 1-му, ви просто лишаєтеся на 1-му.</p></details>
+    <details><summary>Чи отримує рівень мій помічник?</summary><p>Ні. Рівні отримує лише той, хто бився з монстром. Помічник дає свою силу, і все. Виняток — ельф: він отримує рівень за кожного монстра, якого допоміг убити.</p></details>
+    <details><summary>Чи можна отримати 10-й рівень картою?</summary><p>Зазвичай ні: 10-й рівень дається лише за вбитого монстра. Виняток — карта, на якій прямо сказано, що вона може підняти вас до 10-го.</p></details>
+    <details><summary>Що буває після смерті?</summary><p>Ви втрачаєте шмотки, і бонус від них стає нульовим. Рівень лишається тим самим, і ви граєте далі.</p></details>
+    <details><summary>А якщо я б'юся з двома монстрами одразу?</summary><p>Додайте обох монстрів: їхні рівні й бонуси. Якщо переможете, отримаєте рівні за обох.</p></details>
+    <details><summary>А доповнення?</summary><p>Тут лише базова гра. Доповнення й інші набори Манчкіна додають свої раси, класи й правила (в одному грають навіть до 20-го рівня), тож зазирніть у їхні правила.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Краще стежити за монстрами, а не за числами?</b><p>У Score Night рівень, шмотки й сила кожного гравця — на одному екрані, бої рахуються самі, а застосунок не дасть нікому прослизнути на 10-й рівень без убитого монстра.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">Неофіційна пам'ятка, написана своїми словами. Не пов'язана з видавцем Манчкіна. Назви ігор належать їхнім власникам. Повні правила — у книзі правил від видавця.</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "рівень {v}",
+ "termGear": "шмотки {v}",
+ "termOnce": "разові {v}",
+ "termHelper": "помічник {v}",
+ "termBonuses": "бонуси {v}",
+ "yourSide": "Ваша сторона: {expr} = {total}",
+ "monsterSum": "Монстр: {expr} = {total}",
+ "monsterPlain": "Монстр: {expr}",
+ "killMonster": "{you} більше, ніж {mon}, — ви вбиваєте монстра.",
+ "tieWarriorWins": "{you} проти {mon} — нічия. За нічиєї перемагає монстр, але на вашому боці воїн, тож перемога ваша.",
+ "tieMonsterWins": "{you} проти {mon} — нічия, а за нічиєї перемагає монстр. Ще 1 сила або воїн на вашому боці — і перемога ваша.",
+ "monsterWins": {
+  "one": "{you} менше, ніж {mon}, — перемагає монстр. Для перемоги треба ще {n}.",
+  "few": "{you} менше, ніж {mon}, — перемагає монстр. Для перемоги треба ще {n}.",
+  "many": "{you} менше, ніж {mon}, — перемагає монстр. Для перемоги треба ще {n}.",
+  "other": "{you} менше, ніж {mon}, — перемагає монстр. Для перемоги треба ще {n}."
+ },
+ "levelWin": "Ви піднімаєтеся до 10-го рівня й виграєте гру!",
+ "levelUpTo9": "Ви піднімаєтеся до 9-го рівня. Якщо монстр дає 2 рівні — до 10-го, і гра ваша!",
+ "levelUp": "Ви піднімаєтеся до {a}-го рівня (або до {b}-го, якщо монстр дає 2 рівні).",
+ "helperNoLevel": "Помічник рівня не отримує, хіба що він ельф.",
+ "runAway": "Киньте кубик, щоб змитися: на 5 або 6 ви втекли. Інакше виконайте те, що написано на карті монстра.",
+ "headWin": "Ви перемогли!",
+ "headLose": "Перемагає монстр"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../uk/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../uk/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/uk/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Українська</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/" class="current">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

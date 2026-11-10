@@ -1,0 +1,292 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comment compter les points à Carcassonne — Bobr Studio</title>
+<meta name="description" content="Un guide simple pour compter les points dans la version de base de Carcassonne : routes, villes, abbayes et champs, pendant la partie et à la fin.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../fr/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Règles des jeux</a><details class="langs"><summary>🌐 Français</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/" class="current">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Règles des jeux</a> › Carcassonne</div>
+  <h1>Comment compter les points à Carcassonne <span class="hand">jeu de base, étape par étape</span></h1>
+  <p class="lead">Dans Carcassonne, vous marquez des points à deux moments différents. Pendant la partie, chaque route, ville ou abbaye est notée dès qu'elle est terminée, et vos partisans y restent. Quand la dernière tuile est placée, tout ce qui est encore inachevé est noté pour moins de points, et ensuite, viennent les champs, qui embrouillent presque tout le monde. Cette page explique les deux, avec des exemples, et le calculateur calcule la fin de partie pour vous.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Votre décompte final</h3>
+      <p>Après la dernière tuile, regardez uniquement les routes, villes et abbayes inachevées où vous avez le plus de partisans (ou êtes à égalité), et les champs où vous avez le plus de paysans. Additionnez les chiffres sur tous ces éléments.</p>
+      <div class="group">Villes inachevées</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">Tuiles de villes<small>tuiles contenant une partie de vos villes inachevées</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="Une tuile de ville en moins">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="Une tuile de ville en plus">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Blasons<small>blasons à l'intérieur de ces villes</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="Un blason en moins">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="Un blason en plus">+</button></div></div>
+      <div class="group">Routes inachevées</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Tuiles de routes<small>tuiles que traversent vos routes inachevées</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="Une tuile de route en moins">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="Une tuile de route en plus">+</button></div></div>
+      <div class="group">Abbayes inachevées</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Abbayes<small>vos abbayes qui ne sont pas entièrement entourées</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="Une abbaye en moins">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="Une abbaye en plus">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Tuiles autour<small>tous les 8 voisins comptent, les coins également ; maximum 7 par élément</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="Une tuile autour en moins">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="Une tuile autour en plus">+</button></div></div>
+      <div class="group">Champs</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Villes terminées<small>qui touchent les champs que vous remportez, comptés champ par champ</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="Une ville terminée en moins">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="Une ville terminée en plus">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 points</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Gardez le score complet sur votre téléphone</b><p>Score Night remplace la piste de score : enregistrez chaque route, ville ou abbaye au fur et à mesure qu'elle est terminée, puis la fin de partie, pour chaque joueur.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Obtenez-le sur Google Play</a></div>
+      <ul><li>Fonctionne sans internet, pour 2 à 5 joueurs</li><li>Plus de tours perdus sur la piste</li><li>Deux parties de chaque jeu offertes</li></ul>
+      <div class="toc"><b>Sur cette page</b><ol><li><a href="#when-to-count">Quand compter</a></li><li><a href="#who-gets-points">Qui marque les points</a></li><li><a href="#roads">Routes</a></li><li><a href="#cities">Villes et blasons</a></li><li><a href="#monasteries">Abbayes</a></li><li><a href="#fields">Champs</a></li><li><a href="#field-examples">Exemples de champs</a></li><li><a href="#mistakes">Erreurs courantes</a></li><li><a href="#who-wins">Qui gagne</a></li><li><a href="#whole-game">Une fin de partie, notée</a></li><li><a href="#common-questions">Questions fréquentes</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Quand compter</h2>
+  <ol class="steps">
+    <li><b>Pendant la partie, au moment où quelque chose est terminé.</b> Lorsqu'une tuile ferme une route, une ville ou une abbaye, cet élément est noté immédiatement, même si ce n'est pas votre tour. Le joueur ayant le plus de partisans dessus déplace son marqueur sur la piste de score, et ensuite, chaque partisan sur cet élément retourne à son propriétaire, prêt à être placé à nouveau.</li>
+    <li><b>Rien d'autre n'est noté pendant la partie.</b> Les éléments inachevés attendent, et les champs ne sont jamais notés avant la fin. Un paysan dans un champ reste là pour toute la partie.</li>
+    <li><b>Lorsque la dernière tuile est placée, la partie se termine.</b> Regardez maintenant tous les partisans encore sur la table. Chacun se trouve sur quelque chose d'inachevé : une route, une ville ou une abbaye. Notez-les, élément par élément, mais pour moins de points que les éléments terminés (les villes et les abbayes valent moins, les routes gardent le même score).</li>
+    <li><b>Les Champs sont le dernier pointage.</b> Une fois que toutes les caractéristiques inachevées ont été comptées, vous scorez les champs avec des paysans. Un champ gagne des points pour les villes terminées adjacentes, c'est pourquoi vous ne le scorez que lorsque rien ne peut plus changer.</li>
+  </ol>
+  <div class="tip">Il est plus simple de dégager la table au fur et à mesure : vous scorez une caractéristique, vous retirez ses partisans, et vous passez à la suivante. Quand il ne reste que les paysans, c'est le moment de traiter les champs.</div>
+
+  <h2 id="who-gets-points">Qui marque ?</h2>
+  <p>Vous ne pouvez pas placer un partisan sur une route, une ville ou un champ qui en a déjà un, même si c'est le vôtre. Mais deux pièces séparées avec des partisans peuvent se développer et se joindre plus tard, et alors une seule caractéristique possède plusieurs partisans. Quand cela est noté, comptez les partisans de chaque joueur là-bas. Le joueur ayant le plus reçoit tous les points. Si deux joueurs ou plus sont à égalité pour le plus, <b>chacun d'entre eux reçoit les points complets</b>, personne ne divise rien. Les joueurs avec moins de partisans ne reçoivent rien. Une caractéristique sans partisans note pour personne.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Exemple :</b> une ville terminée a 5 tuiles et 2 blasons, elle vaut donc 10 + 4 = 14 points. Sophie y a 2 partisans, Marc en a 2, et vous en avez 1. Sophie et Marc reçoivent chacun 14 points. Vous ne recevez rien, mais votre partisan revient toujours.</div></div></div>
+
+  <h2 id="roads">Routes</h2>
+  <div class="line"><div class="card"><h3>Ce que vous comptez</h3>
+    <p>Suivez la route d'une extrémité à l'autre et comptez les tuiles qu'elle traverse. Une route est terminée lorsque ses deux extrémités s'arrêtent : à une intersection, à une ville, à une abbaye, ou lorsqu'elle revient pour se rencontrer en boucle.</p>
+    <p><span class="when during">Pendant la partie</span>Une route terminée donne 1 point par tuile.</p>
+    <p><span class="when end">À la fin</span>Une route inachevée donne également 1 point par tuile. Les routes sont la seule caractéristique qui vaut le même montant, que ce soit de cette façon ou de l'autre.</p>
+    <p class="where">Où chercher : les partisans debout sur les routes.</p>
+    <div class="ex"><b>Exemple :</b> une route part d'une intersection, passe sur 2 tuiles simples et se termine à une porte de ville. En comptant la tuile d'intersection et la tuile de ville, elle touche 4 tuiles, donc 4 points. Si, à la fin de la partie, une route de 3 tuiles a toujours une extrémité ouverte, elle donne 3 points.</div></div></div>
+
+  <h2 id="cities">Villes et blasons</h2>
+  <div class="line"><div class="card"><h3>Ce que vous comptez</h3>
+    <p>Comptez les tuiles qui ont une partie de la ville dessus, puis comptez les blasons. Un blason est le petit insigne d'armorial imprimé sur certaines tuiles de ville. Une ville est terminée lorsque ses murs se ferment complètement sans espace ni bord ouvert.</p>
+    <p><span class="when during">Pendant la partie</span>Une ville terminée donne 2 points par tuile et 2 de plus par blason. La plus petite ville, 2 tuiles sans blason, vaut 4 points.</p>
+    <p><span class="when end">À la fin</span>Une ville inachevée donne seulement 1 point par tuile et 1 par blason, soit la moitié de ce qu'elle vaudrait si elle était terminée.</p>
+    <p class="where">Où chercher : les partisans debout à l'intérieur des murs de ville.</p>
+    <div class="ex"><b>Exemple :</b> une ville terminée de 4 tuiles avec 1 blason donne 4 × 2 = 8 pour les tuiles et 2 pour le blason, soit 10 points. Une ville inachevée de 3 tuiles avec 1 blason à la fin de la partie donne 3 + 1 = 4 points.</div></div></div>
+
+  <h2 id="monasteries">Abbayes</h2>
+  <div class="line"><div class="card"><h3>Ce que vous comptez</h3>
+    <p>Une abbaye est placée au milieu de sa tuile. Regardez les 8 emplacements autour d'elle : à gauche, à droite, au-dessus, en dessous et aux 4 coins. L'abbaye est terminée lorsque les 8 sont remplis de tuiles.</p>
+    <p><span class="when during">Pendant la partie</span>Une abbaye terminée donne 9 points : 1 pour la tuile de l'abbaye et 1 pour chacune des 8 tuiles autour.</p>
+    <p><span class="when end">À la fin</span>Une abbaye inachevée donne 1 point pour la tuile de l'abbaye et 1 pour chaque tuile autour qui s'y trouve. Elle vaut donc entre 1 et 8 points.</p>
+    <p class="where">Où chercher : les partisans sur les abbayes. Un seul partisan peut jamais se trouver sur une abbaye, il n'y a donc pas de partage.</p>
+    <div class="ex"><b>Exemple :</b> à la fin de la partie, votre abbaye a 5 tuiles autour d'elle et 3 espaces vides. Cela fait 1 + 5 = 6 points.</div></div></div>
+
+  <h2 id="fields">Champs</h2>
+  <div class="line"><div class="card"><h3>Ce que vous comptez</h3>
+    <p>Un champ est une étendue d'herbe verte. Il s'étend sur des tuiles tant que l'herbe est connectée ; les routes, les murs de ville et le bord des tuiles sur la table le coupent, donc un grand pré peut se retrouver en plusieurs champs séparés. Un partisan couché dans un champ est un paysan.</p>
+    <p><span class="when during">Pendant la partie</span>Rien. Les champs ne sont jamais notés avant la fin, et les paysans restent là où ils sont.</p>
+    <p><span class="when end">À la fin</span>, prenez un champ avec des paysans à la fois. Trouvez chaque <b>ville terminée</b> dont les murs touchent ce champ. Le joueur ayant le plus de paysans dans ce champ obtient 3 points pour chacune de ces villes. Les villes inachevées ne donnent rien aux champs.</p>
+    <p class="where">Où chercher : les paysans qui sont dans l'herbe, puis parcourez le bord de leur champ et regardez chaque mur de ville qu'il touche.</p>
+    <div class="ex"><b>Exemple :</b> le champ de votre paysan touche 3 villes terminées et 1 inachevée. Cela fait donc 3 × 3 = 9 points ; la ville inachevée ne compte pas.</div>
+    <p>Chaque champ est noté individuellement. Si une ville touche deux champs différents, elle compte pour les deux. Et si le même joueur gagne les deux champs, cette ville lui rapporte 3 points deux fois.</p></div></div>
+  <div class="tip"><b>Une façon pratique de trouver les villes d'un champ :</b> placez votre doigt sur le paysan et tracez l'herbe vers l'extérieur sans traverser de route ni de mur. Chaque mur de ville terminé que votre doigt suit compte une fois pour ce champ, peu importe sa longueur.</div>
+
+  <h2 id="field-examples">Exemples de champs</h2>
+  <div class="examples num">
+    <div class="card"><b>Un champ, plusieurs villes</b><p>Votre paysan est seul dans un grand champ. Autour de celui-ci, il y a 4 villes terminées et 2 inachevées. Seules les terminées comptent : 4 × 3.</p><div class="big">12 points</div></div>
+    <div class="card"><b>Une ville entre deux champs</b><p>Une route divise l'herbe en deux, et les deux moitiés touchent la même ville terminée. Votre paysan est dans le champ du nord, celui de Sophie est dans celui du sud. Ce sont deux champs, donc vous obtenez toutes les deux 3 points pour cette ville.</p><div class="big">3 chacune</div></div>
+    <div class="card"><b>Un champ partagé</b><p>Deux champs avec des paysans ajoutés pendant la partie. Désormais, vous et Sophie avez chacun 2 paysans dedans, et cela touche 5 villes terminées. Vous êtes à égalité, donc vous obtenez toutes les deux 5 × 3.</p><div class="big">15 chacune</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>En infériorité numérique</b><p>Le même champ, mais Sophie a 2 paysans et vous en avez 1. Sophie en a le plus, donc elle prend tous les 15 et vous n'obtenez rien pour ce champ.</p><div class="big">0 pour vous</div></div>
+    <div class="card"><b>Un joueur, deux champs</b><p>Vous avez un paysan dans chacun de deux champs, et une ville terminée touche les deux. Chaque champ la compte séparément, donc cette ville vous donne 3 + 3.</p><div class="big">6 points</div></div>
+    <div class="card"><b>Pas de villes terminées</b><p>Un paysan dans un champ qui ne touche que des villes inachevées, ou aucune ville du tout, ne marque rien. Le paysan reste simplement là.</p><div class="big">0 point</div></div>
+  </div>
+
+  <h2 id="mistakes">Erreurs courantes</h2>
+  <div class="warn"><b>Erreurs que les joueurs font avec le décompte de Carcassonne</b><ul>
+    <li>Noter les villes inachevées comme des villes terminées à la fin. Une tuile de ville terminée vaut 2, une inachevée ne vaut que 1, et c'est pareil pour les blasons.</li>
+    <li>Oublier la tuile de l'abbaye elle-même. Une abbaye inachevée avec 5 voisins vaut 6, et non 5.</li>
+    <li>Compter les villes inachevées pour les champs. Les champs ne marquent des points que pour les villes terminées.</li>
+    <li>Partager les points en cas d'égalité. Chaque joueur à égalité pour le plus de partisans reçoit les points complets.</li>
+    <li>Donner des points au joueur avec le moins de partisans. Seul le joueur ou les joueurs ayant le plus reçoit quelque chose.</li>
+    <li>Noter les champs pendant la partie, ou reprendre les paysans. Les paysans restent jusqu'à la toute fin.</li>
+    <li>Oublier de reprendre les partisans après qu'une fonctionnalité ait été notée pendant la partie.</li>
+    <li>Compter les morceaux de mur de la ville au lieu de ses tuiles. Comptez chaque tuile une seule fois, quelle que soit la quantité de ville présente dessus.</li>
+  </ul></div>
+
+  <h2 id="who-wins">Qui gagne</h2>
+  <p>Votre score final est tout ce que vous avez collecté sur la piste de score pendant la partie, plus les fonctionnalités inachevées et les champs du décompte final. Le joueur avec le plus de points gagne. Si deux joueurs ont le même total, ils partagent la victoire. La piste est plus courte que la plupart des scores finaux, donc si votre marqueur l'a fait le tour, n'oubliez pas d'ajouter les tours.</p>
+
+  <h2 id="whole-game">Une fin de partie, comptée</h2>
+  <div class="card walk"><p>La dernière tuile vient d'être posée, et votre marqueur sur la piste indique que vous avez collecté 64 points pendant la partie. Voici ce qui reste sur la table :</p><ol>
+    <li><b>Une ville inachevée</b> de 3 tuiles avec 1 blason, où vous avez le seul partisan : 3 + 1 = 4 points.</li>
+    <li><b>Une route inachevée</b> sur 2 tuiles avec votre partisan : 2 points.</li>
+    <li><b>Une abbaye inachevée</b> avec 5 tuiles autour : 1 + 5 = 6 points.</li>
+    <li><b>Votre premier champ</b>, où votre paysan est seul, touche 3 villes terminées : 3 × 3 = 9 points.</li>
+    <li><b>Votre deuxième champ</b> est partagé avec Sophie, 1 paysan chacune, et touche 2 villes terminées. Vous êtes à égalité, donc vous obtenez toutes les deux 2 × 3 = 6 points.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 points</div><p>Pour vérifier cela avec la calculatrice ci-dessus, entrez 3 tuiles de ville, 1 blason, 2 tuiles de route, 1 abbaye avec 5 tuiles autour et 5 villes terminées pour les champs (3 du premier champ et 2 du second). Cela montre les 27 points que vous ajoutez à vos 64.</p></div>
+
+  <h2 id="common-questions">Questions fréquentes</h2>
+  <div class="faq">
+    <details open><summary>Est-ce que je marque un élément si je n'ai pas de partisan dessus ?</summary><p>Non. Seuls les joueurs avec le plus de partisans sur un élément marquent des points. Une ville terminée sans aucun partisan ne donne de points à personne, mais elle peut toujours aider les paysans des champs à côté à la fin.</p></details>
+    <details><summary>Que se passe-t-il si je termine un élément et que je place un partisan dessus au même tour ?</summary><p>Il est marqué immédiatement, et le partisan revient vers vous au même tour.</p></details>
+    <details><summary>Est-ce qu'on partage les points en cas d'égalité ?</summary><p>Non. Chaque joueur en tête pour le plus de partisans obtient les points complets.</p></details>
+    <details><summary>Est-ce qu'une ville peut donner des points à deux champs ?</summary><p>Oui. Chaque champ est marqué séparément, donc une ville touchant plusieurs champs compte une fois pour chacun d'eux.</p></details>
+    <details><summary>Est-ce que les paysans reviennent un jour ?</summary><p>Non. Un paysan reste dans son champ jusqu'à la fin de la partie, alors réfléchissez à deux fois avant d'en poser un trop tôt.</p></details>
+    <details><summary>Est-ce qu'une ville de 2 tuiles marque moins ?</summary><p>Non, selon les règles actuelles, c'est 2 points par tuile comme n'importe quelle autre ville, donc 4 points quand elle est terminée. Les anciennes versions des règles diffèrent sur certains détails ; si vous jouez avec un ancien manuel, suivez-le.</p></details>
+    <details><summary>Et les extensions ?</summary><p>Ce guide couvre uniquement le jeu de base ; les extensions comme Auberges et Cathédrales ou L’Abbé ajoutent de nouvelles pièces et changent certains scores, et nous les expliquerons sur des pages séparées.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Vous préférez ne pas tout compter à la main ?</b><p>Dans Score Night, vous tapez sur une route, une ville ou une abbaye quand elle est terminée, choisissez qui marque les points, et à la fin, entrez ce qu'il reste. Chaque total s'additionne de lui-même, avec un journal de chaque score.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Guide non officiel écrit dans nos propres mots. Non affilié à l'éditeur de Carcassonne. Les noms des jeux appartiennent à leurs propriétaires. Les règles complètes se trouvent dans le manuel de l'éditeur.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} point",
+  "other": "{n} points"
+ },
+ "tiles": {
+  "one": "{n} tuile",
+  "other": "{n} tuiles"
+ },
+ "shields": {
+  "one": "{n} blason",
+  "other": "{n} blasons"
+ },
+ "finishedCities": {
+  "one": "{n} Ville terminée",
+  "other": "{n} Villes terminées"
+ },
+ "cityLine": "Villes inachevées : {tiles}, 1 point chacune = {pts}",
+ "cityShieldLine": "Villes inachevées : {tiles} et {shields}, 1 point chacune = {pts}",
+ "roadLine": "Routes inachevées : {tiles}, 1 point chacune = {pts}",
+ "monasteryLine": {
+  "one": "{n} Abbaye inachevée : 1 point pour l'Abbaye elle-même + {tiles} autour = {pts}",
+  "other": "{n} Abbayes inachevées : 1 point pour chaque Abbaye ({n}) + {tiles} autour = {pts}"
+ },
+ "fieldLine": "Champs : {cities}, 3 points chacun = {pts}",
+ "addToTrack": "Ajoutez ceci à votre score sur la piste",
+ "emptyHint": "Ajoutez ce qui reste sur la table ci-dessus, et les points apparaîtront ici"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../fr/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../fr/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/fr/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Français</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/" class="current">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

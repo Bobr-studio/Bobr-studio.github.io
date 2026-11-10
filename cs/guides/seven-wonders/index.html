@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kalkulačka vědy pro 7 divů světa — Bobr Studio</title>
+<meta name="description" content="Věda je část bodování ve hře 7 divů světa, kterou všichni zapomínají, jak se počítá.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .92; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .growth { display: flex; gap: 8px; flex-wrap: wrap; margin: 8px 0 2px; }
+  .growth span { background: #FFF6EC; border-radius: 10px; padding: 4px 10px; font-size: 15px; }
+  .tip { background: #FFF6EC; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEDEA; border-left: 4px solid #C8452F; border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F3F6F7; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(15,46,58,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «античность» для страницы 7 чудес: свои цвета (песок, терракота, бронза), не цвета коробки и логотипа. */
+:root { --river: #3A2617; --river-2: #5A3A22; --cream: #F3E9D6; --ink: #2B1E14; --muted: #6E5A48; --line: #E2D2B6; --accent: #A6462A; --accent2: #C99A3E; }
+body { background: var(--cream) radial-gradient(circle at 20% 0, #F8F0E0, transparent 60%); }
+.studio { background: linear-gradient(180deg, #3A2617, #5A3A22); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent2); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #EADBC0; }
+.result { background: linear-gradient(135deg, #3A2617, #5A3A22); }
+.tip { background: #FBF1DE; }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/cs/guides/seven-wonders/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/seven-wonders/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/seven-wonders/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/seven-wonders/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/seven-wonders/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/seven-wonders/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/seven-wonders/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/seven-wonders/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/seven-wonders/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/seven-wonders/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/seven-wonders/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/seven-wonders/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/seven-wonders/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/seven-wonders/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/seven-wonders/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Pravidla her</a><details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../ru/guides/seven-wonders/">Русский</a><a href="../../../uk/guides/seven-wonders/">Українська</a><a href="../../../pl/guides/seven-wonders/">Polski</a><a href="../../../cs/guides/seven-wonders/" class="current">Čeština</a><a href="../../../de/guides/seven-wonders/">Deutsch</a><a href="../../../fr/guides/seven-wonders/">Français</a><a href="../../../es/guides/seven-wonders/">Español</a><a href="../../../pt/guides/seven-wonders/">Português</a><a href="../../../tr/guides/seven-wonders/">Türkçe</a><a href="../../../ja/guides/seven-wonders/">日本語</a><a href="../../../ko/guides/seven-wonders/">한국어</a><a href="../../../zh/guides/seven-wonders/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Pravidla her</a> › 7 divů světa</div>
+  <h1>Kalkulačka vědy pro 7 divů světa <span class="hand">a jak spočítat všechno ostatní</span></h1>
+  <p class="lead">Věda je část bodování ve hře 7 divů světa, kterou všichni zapomínají, jak se počítá. Kalkulačce sdělíte, jaké symboly máte na zelených kartách, ona spočítá body a vysvětlí, jak k nim došla. Níže je krok za krokem vysvětleno každé další bodování, s příklady a chybami, které se stávají nejčastěji.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Vaše zelené karty</h3>
+      <p>Zelené karty setřiďte podle symbolu na nich a každou hromádku spočítejte.</p>
+      <div class="row"><span class="sym t">T</span><span class="name">Tabulky<small>zelené karty s kamennou deskou</small></span><div class="step"><button data-k="t" data-d="-1">−</button><output id="t">3</output><button data-k="t" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym c">C</span><span class="name">Kružítka<small>zelené karty s rýsovacím kružítkem</small></span><div class="step"><button data-k="c" data-d="-1">−</button><output id="c">2</output><button data-k="c" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym g">G</span><span class="name">Ozubená kola<small>zelené karty s ozubeným kolem</small></span><div class="step"><button data-k="g" data-d="-1">−</button><output id="g">1</output><button data-k="g" data-d="1">+</button></div></div>
+      <div class="row"><span class="sym w">?</span><span class="name">Symbol si vyberete sami<small>karta cechu nebo fáze divu, která vám na konci umožní vybrat si jeden symbol</small></span><div class="step"><button data-k="w" data-d="-1">−</button><output id="w">0</output><button data-k="w" data-d="1">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts">21 bodů</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Spočítejte celý stůl najednou</b><p>Score Night počítá vědu, mince, konflikty a všechno ostatní pro každého hráče a ukáže, kdo vyhrál.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dseven-wonders">▶ Získejte na Google Play</a></div>
+      <ul><li>Funguje bez internetu, pro 3 až 7 hráčů</li><li>Dvě partie každé hry zdarma</li></ul>
+      <div class="toc"><b>Na této stránce</b><ol><li><a href="#when-to-count">Kdy počítat</a></li><li><a href="#science-step-by-step">Věda krok za krokem</a></li><li><a href="#science-examples">Příklady vědy</a></li><li><a href="#military">Konflikty</a></li><li><a href="#coins">Mince</a></li><li><a href="#wonder">Div</a></li><li><a href="#blue-cards">Modré karty</a></li><li><a href="#yellow-cards">Žluté karty</a></li><li><a href="#guilds">Cechy</a></li><li><a href="#who-wins">Kdo vyhrává</a></li><li><a href="#whole-game">Celá hra sečtená</a></li><li><a href="#common-questions">Časté otázky</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Kdy počítat</h2>
+  <p>Body se počítají jen jednou, na úplném konci. Hra končí po třetím věku: odehrají se poslední karty, sváří se poslední bitva se sousedy a žetony konfliktů se rozdají. Potom si každý rozloží karty podle barev a spočítá sedm druhů bodů, jeden za druhým. Nejsnadnější je, když jedna osoba předčítá řádky nahlas a každý si počítá své.</p>
+  <div class="tip">Některé karty na konci nic nepřinášejí: <b>hnědé a šedé karty</b> vám během hry jen dodávaly suroviny, a <b>červené karty</b> již splnily svou úlohu v bitvách. Nemusíte je počítat, ale nechte je na stole: některé cechy a žluté karty je totiž započítávají.</div>
+
+  <h2 id="science-step-by-step">Jak se počítá věda, krok za krokem</h2>
+  <ol class="steps">
+    <li><b>Zelené karty roztřiďte do tří hromádek</b> podle symbolu: tabulky, kružítka a ozubená kola. Záleží jen na symbolu, ne na názvu karty nebo věku, ze kterého pochází. Každá zelená karta má právě jeden symbol.</li>
+    <li><b>Každou hromádku bodujte samostatně.</b> Počet karet v hromádce vynásobte sám sebou. Jedna karta je za 1 bod, ale každá další karta stejného symbolu má větší hodnotu než ta předchozí, proto se vyplatí sbírat jeden symbol:
+      <div class="growth num"><span>1 karta → 1 bod</span><span>2 karty → 4</span><span>3 karty → 9</span><span>4 karty → 16</span><span>5 karet → 25</span><span>6 karet → 36</span></div></li>
+    <li><b>Hledejte úplné sady.</b> Vezměte jednu tabulku, jedno kružítko a jedno ozubené kolo dohromady: to je sada, a každá sada vám přinese 7 bodů navíc. Sad můžete mít více: spočítejte, kolik karet je v nejmenší hromádce, a to je počet sad. Pokud je některá hromádka prázdná, žádnou sadu nemáte.</li>
+    <li><b>Sečtěte obě části dohromady.</b> Body za hromádky a body za sady se sečtou. Nic se nepočítá dvakrát: karta se započítává do své hromádky a zároveň může být součástí sady.</li>
+  </ol>
+  <div class="tip"><b>Pokud si můžete vybrat symbol</b> (karta cechu nebo fáze divu, která to určuje), vyberete si ji na konci, až už uvidíte své hromádky. Obvykle je nejlepší buď doplnit ještě jednu sadu, nebo přidat k největší hromádce. Pokud si nejste jistí, zkuste každou ze tří a nechte si tu nejlepší. Kalkulačka výše dělá přesně tohle.</div>
+  <div class="warn"><b>Časté chyby u vědy</b><ul>
+    <li>Připočítávat 7 bodů za každou zelenou kartu. Sedm bodů získáte pouze za úplnou sadu tří různých symbolů.</li>
+    <li>Sčítat karty místo násobení: 3 tabulky mají hodnotu 9 bodů, nikoli 3.</li>
+    <li>Počítat pouze jednu sadu, i když jich je víc. Dva symboly od každého znamenají dvě sady a 14 bodů.</li>
+    <li>Počítání zelených karet sousedů. Vědu počítejte pouze z vlastních karet.</li>
+  </ul></div>
+
+  <h2 id="science-examples">Příklady počítání vědy</h2>
+  <div class="examples num">
+    <div class="card"><b>Vše na jeden symbol</b><p>4 ozubená kola, nic jiného. Hromádka ozubených kol dává 4 × 4 = 16. Nejsou tam žádné tabulky ani kružítka, takže žádné sady.</p><div class="big">16 bodů</div></div>
+    <div class="card"><b>Rovnoměrně rozloženo</b><p>2 tabulky, 2 kružítka, 2 ozubená kola. Každá hromádka dává 2 × 2 = 4, dohromady 12. Nejmenší hromádka má 2 karty, takže 2 sady, což přidá dalších 14 bodů.</p><div class="big">26 bodů</div></div>
+    <div class="card"><b>Trochu od každého</b><p>3 tabulky, 2 kružítka, 1 ozubené kolo. Hromádky: 9 + 4 + 1 = 14. Nejmenší hromádka má 1 kartu, takže 1 sada, což přidá dalších 7 bodů.</p><div class="big">21 bodů</div></div>
+  </div>
+
+  <h2 id="everything-else">Vše ostatní, v pořadí, v jakém se počítá</h2>
+  <div class="line"><div class="card"><h3 id="military">1. Konflikty</h3>
+    <p>Na konci každého věku jste porovnávali svou armádu s armádou sousedů vlevo a vpravo. Síla armády je počet štítů na vašich červených kartách a na divu. Pokud jste měli více než soused, vzali jste žeton vítězství; pokud jste měli méně, vzali jste žeton porážky; pokud jste byli rovni, nikdo nic nevzal.</p>
+    <p>Teď jen sečtěte čísla na svých žetonech. Žeton vítězství má hodnotu 1 bodu v prvním věku, 3 ve druhém a 5 ve třetím, a každý žeton porážky odečítá 1 bod, bez ohledu na věk.</p>
+    <p class="where">Kam se podívat: na žetony vedle vaší desky. Konflikty mohou mít i zápornou hodnotu.</p>
+    <div class="ex"><b>Příklad:</b> Vyhráli jste nad sousedem vlevo v prvním a třetím věku (1 + 5), vyhráli jste nad sousedem vpravo ve druhém (3) a jednou prohráli s ním (−1). Celkem je to 1 + 5 + 3 − 1 = 8 bodů.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="coins">2. Mince</h3>
+    <p>Sečtěte všechny své mince, vydělte je třemi a zbytek ignorujte. Každá celá trojice mincí má hodnotu jeden bod, a jedna nebo dvě zbylé mince nic nepřidají.</p>
+    <p class="where">Kam se podívat: na vaše mince. Mince slouží také jako rozhodující při remíze, takže je nevracejte do krabice příliš brzy.</p>
+    <div class="ex"><b>Příklad:</b> 10 mincí je tři plné trojice a jedna mince navíc, takže 3 body. 2 mince nestačí ani na jeden bod.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="wonder">3. Div</h3>
+    <p>Každá fáze vašeho divu, kterou jste postavili (má pod sebou zasunutou kartu), může mít na sobě vytištěné body. Počítejte pouze body za postavené fáze divu. Některé fáze poskytují mince, štíty nebo něco jiného místo bodů: ty už během hry svou funkci splnily a nyní nic nepřidávají.</p>
+    <p class="where">Kam se podívat: na desku vašeho divu.</p>
+    <div class="ex"><b>Příklad:</b> Postavili jste dvě fáze, jedna má 3 body a druhá 7. Dohromady to je 10 bodů.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="blue-cards">4. Modré karty</h3>
+    <p>Nejjednodušší část: každá modrá karta ukazuje svou hodnotu v bodech. Sečtěte je.</p>
+    <p class="where">Kam se podívat: na vaše modré karty.</p>
+    <div class="ex"><b>Příklad:</b> modré karty v hodnotě 3, 4, 5 a 6 bodů dávají dohromady 18 bodů.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="yellow-cards">5. Žluté karty</h3>
+    <p>Většina žlutých karet vám pomohla jen během hry (levnější obchod, další suroviny, mince) a teď už nic nepřidávají. Body na konci dávají pouze některé karty ze třetího věku. Každá z nich určuje, co se počítá ve vašem městě – například vaše karty určité barvy nebo vaše postavené fáze divu. Spočítejte si tyto věci na vlastním stole a body přičtěte.</p>
+    <p class="where">Kam se podívat: na žluté karty ze třetího věku. Pokud žlutá karta žádné body neukazuje, přeskočte ji.</p>
+    <div class="ex"><b>Příklad:</b> žlutá karta dává 1 bod za každou hnědou kartu ve vašem městě, a vy máte 4 hnědé karty. To je 4 body.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="guilds">6. Cechy</h3>
+    <p>Fialové karty se objevují pouze ve třetím věku, a každá z nich počítá něco jiného. Přečtěte si pečlivě <b>čí</b> karty se počítají: většina cechů počítá karty sousedů, některé počítá vaše vlastní a některé obojí. Spočítejte to, co karta vyžaduje, a body přičtěte. Jeden cech nepřidává body přímo: dává vám symbol vědy dle vaší volby, a ten pak počítáte spolu s vědou.</p>
+    <p class="where">Kam se podívat: na vaše fialové karty, a poté na stoly vašich sousedů.</p>
+    <div class="ex"><b>Příklad:</b> Cech vám dává 1 bod za každou modrou kartu, kterou máte vaši dva sousedé. Váš levý soused má 4 a ten pravý 2. To je 6 bodů.</div></div></div>
+
+  <div class="line"><div class="card"><h3 id="science">7. Věda</h3>
+    <p>Zpočítejte to podle vysvětlení na začátku stránky, nebo jednoduše použijte kalkulačku.</p></div></div>
+
+  <h2 id="who-wins">Kdo vyhrává</h2>
+  <p>Sečtěte všechny sedm řádků. Vítězem je hráč s nejvíce bodů. Pokud dva hráči mají stejný celkový součet, vítězí ten, kdo má více zbytků Minc. Pokud i mince budou stejné, sdílejí vítězství.</p>
+
+  <h2 id="whole-game">Celá hra, spočítaná</h2>
+  <div class="card walk"><ol>
+    <li><b>Konflikty:</b> dva žetony vítězství o hodnotách 1 a 5, jeden o hodnotě 3, jeden žeton porážky. 1 + 5 + 3 − 1 = 8.</li>
+    <li><b>Mince:</b> 10 Minc, tři plně zaplněné po tří. 3.</li>
+    <li><b>Div:</b> dvě postavené fáze o hodnotách 3 a 7. 10.</li>
+    <li><b>Modré karty:</b> 3 + 4 + 5 + 6. 18.</li>
+    <li><b>Žluté karty:</b> jedna karta III. věku, 1 bod za každou z 4 hnědých karet. 4.</li>
+    <li><b>Cechy:</b> 1 bod za každou z 6 modrých karet sousedů. 6.</li>
+    <li><b>Věda:</b> 3 Tabulky, 2 Kružítka, 1 Ozubené kolo: 9 + 4 + 1 za hromady a 7 za jeden set. 21.</li>
+  </ol><div class="sum num">8 + 3 + 10 + 18 + 4 + 6 + 21 = 70 bodů</div></div>
+
+  <h2 id="common-questions">Časté otázky</h2>
+  <div class="faq">
+    <details open><summary>Dávají hnědé a šedé karty body?</summary><p>Ne. Představily vám pouze zdroje během hry. Ale nechte je na stole: některé žluté karty a Cechy je počítají.</p></details>
+    <details><summary>Získáte žeton, pokud je vaše armáda stejně silná jako armáda souseda?</summary><p>Ne. Při rovném síle nikdo žeton nevzíská.</p></details>
+    <details><summary>Mají nějakou hodnotu zbývající Mince?</summary><p>Jedna nebo dvě Mince zbytkem po dělení třemi nevynášejí žádné body, ale i tak stále matterují při remíze.</p></details>
+    <details><summary>Počítají se zelené karty sousedů pro mou Vědu?</summary><p>Ne. Věda počítá pouze vaše vlastní zelené karty a symboly, které jste vy sami zvolili.</p></details>
+    <details><summary>Mohu později změnit zvolený symbol vědy?</summary><p>Vyberte ho úplně na konci, při výpočtu, takže vyberte to, co vám dá nejvíce bodů.</p></details>
+    <details><summary>A co ty rozšíření?</summary><p>Tento průvodce pokrývá základní hru. Rozšíření přidávají své vlastní karty a někdy celou novou řadu bodů; vysvětlíme je na samostatných stránkách.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Nechcete si všechno počítat ručně?</b><p>V Score Night zadáte, co je na stole, a každá řádka, včetně vědy, se sama sečte pro každého hráče.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dseven-wonders">▶ Google Play</a></div>
+
+  <p class="disclaimer">Neoficiální průvodce napsaný našimi slovy. Není spojen s vydavatelem 7 divů světa. Jména her patří jejich majitelům. Kompletní pravidla jsou v návodu od vydavatele.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} bod",
+  "few": "{n} bodů",
+  "many": "{n} bodů",
+  "other": "{n} bodů"
+ },
+ "symbol": {
+  "tablet": {
+   "one": "tabulka",
+   "few": "tabulky",
+   "many": "tabulky",
+   "other": "tabulky"
+  },
+  "compass": {
+   "one": "kružítko",
+   "few": "kružítka",
+   "many": "kružítka",
+   "other": "kružítka"
+  },
+  "gear": {
+   "one": "ozubené kolo",
+   "few": "ozubená kola",
+   "many": "ozubená kola",
+   "other": "ozubená kola"
+  }
+ },
+ "pileLine": "{n} {symbol}: {n} × {n} = {pts}",
+ "pileNone": "Žádné {symbol}: {pts}",
+ "picks": {
+  "one": "Vybraný symbol jde na: {list} (to ten, co vynese nejvíce)",
+  "few": "Vybrané symboly jdou na: {list} (to ty, co vynesou nejvíce)",
+  "many": "Vybrané symboly jdou na: {list} (to ty, co vynesou nejvíce)",
+  "other": "Vybrané symboly jdou na: {list} (to ty, co vynesou nejvíce)"
+ },
+ "sets": {
+  "one": "{n} kompletní set tří symbolů: {n} × {bonus} = {pts}",
+  "few": "{n} kompletní sady tří symbolů: {n} × {bonus} = {pts}",
+  "many": "{n} kompletní sady tří symbolů: {n} × {bonus} = {pts}",
+  "other": "{n} kompletní sady tří symbolů: {n} × {bonus} = {pts}"
+ },
+ "noSet": "Jště není kompletní set: potřebujete alespoň jeden z každého symbolu pro 7 bonus bodů."
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { t: 3, c: 2, g: 1, w: 0 };
+const sci = (t, c, g) => t*t + c*c + g*g + 7*Math.min(t, c, g);
+const KINDS = ['tablet', 'compass', 'gear'];
+function best(t, c, g, w, picks) {
+  if (!w) return { p: sci(t, c, g), t, c, g, picks };
+  return [best(t+1, c, g, w-1, [...picks, 0]), best(t, c+1, g, w-1, [...picks, 1]), best(t, c, g+1, w-1, [...picks, 2])].reduce((a, b) => b.p > a.p ? b : a);
+}
+const pile = (n, kind) => n === 0
+  ? f(T.pileNone, { symbol: p(T.symbol[kind], 0), pts: p(T.points, 0) })
+  : f(T.pileLine, { n, symbol: p(T.symbol[kind], n), pts: p(T.points, n*n) });
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = best(v.t, v.c, v.g, v.w, []), s = Math.min(r.t, r.c, r.g);
+  document.getElementById('pts').textContent = p(T.points, r.p);
+  const lines = [];
+  if (r.picks.length) lines.push(p(T.picks, r.picks.length, { list: r.picks.map(i => p(T.symbol[KINDS[i]], 1)).join(', ') }));
+  lines.push(pile(r.t, 'tablet'), pile(r.c, 'compass'), pile(r.g, 'gear'));
+  lines.push(s ? p(T.sets, s, { bonus: 7, pts: p(T.points, 7*s) }) : T.noSet);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(0, Math.min(k === 'w' ? 3 : 20, v[k] + +b.dataset.d)); draw(); });
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../cs/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/cs/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/seven-wonders/">English</a><a href="../../../ru/guides/seven-wonders/">Русский</a><a href="../../../uk/guides/seven-wonders/">Українська</a><a href="../../../pl/guides/seven-wonders/">Polski</a><a href="../../../cs/guides/seven-wonders/" class="current">Čeština</a><a href="../../../de/guides/seven-wonders/">Deutsch</a><a href="../../../fr/guides/seven-wonders/">Français</a><a href="../../../es/guides/seven-wonders/">Español</a><a href="../../../pt/guides/seven-wonders/">Português</a><a href="../../../tr/guides/seven-wonders/">Türkçe</a><a href="../../../ja/guides/seven-wonders/">日本語</a><a href="../../../ko/guides/seven-wonders/">한국어</a><a href="../../../zh/guides/seven-wonders/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak počítat úrovně a boj v Munchkinu — Bobr Studio</title>
+<meta name="description" content="Jak fungují úrovně, výbava a bojová síla v základním Munchkinu, s bojovým kalkulátorem, který vysvětlí, kdo vyhrává.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Pravidla her</a><details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/" class="current">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Pravidla her</a> › Munchkin</div>
+  <h1>Jak počítat úrovně a boj v Munchkinu <span class="hand">kdo je silnější a kdo vyhrává</span></h1>
+  <p class="lead">Munchkin se nepočítá na konci. Místo toho celou hru bdíte na dvou číslech: vaší úrovni a bojové síle. Kalkulátor níže rozhodne jakýkoli boj za vteřinu a řekne prostým jazykem, proč jste vyhráli nebo prohráli. Dále jsou úrovně, výbava, boje a závod k 10. úrovni vysvětleny krok za krokem, s příklady a zaměninami, ke kterým dochází u téměř každého stolu.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Kdo vyhraje tento boj?</h3>
+      <p>Zadejte obě strany boje. Vaše síla je vaše úroveň plus vaše výbava, a netvořina má svou úroveň plus jakékoli bonusy, které dostala.</p>
+      <h4>Vaše strana</h4>
+      <div class="row"><span class="name">Vaše úroveň<small>od 1 do 10</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="Úroveň dolů">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="Úroveň nahoru">+</button></div></div>
+      <div class="row"><span class="name">Bonus z výbavy<small>všechny bonusy z výbavy, kterou používáte; může být pod nulu</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="Méně bonusu z výbavy">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="Více bonusu z výbavy">+</button></div></div>
+      <div class="row"><span class="name">Jednorázové bonusy<small>lektvary a další jednorázové bonusy pro vaši stranu</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="Méně jednorázového bonusu">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="Více jednorázového bonusu">+</button></div></div>
+      <div class="row"><span class="name">Síla pomocníka<small>jeho úroveň plus jeho výbava; nechte 0, pokud nikdo nepomáhá</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="Méně síly pomocníka">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="Více síly pomocníka">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> Válečník bojuje na naší straně (vy nebo váš pomocník)</label>
+      <h4>Netvor</h4>
+      <div class="row"><span class="name">Úroveň netvora<small>číslo vytištěné na netvořině; u dvou netvor sčítejte jejich úrovně</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="Nižší úroveň netvora">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="Vyšší úroveň netvora">+</button></div></div>
+      <div class="row"><span class="name">Bonusy netvora<small>cokoli zahrané, aby byla silnější (nebo slabší)</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="Méně bonusu netvora">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="Více bonusu netvora">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">Vyhráváte!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Mějte úrovně celého stolu na jednom místě</b><p>Score Night sleduje úroveň, výbavu a sílu každého hráče, rozhoduje boje s pomocníky a bonusy, a dokonce hodí kostkou, když utíkáte.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Získejte na Google Play</a></div>
+      <ul><li>Funguje bez internetu, pro 3 až 6 hráčů</li><li>Dvě partie každé hry zdarma</li></ul>
+      <div class="toc"><b>Na této stránce</b><ol><li><a href="#what-you-track">Co sledujete</a></li><li><a href="#level">Vaše úroveň</a></li><li><a href="#strength">Výbava a síla</a></li><li><a href="#fight">Boj, krok za krokem</a></li><li><a href="#run-away">Prohra a útek</a></li><li><a href="#who-wins">Jak vyhrát</a></li><li><a href="#mistakes">Časté chyby</a></li><li><a href="#examples">Příklady</a></li><li><a href="#whole-turn">Celý boj, spočítaný</a></li><li><a href="#common-questions">Časté otázky</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">Co sledujete</h2>
+  <p>V Munchkinu neexistuje skórovací list ani počítání na konci. Po celou hru každý hráč udržuje několik věcí v aktuálním stavu, a ty se neustále mění: po každém boji, každém kletbě a každém novém kusovi výbavy. Pomůže, pokud si každý hráč bude hlídat vlastní čísla na místě, kde je vidí všichni.</p>
+  <ol class="steps">
+    <li><b>Vaše úroveň.</b> Všichni začínají na 1. úrovni. Úroveň je to, čím vyhráváte: první hráč, kdo dosáhne 10. úrovně, vyhraje hru.</li>
+    <li><b>Váš bonus z výbavy.</b> Každý předmět, který používáte, dává bonus. Sečtete je všechny a dostanete jedno číslo, váš bonus z výbavy.</li>
+    <li><b>Vaše bojová síla.</b> Toto je číslo, se kterým bojujete. Je to vaše úroveň plus váš bonus z výbavy, a neuchováváte ho zvlášť: mění se vždy, když se změní kterákoliv z těch dvou.</li>
+    <li><b>Vaše pohlaví a vaše povolání.</b> Některé karty fungují jen na mužské nebo ženské postavy, takže všichni by měli vědět, co jste. A pokud je vaše postava Válečník, zapamatujte si to: Válečníci vyhrají boje, které končí remízou.</li>
+  </ol>
+  <div class="tip"><b>Úroveň a síla nejsou to samé.</b> Úroveň ukazuje, jak blízko jste k výhře. Síla ukazuje, jak tvrdě trefíte. Hrdina na 4. úrovni s bonusem z výbavy 6 bojuje se silou 10, ale je stále 6 úrovní od vítězství.</div>
+
+  <h2 id="level">Vaše úroveň: nahoru a dolů</h2>
+  <div class="line"><div class="card"><h3>Jak se vaše úroveň mění</h3>
+    <p>Začínáte na 1. úrovni. Hlavní způsob, jak se dostat nahoru, je porazit netvora: dá vám 1 úroveň, a větší netvory dávají 2. Na kartě netvora je uvedeno, kolik. Některé karty mohou také přímo zvýšit nebo snížit vaši úroveň, a ztráta boje vás může také stáhnout úroveň, pokud tak říká karta netvora.</p>
+    <p>Existují dvě hranice. Vaše <b>úroveň nikdy nespadne pod 1</b>: pokud jste na 1. úrovni a něco vám odebere úroveň, prostě zůstanete na 1. A <b>nikdy nepřeskočí 10</b>, protože 10 je konec hry.</p>
+    <p class="where">Kam se podívat: číslo, které udržujete pro svou úroveň. Pouze vaše úroveň počítá pro výhru, nikoli vaše síla.</p>
+    <div class="ex"><b>Příklad:</b> jste na úrovni 1 a netvor vás stáhne jednu úroveň. Zůstáváte na úrovni 1. V další kolo porazíte netvora, který dává 2 úrovně, takže vystoupíte na 3. úroveň.</div></div></div>
+
+  <h2 id="strength">Vaše vybava a bojová síla</h2>
+  <div class="line"><div class="card"><h3>Síla je úroveň plus vybava.</h3>
+    <p>Pro výpočet vaší bojové síly se vezmete vaši úroveň a přičtete bonusy veškeré vybavy, kterou používáte. To je vaše síla pro každý boj, dokud se něco nezmění.</p>
+    <p>Bonusy vybavy jsou obvykle kladné, ale celkem mohou klesnout pod nulu. To je povoleno a prostě vás to oslabí: hrdina na 2. úrovni s bonusem vybavy −3 má bojovou sílu −1. Ano, minus jeden. Čas se schovat.</p>
+    <p class="where">Kam se podívat: vaše úroveň plus číslo bonusu na každém kusu vybavy před vámi.</p>
+    <div class="ex"><b>Příklad:</b> úroveň 4 a vybava se váží 2 + 3 + 1. Bonus vybavy je 6, takže vaše síla je 4 + 6 = 10.</div></div></div>
+
+  <div class="line"><div class="card"><h3>Jednorázové bonusy</h3>
+    <p>Lékárničky a podobné karty dají bonus pouze pro jeden boj. Přidejte je k síle vaší strany během tohoto boje, a když boj skončí, jsou pryč. Nezmění váš bonus vybavy a nemají přenos do dalšího boje.</p>
+    <div class="ex"><b>Příklad:</b> vaše síla je 10 a vrhnete do boje lékárničku o hodnotě 3. Pro tento boj má vaše strana 13. V dalším boji se vrátíte na 10.</div></div></div>
+
+  <h2 id="fight">Boj, krok za krokem</h2>
+  <ol class="steps">
+    <li><b>Spočítejte svou stranu.</b> Vaše síla (úroveň plus vybava) plus jakékoli jednorázové bonusy, které jste použili.</li>
+    <li><b>Přidejte pomocníka, pokud ho máte.</b> Jiný hráč se může přidat do vašeho boje. Jeho celá síla, jeho úroveň plus jeho vybava, je přičtena k vaší.</li>
+    <li><b>Spočítejte netvora.</b> Vezměte úroveň tištěnou na netvoru a přičtěte jakékoli bonusy, které získal během boje (bonusy mohou být i záporné a oslabit ho). Pokud je tam dva netvory, přičtěte je oba dohromady.</li>
+    <li><b>Porovnejte.</b> Pokud je vaše strana <b>silnější</b> než netvor, vyhráváte. Rovnost nestačí: <b>remíza patří netvoru</b>, pokud na vaší straně bojuje válečník (vy nebo váš pomocník). Pak remíza je vaše.</li>
+    <li><b>Zbierzte své úrovně.</b> Pokud vyhráváte, vystoupíte o číslo úrovní, které netvor dává, obvykle 1, někdy 2. U dvou netvorů získáte úrovně obou. Váš pomocník nepřipisuje žádné úrovně za pomoc, s jednou výjimkou: elf vystoupí na úroveň za každého netvora, kterého pomohl někomu jinému zabít. Poté se jednorázové bonusy zlikvidují.</li>
+  </ol>
+  <div class="tip"><b>Pravidlo remízy v jednom řádku:</b> rovnice znamená, že vyhrává netvor, pokud na vaší straně není válečník. Toto je pravidlo, které lidé zapomínají nejčastěji, a rozhoduje o překvapivém počtu bojů.</div>
+
+  <h2 id="run-away">Prohra a útěk</h2>
+  <p>Pokud je netvor silnější, nebo je to remíza bez válečníka, prohráváte boj. Ale ještě nebylíte chyceni: můžete se utéct. Hodíte kostkou. Na <b>5 nebo 6</b> se vám podaří utéct. Na 1, 2, 3 nebo 4 se vám to nepodaří a netvor udělá co jeho karta říká pro prohrané. Může vám to stáhnout úroveň, část vaší vybavy nebo něco horšího, takže si ihned aktualizujte čísla.</p>
+  <p>Nejhorší výsledek je, že vaše postava zmře. V základní hře nikdo není vyřazen: ztrácíte svou výbavu, takže váš bonus vybavy klesne na 0, ale <b>vaše úroveň zůstane tak, jak byla</b>. Poté pokračujete.</p>
+  <div class="tip">Po prohraném boji zkontrolujte dvě čísla: vaši úroveň a bonus vybavy. Vaše síla se sama obnoví, protože je to jen součet těchto dvou.</div>
+
+  <h2 id="who-wins">Jak vyhrát</h2>
+  <p>První hráč, který dosáhne <b>10. úrovně</b>, vyhrává. Je však jeden nález: poslední úroveň, ze 9 na 10, může obvykle <b>být získána pouze zabitím netvora</b>. Karta, která vám jednoduše dá úroveň, vás nezvedne ze 9 na 10, pokud karta neuvádí jinak.</p>
+  <p>Vaše úroveň nikdy nepřesune 10. Pokud jste na 9. úrovni a porazíte netvora, který dává 2 úrovně, dosáhnete 10. úrovně, ne 11., a stejně vyhráváte.</p>
+  <div class="warn"><b>Chyby, které lidé dělají u finše</b><ul>
+    <li>Přesun z 9. na 10. úroveň kartou místo boje. 10. úroveň vyžaduje mrtvého netvora, pokud karta to výslovně nezřizuje.</li>
+    <li>Dávat pomocníkovi úroveň (tento bonus dostává jen Elf). Pokud pomůžete někomu zabít netvora, když jste na 9. úrovni, vy neposunete: úrovně dostane jen hráč, který se stal ve boji.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Časté chyby</h2>
+  <div class="warn"><ul>
+    <li>Zaměňování úrovně a síly. V boji používáte sílu, ale výhru hry rozhoduje úroveň.</li>
+    <li>Hlášení remízy jako výhry. Rovná síla znamená, že vyhrává netvor, pokud nejste zvedeni Válečníkem.</li>
+    <li>Udržování bonusu z lektvaru po boji. Jednorázové bonusy platí pouze pro jeden boj.</li>
+    <li>Přičítání pouze úrovně pomocníka. Pomocník přináší svou úroveň a svou výbavu, tedy svou celou sílu.</li>
+    <li>Spuštění pod 1. Úroveň 1 je minimální hranice; ztráta úrovně zde nic nezmění.</li>
+    <li>Ztráta úrovně při smrti. Smrt berete s sebou výbavu, ne úroveň.</li>
+  </ul></div>
+
+  <h2 id="examples">Příklady</h2>
+  <div class="examples num">
+    <div class="card"><b>Základní síla</b><p>4. úroveň s bonusovou výbavou 6. Vaše síla je 4 + 6.</p><div class="big">Síla 10</div></div>
+    <div class="card"><b>Remíza</b><p>Síla 10 proti netvoru s 10. Bez Válečníka vyhrává netvor. Pokud jste Válečník, vyhráváte.</p><div class="big">Netvor, nebo Válečník</div></div>
+    <div class="card"><b>Výbava pod nulou</b><p>2. úroveň s bonusovou výbavou −3. Vaše síla je 2 − 3.</p><div class="big">Síla −1</div></div>
+    <div class="card"><b>S pomocníkem</b><p>Vaše 10, plus pomocník na 3. úrovni s výbavou 2 (tedy 5), proti netvoru s 10. 15 je více než 10.</p><div class="big">Vyhráváte</div></div>
+    <div class="card"><b>Konečné finále</b><p>Jste na 9. úrovni a zabijete netvora, který dává 2 úrovně. Zastavíte se na 10., ne na 11.</p><div class="big">10. úroveň, vyhráváte hru</div></div>
+    <div class="card"><b>Útěk</b><p>Prohráli jste a hodíte 4: špatné štěstí, dělejte to, co netvorská karta říká. Číslí 5 nebo 6 by vás dostaly ven.</p><div class="big">5 nebo 6 pro útěk</div></div>
+  </div>
+
+  <h2 id="whole-turn">Celý boj, počítán</h2>
+  <div class="card walk"><ol>
+    <li><b>Vaše síla:</b> jste na 6. úrovni s bonusovou výbavou 4. 6 + 4 = 10.</li>
+    <li><b>Netvor:</b> má 12. úroveň a během boje dostane bonus +3. 12 + 3 = 15. Chybí vám 5.</li>
+    <li><b>Lektvar:</b> použijete jeden, který stojí 2. Vaše strana má teď 10 + 2 = 12. Stále vám chybí 3.</li>
+    <li><b>Pomocník:</b> jiný hráč na 3. úrovni s výbavou 2 se připojí. Jeho síla je 3 + 2 = 5, takže vaše strana má 12 + 5 = 17.</li>
+    <li><b>Porovnejte:</b> 17 proti 15. Vaše strana je silnější, takže vyhráváte. (Pokud by bylo 15 proti 15, potřebovali byste Válečníka na své straně, abyste vyhráli.)</li>
+    <li><b>Úrovně:</b> netvor dává 1 úroveň, takže přejdete z 6. na 7. úroveň. Váš pomocník zůstane na 3. úrovni.</li>
+    <li><b>Uklizení:</b> lektvar je pryč. Vaše síla se vrátí na vaši úroveň plus výbava: 7 + 4 = 11.</li>
+  </ol><div class="sum num">17 proti 15: vyhráváte, úroveň 6 → 7, síla nyní 11</div></div>
+
+  <h2 id="common-questions">Časté otázky</h2>
+  <div class="faq">
+    <details open><summary>Kdo vyhrává remízu?</summary><p>Netvor, pokud na vaší straně nebo zvedeným Válečníkem bojuje. Pokud vy nebo váš pomocník jste Válečník, remíza je pro vás výhra.</p></details>
+    <details><summary>Je moje síla stejná jako moje úroveň?</summary><p>Ne. Síla je vaše úroveň plus bonus z výbavy, a je to tím, s čím se bojujete. Jen vaše úroveň počítá při vyhrání.</p></details>
+    <details><summary>Může být moje síla záporná?</summary><p>Ano. Pokud je bonus vaší výbavy pod nulou, vaše síla může klesnout i pod nulu: 2. úroveň s výbavou −3 znamená sílu −1.</p></details>
+    <details><summary>Může moje úroveň klesnout pod 1?</summary><p>Ne. Úroveň 1 je ne nejnižší. Pokud na 1. úrovni ztratíte úroveň, zůstanete jen na 1.</p></details>
+    <details><summary>Posune se i můj pomocník na vyšší úroveň?</summary><p>Ne. Úrovně dostává pouze hráč, který se stal ve boji. Pomocník přidá svou sílu a to je vše.</p></details>
+    <details><summary>Mohu dosáhnout 10. úrovně kartou?</summary><p>Normálně ne: 10. úroveň se dostává pouze z zabití netvora. Jedinou výjimkou je karta, která výslovně uvádí, že vás tam dostane.</p></details>
+    <details><summary>Co se stane, když zemřu?</summary><p>Ztratíte svou výbavu, takže bonus z výbavy klesne na 0. Vaše úroveň zůstane stejná a můžete hrát dál.</p></details>
+    <details><summary>Co, když bojuji proti dvěma netvorům najednou?</summary><p>Přičtěte oba netvory dohromady: jejich úrovně a jejich bonusy. Pokud vyhráváte, dostáváte úrovně obou.</p></details>
+    <details><summary>A co ty rozšíření?</summary><p>Tento průvodce pokrývá pouze základní hru; rozšíření a další sady Munchkin přidávají vlastní rasy, třídy a pravidla (jedna hraje i až do 20. úrovně), takže si vyhledejte jejich pravidla.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Nejlépe sledovat netvory?</b><p>V aplikaci Score Night máte úroveň, výbavu a sílu na jedné obrazovce, součty bojů se započítávají samy a aplikace nikoho nepustí na 10. úroveň bez zabitého netvora.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">Tahle neoficiální příručka je napsaná našimi slovami. Nemáme nic společného s vydavatelem hry Munchkin. Názvy her patří jejich majitelům. Úplná pravidla najdete v pravidlech od vydavatele.</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "Úroveň {v}",
+ "termGear": "Výbava {v}",
+ "termOnce": "Jednorázový {v}",
+ "termHelper": "Pomocník {v}",
+ "termBonuses": "Bonusy {v}",
+ "yourSide": "Vaše strana: {expr} = {total}",
+ "monsterSum": "Netvor: {expr} = {total}",
+ "monsterPlain": "Netvor: {expr}",
+ "killMonster": "{you} je více než {mon}, takže netvora zabijete.",
+ "tieWarriorWins": "{you} proti {mon} je remíza. Remízy patří netvoru, ale Válečník bojuje na vaší straně, takže vy vyhráváte.",
+ "tieMonsterWins": "{you} proti {mon} je remíza, a remíza patří netvoru. Jeden bod síly, nebo Válečník na vaší straně, by ho vyhrál.",
+ "monsterWins": {
+  "one": "{you} je méně než {mon}, takže vyhrává netvor. Potřebujete {n} více síly, abyste vyhráli.",
+  "few": "{you} je méně než {mon}, takže vyhrává netvor. Potřebujete {n} více síly, abyste vyhráli.",
+  "many": "{you} je méně než {mon}, takže vyhrává netvor. Potřebujete {n} více síly, abyste vyhráli.",
+  "other": "{you} je méně než {mon}, takže vyhrává netvor. Potřebujete {n} více síly, abyste vyhráli."
+ },
+ "levelWin": "Dosáhnete úrovně 10 a vyhráte hru!",
+ "levelUpTo9": "Vzestoupíte úrovň o jeden, na 9. Pokud netvor dá 2 úrovně, dosáhnete 10 a vyhráte hru!",
+ "levelUp": "Vzestoupíte úrovň o jeden, na {a} (nebo na {b}, pokud netvor dá 2 úrovně).",
+ "helperNoLevel": "Váš pomocník nezíská úroveň (pokud pomocník není Elf).",
+ "runAway": "Hodit kostkou, abyste utekli: 5 nebo 6 vás vyvede. Jinak udělejte to, co říká karta netvora.",
+ "headWin": "Vyhráváte!",
+ "headLose": "Vyhrává netvor."
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../cs/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/cs/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/" class="current">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

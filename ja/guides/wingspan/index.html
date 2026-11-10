@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ウイングスパンの得点計算 — Bobr Studio</title>
+<meta name="description" content="ウイングスパンの基本ルールの得点方法を、手順を追ってご説明します。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+:root{--forest:#234638;--leaf:#52775B;--sky:#DCEBF0;--feather:#9D6846;--paper:#F1F5E8;--ink:#24342D;--muted:#52645A;--line:#C7D5C9;--accent:#795238}
+body{background:var(--paper) radial-gradient(circle at 90% 0,#E3F0E8,transparent 55%);color:var(--ink)}
+.top{display:grid;grid-template-columns:1.15fr 1fr;gap:24px;margin-top:22px;align-items:start}.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 14px #2346380d}
+h1,h2,h3{color:var(--forest)}h2::before{content:"";display:inline-block;width:20px;height:4px;background:var(--feather);margin:0 9px 4px 0;border-radius:3px}
+.row{display:grid;grid-template-columns:1fr auto;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}.step{display:flex;align-items:center;gap:8px}.step button{width:40px;height:40px;border:1px solid var(--line);border-radius:10px;background:#fff;color:var(--forest);font-size:21px}.step output{min-width:26px;text-align:center;font-weight:700}.result{margin-top:14px;padding:16px;border-radius:14px;background:var(--forest);color:white}.result strong{font-size:30px;color:#DDE9B6}.result ul{padding-left:20px;line-height:1.5}.tip{background:#EAF1DE;border-left:4px solid var(--leaf);padding:12px 16px;border-radius:8px;margin-top:12px}.toc{padding:14px 18px;margin-top:16px;background:#fff;border-radius:14px}.toc ol{columns:2}.side .cta{grid-template-columns:56px 1fr}.side .cta .btn{grid-column:1/-1;justify-content:center}
+ol.steps{list-style:none;padding:0;counter-reset:s;display:grid;gap:10px}ol.steps li{counter-increment:s;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px 18px 14px 58px;position:relative}ol.steps li:before{content:counter(s);position:absolute;left:14px;top:13px;background:var(--forest);color:#fff;border-radius:50%;width:30px;height:30px;display:grid;place-items:center;font-weight:bold}
+.line{margin-top:12px}.line .card{padding:18px 20px}.where{color:var(--muted);font-size:14px}.ex{margin-top:8px;padding:9px 12px;border-radius:9px;background:#EDF3E9}.examples{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}.examples .big{font-size:22px;color:var(--forest);font-weight:bold}.walk ol{padding-left:22px}.walk li{margin:7px 0}.sum{font-size:22px;font-weight:bold;color:var(--forest);margin-top:12px}.faq details{background:white;border:1px solid var(--line);border-radius:12px;padding:12px 16px;margin:9px 0}.faq summary{font-weight:bold;color:var(--forest);cursor:pointer}
+@media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ja/guides/wingspan/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/wingspan/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/wingspan/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/wingspan/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/wingspan/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/wingspan/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/wingspan/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/wingspan/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/wingspan/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/wingspan/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/wingspan/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/wingspan/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/wingspan/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/wingspan/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/wingspan/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">ルールガイド</a><details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/wingspan/">English</a><a href="../../../ru/guides/wingspan/">Русский</a><a href="../../../uk/guides/wingspan/">Українська</a><a href="../../../pl/guides/wingspan/">Polski</a><a href="../../../cs/guides/wingspan/">Čeština</a><a href="../../../de/guides/wingspan/">Deutsch</a><a href="../../../fr/guides/wingspan/">Français</a><a href="../../../es/guides/wingspan/">Español</a><a href="../../../pt/guides/wingspan/">Português</a><a href="../../../tr/guides/wingspan/">Türkçe</a><a href="../../../ja/guides/wingspan/" class="current">日本語</a><a href="../../../ko/guides/wingspan/">한국어</a><a href="../../../zh/guides/wingspan/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">ルールガイド</a> › ウイングスパン</div>
+<h1>ウイングスパン <span class="hand">の基本ルール</span>の得点方法</h1>
+<p class="lead">ゲーム終了後、各プレイヤーのプレイヤーボードとカードを取り出し、6つのパートに分けて得点を数えます。ラウンド目標については、一つ追加の確認が必要です。まず、どの面の目標ボードを使ったかを確認してください。</p>
+<div class="top"><div class="card calc"><h3>ラウンド目標アシスタント</h3><p>ゲームで使用した目標面を選択し、各プレイヤーの1ラウンド分の得点を入力してください。アシスタントがそのラウンドの得点を示します。</p>
+<label for="side"><b>目標ボードの面</b></label><select id="side"><option value="green">緑面：プレイヤー間で比較します。</option><option value="blue">青面：ご自身の得点を計算します。</option></select>
+<label for="round"><b>ラウンド</b></label><select id="round"><option value="0">ラウンド1</option><option value="1">ラウンド2</option><option value="2">ラウンド3</option><option value="3">ラウンド4</option></select>
+<div id="players"></div><button id="add" type="button">プレイヤーを追加</button><div class="result"><strong id="out">0得点</strong><ul id="how"><li>このラウンドのプレイヤーの得点を入力してください。</li></ul></div></div>
+<div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Score Nightに得点記録を任せましょう</b><p>全プレイヤーの各得点欄を入力し、最終的な合計を比較してください。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Google Playで入手</a></div><div class="toc"><b>このページの内容</b><ol><li><a href="#when">いつ数えるか</a></li><li><a href="#birds">鳥のカード</a></li><li><a href="#bonus">ボーナスカード</a></li><li><a href="#goals">ラウンド目標</a></li><li><a href="#eggs">卵</a></li><li><a href="#food">蓄積した餌</a></li><li><a href="#tucked">差し込んだカード</a></li><li><a href="#mistakes">よくある間違い</a></li><li><a href="#winner">勝者と同点</a></li><li><a href="#whole">ゲーム全体</a></li><li><a href="#faq">質問</a></li></ol></div></div></div>
+<section id="when"><h2>いつ数えるか</h2><ol class="steps"><li>第4ラウンド後、各プレイヤーの得点を数えます。ゲームをプレイしながらラウンド目標の合計を出すこともできますが、最終的にもう一度確認してください。</li><li>全員同じ順序で計算します。鳥、ボーナスカード、ラウンド目標、卵、鳥のカード上の餌、そして鳥の下に差し込んだカード、の順です。</li><li>残った餌のトークンは別にしておいてください。これらは得点を加算するものではなく、最終的な得点が同点の場合にのみ決定役となります。</li></ol></section>
+<section id="birds"><h2>鳥のカード</h2><div class="line"><div class="card"><b>あなたがプレイした鳥のカードに印刷されている点数を確認してください。</b><p>それらの印字された値を加算します。鳥のカードはプレイヤーボードの行にありますので、あなたがプレイした鳥のみを数えてください。</p><p class="where">どこを見るか：あなたの生息地にある各鳥カードの点数です。</p><div class="ex">もしプレイした鳥が5、8、3、7点の点数を示しているなら、この行は合計23点になります。</div></div></div></section>
+<section id="bonus"><h2>ボーナスカード</h2><div class="line"><div class="card"><b>手元に残したボーナスカードを読み、それぞれのカードの条件に基づいて得点を計算してください。</b><p>カードが指定する鳥やその他の個数をチェックし、その条件を満たす個数を数え、カードの得点指示に従ってください。ボーナスカードの結果を合計してください。</p><p class="where">どこを見るか：あなたのボーナスカード、そしてそれらが数えるよう求めている鳥や個数です。</p><div class="ex">もしボーナスカードが条件を満たした鳥ごとに1点を与え、あなたが4羽持っている場合、そのカードは4点を加算します。</div><p>ボーナスカードはすべて同じように得点するわけではないため、印刷された鳥の点数として扱うのではなく、すべてのカードの条件を確認するようにしてください。</p></div></div></section>
+<section id="goals"><h2>ラウンド目標</h2><div class="line"><div class="card"><b>まず、目標ボードの面を確認してください。</b><p>青面ではご自身の得点を計算します。条件を満たす個数ごとに1点であり、ラウンドあたり最大5点です。緑面では全プレイヤーの得点を比較し、順位に基づいて得点を与えます。各ラウンドは個別に計算し、その後4つのラウンドの得点を合計してください。</p><p class="where">どこを見るか：目標タイルと、そのタイルに記述されている、各プレイヤーボード上の関連する鳥、卵、巣、その他の個数です。</p></div></div>
+<h3>緑面の例</h3><p>緑色のラウンド目標では、条件を満たす個数を1個以上持っているプレイヤーのみが順位を獲得できます。同点となったプレイヤーは、占めている順位の得点を切り捨てて分け合います。次の順位はスキップされます。</p><div class="examples"><div class="card"><div class="big">ラウンド1：1位タイ</div><p>得点は3、3、1です。1位と2位はそれぞれ4点と1点なので、同点プレイヤーはそれぞれ2点獲得します。個数が1のプレイヤーは3位で0点になります。</p></div><div class="card"><div class="big">ラウンド4：2位タイ</div><p>得点は5、2、2です。リーダーは7点獲得します。タイとなったプレイヤーは4点と3点を分け合うため、同点プレイヤーはそれぞれ3点獲得します。</p></div><div class="card"><div class="big">0点は順位になりません</div><p>ラウンド2では、得点2と0はそれぞれ5点と0点になります。個数がないプレイヤーは2位になりません。</p></div></div><div class="tip">青面では、個数7個でも得点は5点であり、7点ではありません。緑面では、タイが発生するとすべての同点プレイヤーの得点が変わり、次の順位はスキップされます。</div></section>
+<section id="eggs"><h2>卵</h2><div class="line"><div class="card"><b>鳥のカードにあるすべての卵を数えてください。</b><p>卵は1個1点です。すべての生息地の行を確認し、どの鳥の卵も含めるようにしてください。</p><p class="where">どこを見るか：鳥のカードに置かれている卵のトークンです。</p><div class="ex">卵が12個あれば12点加算されます。</div></div></div></section>
+<section id="food"><h2>鳥のカード上の餌</h2><div class="line"><div class="card"><b>鳥カードに差し込まれたフードトークンを、保管された餌として数えます。</b><p>鳥に保管されたフードトークンは1個1点です。そのトークンは一度だけ数えます；供給物に残っている餌はこの得点項目には含まれません。</p><p class="where">見るべき場所：餌を保管する鳥カード上のフードトークン。</p><div class="ex">保管されたフードトークン3つは3点です。</div></div></div></section>
+<section id="tucked"><h2>鳥カードの下に差し込まれたカード</h2><div class="line"><div class="card"><b>自分の鳥カードの下に差し込まれたカードを数えます。</b><p>差し込まれたカードは、印刷された得点に関わらず1個1点です。鳥カードに印刷された得点を再度加算しないでください。</p><p class="where">見るべき場所：自分が場に出した鳥カードの下に部分的に差し込まれたカード。</p><div class="ex">差し込まれたカード5枚は5点です。</div></div></div></section>
+<section id="mistakes"><h2>よくある間違い</h2><ul><li>青面のラウンド目標では、項目が5個を超えてもラウンドごとに5点で止めてください。</li><li>緑面では、0個の項目があるプレイヤーは順位付けせず、同点の順位は切り捨てて分配してください。</li><li>卵、保管された餌、差し込まれたカードは別々の得点項目として数えます。</li><li>供給物に残った餌は同点時の決め手にしかならず、得点には加算されません。</li><li>差し込まれたカードは、カードに印刷された点数ではなく、1個1点として数えてください。</li></ul></section>
+<section id="winner"><h2>勝者は誰？</h2><p>6つの得点項目を合計します。得点が最も高いプレイヤーが勝者です。同点の場合は、残った餌トークンを比較し、餌が多い方が勝ちます。さらに同点なら、勝利を分け合います。</p></section>
+<section id="whole"><h2>ゲーム全体を計算する</h2><div class="card walk"><p>自分のプレイヤーボードとカードで鳥の得点が42点、ボーナスカードが9点とします。ラウンド目標は2点、5点、3点、4点です。卵が12個、保管された餌トークンが3個、差し込まれたカードが5枚あります。</p><ol><li>鳥カードは42点加算します。</li><li>ボーナスカードは9点加算します。</li><li>4つのラウンド目標は合計14点です：2 + 5 + 3 + 4。</li><li>12個の卵は12点です。</li><li>3つの保管された餌トークンは3点です。</li><li>5枚の差し込まれたカードは5点です。</li></ol><p class="sum">42 + 9 + 14 + 12 + 3 + 5 = 85点です。</p><p>他のプレイヤーも85点だった場合、残った餌を比較します。たとえば、餌3個は餌1個に勝ちます。</p></div></section>
+<section id="faq" class="faq"><h2>プレイヤーからの質問</h2><details><summary>残った餌は得点に加わりますか？</summary><p>いいえ。総得点が同点になったときの決着にだけ使います。</p></details><details><summary>緑面の目標でプレイヤーが同点になったらどうなりますか？</summary><p>共有した順位の点数を合計し、切り捨てで均等に分けます。次の順位は飛ばされます。</p></details><details><summary>差し込まれたカードは印刷された点数で得点しますか？</summary><p>いいえ。鳥の下に差し込まれた各カードは、この最終得点では1個1点です。</p></details><details><summary>この説明はエクスパンションにも適用されますか？</summary><p>このガイドは基本セットに対応しています。エクスパンションでは別の得点ルールが追加されることがあります。</p></details></section>
+<div class="cta" style="margin-top:28px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>全プレイヤーの得点を一か所にまとめましょう</b><p>Score Night が得点項目を加算し、テーブルの合計を表示します。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dwingspan">▶ Google Play</a></div>
+<p class="disclaimer">私たち独自の言葉で書いた非公式ウイングスパンガイドです。Bobr Studio は出版社とは提携していません。ウイングスパンとそのコンポーネントはそれぞれの所有者に属します；完全なルールは出版社のルールブックをご参照ください。</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "other": "{n}点"
+ },
+ "items": {
+  "other": "{n}個"
+ },
+ "player": "プレイヤー{n}",
+ "itemsAria": "{name}の該当数",
+ "greenNone": "{name}: 0個、順位なし、0点",
+ "greenLine": "{name}: {items}、{pts}",
+ "cappedLine": "{name}: {items}、{pts}（上限{max}点）",
+ "round": "ラウンド{n}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const MAX_PTS = 5;
+const names = [f(T.player, { n: 1 })];
+let vals = [0];
+function render() {
+  const box = document.getElementById('players');
+  box.innerHTML = names.map((name, i) => '<label class="row">' + name + '<input type="number" min="0" value="' + vals[i] + '" data-i="' + i + '" aria-label="' + esc(f(T.itemsAria, { name })) + '"></label>').join('');
+  box.querySelectorAll('input').forEach(x => x.oninput = () => { vals[+x.dataset.i] = Math.max(0, +x.value || 0); draw(); });
+  draw();
+}
+function draw() {
+  const green = document.getElementById('side').value === 'green', round = +document.getElementById('round').value;
+  let pts = vals.map(n => green ? 0 : Math.min(n, MAX_PTS)), lines = [];
+  if (green) {
+    const ranking = [...new Set(vals.filter(n => n > 0))].sort((a, b) => b - a);
+    const table = [[4, 1, 0], [5, 2, 1], [6, 3, 2], [7, 4, 3]][round];
+    vals.forEach((v, i) => {
+      if (v > 0) {
+        const place = ranking.indexOf(v), tied = vals.filter(x => x === v).length;
+        let sum = 0;
+        for (let j = 0; j < tied; j++) sum += table[place + j] || 0;
+        pts[i] = Math.floor(sum / tied);
+      }
+    });
+    lines = vals.map((v, i) => v === 0 ? f(T.greenNone, { name: names[i] }) : f(T.greenLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]) }));
+  } else {
+    lines = vals.map((v, i) => f(T.cappedLine, { name: names[i], items: p(T.items, v), pts: p(T.points, pts[i]), max: MAX_PTS }));
+  }
+  document.getElementById('out').textContent = f(T.round, { n: round + 1 });
+  document.getElementById('how').innerHTML = lines.map(x => '<li>' + x + '</li>').join('');
+}
+document.getElementById('side').onchange = draw;
+document.getElementById('round').onchange = draw;
+document.getElementById('add').onclick = () => {
+  if (names.length >= 5) return;
+  names.push(f(T.player, { n: names.length + 1 }));
+  vals.push(0);
+  render();
+  if (names.length >= 5) document.getElementById('add').disabled = true;
+};
+render();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ja/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ja/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/wingspan/">English</a><a href="../../../ru/guides/wingspan/">Русский</a><a href="../../../uk/guides/wingspan/">Українська</a><a href="../../../pl/guides/wingspan/">Polski</a><a href="../../../cs/guides/wingspan/">Čeština</a><a href="../../../de/guides/wingspan/">Deutsch</a><a href="../../../fr/guides/wingspan/">Français</a><a href="../../../es/guides/wingspan/">Español</a><a href="../../../pt/guides/wingspan/">Português</a><a href="../../../tr/guides/wingspan/">Türkçe</a><a href="../../../ja/guides/wingspan/" class="current">日本語</a><a href="../../../ko/guides/wingspan/">한국어</a><a href="../../../zh/guides/wingspan/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

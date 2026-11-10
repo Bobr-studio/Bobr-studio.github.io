@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak liczyć punkty w Carcassonne — Bobr Studio</title>
+<meta name="description" content="Prosty przewodnik po liczeniu punktów w podstawowej wersji Carcassonne: drogi, miasta, klasztory i pola, w trakcie gry i pod koniec.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../pl/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Zasady gier</a><details class="langs"><summary>🌐 Polski</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/" class="current">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Zasady gier</a> › Carcassonne</div>
+  <h1>Jak liczyć punkty w Carcassonne <span class="hand">podstawowa gra, krok po kroku</span></h1>
+  <p class="lead">W Carcassonne liczy się punkty w dwóch momentach. W trakcie gry każda droga, miasto lub klasztor jest punktowana w chwili, gdy zostaje ukończona, a pionki na niej wracają do właściciela. Gdy położony zostanie ostatni kafelek, wszystko, co nadal jest nieukończone, liczy się za mniejszą liczbę punktów, a potem przychodzą pola, które mylą prawie wszystkich. Ta strona wyjaśnia oba przypadki, podaje przykłady, a kalkulator obliczy końcowe wyniki za Ciebie.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Twój wynik pod koniec gry</h3>
+      <p>Po położeniu ostatniego kafelka patrz tylko na nieukończone drogi, miasta i klasztory, w których masz najwięcej pionków (lub jest remis), oraz na pola, w których masz najwięcej chłopów. Zsumuj liczby ze wszystkich tych elementów.</p>
+      <div class="group">Niedokończone miasta</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">Kafelki miasta<small>kafelki z fragmentem twoich niedokończonych miast</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="Jeden kafelek miasta mniej">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="Jeden kafelek miasta więcej">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Herby<small>znaczki herbów wewnątrz tych miast</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="Jeden herb mniej">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="Jeden herb więcej">+</button></div></div>
+      <div class="group">Niedokończone drogi</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Kafelki drogi<small>kafelki, przez które przebiegają twoje niedokończone drogi</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="Jeden kafelek drogi mniej">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="Jeden kafelek drogi więcej">+</button></div></div>
+      <div class="group">Niedokończone klasztory</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Klasztory<small>twoje klasztory, które nie są w pełni otoczone</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="Jeden klasztor mniej">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="Jeden klasztor więcej">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Kafelki wokół nich<small>liczą się wszystkie 8 sąsiadów, włącznie z narożnikami; maksymalnie 7 dla każdego</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="Jeden kafelek wokół mniej">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="Jeden kafelek wokół więcej">+</button></div></div>
+      <div class="group">Pola</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Ukończone miasta<small>dotykające pól, które wygrywasz, liczone pole po polu</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="Jedno ukończone miasto mniej">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="Jedno ukończone miasto więcej">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 punktów</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Trzymaj cały wynik w telefonie</b><p>Score Night zastępuje tor punktacji: zapisuj każdą drogę, miasto lub klasztor w momencie ich ukończenia, a potem pod koniec gry, dla każdego gracza.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Pobierz na Google Play</a></div>
+      <ul><li>Działa bez internetu, dla 2‑5 graczy</li><li>Koniec zgubionych okrążeń na torze</li><li>Dwie partie każdej gry za darmo</li></ul>
+      <div class="toc"><b>Na tej stronie</b><ol><li><a href="#when-to-count">Kiedy liczyć</a></li><li><a href="#who-gets-points">Kto dostaje punkty</a></li><li><a href="#roads">Drogi</a></li><li><a href="#cities">Miasta i herby</a></li><li><a href="#monasteries">Klasztory</a></li><li><a href="#fields">Pola</a></li><li><a href="#field-examples">Przykłady pól</a></li><li><a href="#mistakes">Częste błędy</a></li><li><a href="#who-wins">Kto wygrywa</a></li><li><a href="#whole-game">Koniec gry, policzony</a></li><li><a href="#common-questions">Częste pytania</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Kiedy liczyć</h2>
+  <ol class="steps">
+    <li><b>Podczas gry, w momencie ukończenia elementu.</b> Gdy kafelek zamyka drogę, miasto lub klasztor, punktuje się to od razu, nawet jeśli jest tura innego gracza. Gracz z największą liczbą pionków na tym elemencie przesuwa swojego pionek na torze punktacji, a potem wszystkie pionki z tego elementu wracają do właściciela, gotowe do ponownego położenia.</li>
+    <li><b>Poza tym nie liczy się nic w trakcie gry.</b> Nieukończone elementy czekają, a pola nigdy nie są punktowane przed końcem. Chłop leżący w polu pozostaje tam przez całą grę.</li>
+    <li><b>Gdy ostatni kafelek zostanie położony, gra się kończy.</b> Teraz przyjrzyj się wszystkim pionkom wciąż na stole. Każdy stoi na czymś nieukończonym: drodze, mieście lub klasztorze. Punktuj je, po jednym elemencie, ale za mniejszą liczbę punktów niż za ukończone (miasta i klasztory są warte mniej, drogi pozostają tak samo).</li>
+    <li><b>Pola liczymy na końcu.</b> Gdy wszystkie niedokończone cechy zostaną policzone, punktuj pola z chłopami. Pole zdobywa punkty za ukończone miasta obok, dlatego punktujemy je tylko wtedy, gdy już nic nie może się zmienić.</li>
+  </ol>
+  <div class="tip">Najłatwiej jest sprzątać stół w miarę postępu: punktujesz cechę, usuwasz z niej swoje podwładne i przechodzisz do następnej. Kiedy zostaną tylko chłopi, czas na pola.</div>
+
+  <h2 id="who-gets-points">Kto dostaje punkty?</h2>
+  <p>Nie możesz postawić swojego podwładnego na drodze, mieście ani polu, na którym już jest, nawet jeśli to jest twój. Ale dwa oddzielne elementy z podwładnymi mogą później połączyć się i utworzyć jedną cechę z kilkoma podwładnymi. Gdy to zostanie policzone, zlicz podwładnych każdego gracza. Gracz z najwięcej dostaje wszystkie punkty. Jeśli dwaj lub więcej graczy mają remis, <b>każdy z nich dostaje pełne punkty</b>, nikt nic nie dzieli. Gracze z mniejszą liczbą podwładnych nic nie dostają. Cecha, w której nie ma żadnych podwładnych, nie punktuje.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Przykład:</b> ukończone miasto ma 5 kafelków i 2 herby, więc jest warte 10 + 4 = 14 punktów. Ania ma w nim 2 podwładnych, Michał ma 2, a ty masz 1. Ania i Michał każda dostają 14 punktów. Ty nic nie dostajesz, ale twój podwładny wraca.</div></div></div>
+
+  <h2 id="roads">Drogi</h2>
+  <div class="line"><div class="card"><h3>Co liczysz</h3>
+    <p>Podążaj drogą od jednego końca do drugiego i policz kafelki, przez które przechodzi. Droga jest ukończona, gdy oba jej końce zatrzymują się: na skrzyżowaniu, w mieście, w klasztorze lub gdy zakręca i zamyka się w pętli.</p>
+    <p><span class="when during">W trakcie gry</span>Ukończona droga daje 1 punkt za kafelek.</p>
+    <p><span class="when end">Na koniec</span>Niedokończona droga również daje 1 punkt za kafelek. Drogi to jedyna cecha, która jest warta tyle samo, niezależnie od tego, czy są ukończone, czy nie.</p>
+    <p class="where">Gdzie patrzeć: podwładni stojący na drogach.</p>
+    <div class="ex"><b>Przykład:</b> droga opuszcza skrzyżowanie, przejeżdża przez 2 zwykłe kafelki i kończy się przy bramie miasta. Zliczając kafelek skrzyżowania i kafelek miasta, styka się z 4 kafelkami, więc są to 4 punkty. Jeśli na koniec gry droga o 3 kafełki nadal ma otwarty koniec, daje 3 punkty.</div></div></div>
+
+  <h2 id="cities">Miasta i herby</h2>
+  <div class="line"><div class="card"><h3>Co liczysz</h3>
+    <p>Policz kafelki, na których znajduje się choć część miasta, a potem policz herby. Herb to mała odznaka z herbem, wydrukowana na niektórych kafełkach miejskich. Miasto jest ukończone, gdy jego mury zamykają się całkowicie, bez szczelin i otwartych krawędzi.</p>
+    <p><span class="when during">W trakcie gry</span>Ukończone miasto daje 2 punkty za kafelek i 2 dodatkowe za herb. Najmniejsze miasto, 2 kafełki bez herbu, jest warte 4 punkty.</p>
+    <p><span class="when end">Na koniec</span>Niedokończone miasto daje tylko 1 punkt za kafelek i 1 za herb, czyli połowę tego, co byłoby warte, gdyby było ukończone.</p>
+    <p class="where">Gdzie patrzeć: podwładni stojący wewnątrz murów miasta.</p>
+    <div class="ex"><b>Przykład:</b> ukończone miasto o 4 kafełkach z 1 herbem daje 4 × 2 = 8 za kafełki i 2 za herb, czyli 10 punktów. Niedokończone miasto o 3 kafełkach z 1 herbem na koniec gry daje 3 + 1 = 4 punkty.</div></div></div>
+
+  <h2 id="monasteries">Klasztory</h2>
+  <div class="line"><div class="card"><h3>Co liczysz</h3>
+    <p>Klasztor znajduje się na środku swojego kafelka. Spójrz na 8 miejsc wokół niego: w lewo, w prawo, nad, pod i w 4 narożnikach. Klasztor jest ukończony, gdy wszystkie 8 jest wypełnionych kafełkami.</p>
+    <p><span class="when during">W trakcie gry</span>Ukończony klasztor daje 9 punktów: 1 za kafelek klasztoru i 1 za każdy z 8 kafelków wokół niego.</p>
+    <p><span class="when end">Na koniec</span>Niedokończony klasztor daje 1 punkt za kafelek klasztoru i 1 za każdy kafelek wokół niego, który jest obecny. Więc jest warty między 1 a 8 punktów.</p>
+    <p class="where">Gdzie patrzeć: podwładni na klasztorach. Tylko jeden podwładny może kiedykolwiek znajdować się na klasztorze, więc nie ma dzielenia punktów.</p>
+    <div class="ex"><b>Przykład:</b> na koniec gry twój klasztor ma 5 kafelków wokół i 3 puste miejsca. To daje 1 + 5 = 6 punktów.</div></div></div>
+
+  <h2 id="fields">Pola</h2>
+  <div class="line"><div class="card"><h3>Co liczysz</h3>
+    <p>Pole to ciąg zielonej trawy. Kontynuuje się przez kafełki dopóki trawa jest połączona; drogi, mury miejskie i krawędzie kafelków na stole przerywają ten ciąg, więc jedno duże łąko może stać się kilkoma oddzielnymi polami. Podwładny leżący na polu jest chłopem.</p>
+    <p><span class="when during">W trakcie gry</span>Nic. Pola nigdy nie są punktowane przed końcem, a chłopi pozostają na swoich miejscach.</p>
+    <p><span class="when end">Na koniec</span>Weź jedno pole z chłopami na raz. Znajdź każde <b>ukończone</b> miasto, którego mury dotykają tego pola. Gracz z największą liczbą chłopów w tym polu dostaje 3 punkty za każde z tych miast. Niedokończone miasta nie dają punktów polom.</p>
+    <p class="where">Gdzie szukać: chłopi leżący w trawie, potem obchodź krawędź ich pola i spójrz na każdy mur miasta, który dotyka.</p>
+    <div class="ex"><b>Przykład:</b> twoje pole chłopa dotyka 3 ukończonych miast i 1 niedokończonego. To 3 × 3 = 9 punktów; niedokończone miasto nie liczy się.</div>
+    <p>Każde pole jest punktowane osobno. Jeśli jedno miasto dotyka dwóch różnych pól, liczy się dla obu. A jeśli ten sam gracz wygra oba pola, to miasto daje mu 3 punkty dwa razy.</p></div></div>
+  <div class="tip"><b>Praktyczny sposób na znalezienie miast pola:</b> położyć palec na chłopie i prowadzić go po trawie na zewnątrz, nie przekraczając żadnej drogi ani muru. Każdy ukończony mur miasta, po którym przesuwa się palec, liczy się raz dla tego pola, niezależnie od długości muru.</div>
+
+  <h2 id="field-examples">Przykłady pól</h2>
+  <div class="examples num">
+    <div class="card"><b>Jedno pole, wiele miast</b><p>Twój chłop jest sam w dużym polu. Wokół jego krawędzi są 4 ukończone miasta i 2 niedokończone. Liczą się tylko ukończone: 4 × 3.</p><div class="big">12 punktów</div></div>
+    <div class="card"><b>Miasto między dwoma polami</b><p>Droga przecina trawę na dwie części, a obie połówki dotykają tego samego ukończonego miasta. Twój chłop jest w północnym polu, Anna w południowym. To dwa pola, więc obaj dostajecie po 3 za to miasto.</p><div class="big">po 3</div></div>
+    <div class="card"><b>Wspólne pole</b><p>Dwa pola z chłopami połączone w trakcie gry. Teraz ty i Anna macie po 2 chłopy w nim, i dotyka ono 5 ukończonych miast. Macie remis, więc oboje dostajecie 5 × 3.</p><div class="big">po 15</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>Przewyższony liczebnie</b><p>To samo pole, ale Anna ma 2 chłopy, a ty 1. Anna ma najwięcej, więc dostaje wszystkie 15, a ty nie dostajesz nic za to pole.</p><div class="big">0 dla ciebie</div></div>
+    <div class="card"><b>Jeden gracz, dwa pola</b><p>Masz chłopa w każdym z dwóch pól, a jedno ukończone miasto dotyka obu. Każde pole liczy je osobno, więc to miasto daje ci 3 + 3.</p><div class="big">6 punktów</div></div>
+    <div class="card"><b>Brak ukończonych miast</b><p>Chłop w polu, które dotyka tylko niedokończonych miast lub wcale nie dotyka miast, nie zdobywa punktów. Chłop po prostu tam leży.</p><div class="big">0 punktów</div></div>
+  </div>
+
+  <h2 id="mistakes">Częste błędy</h2>
+  <div class="warn"><b>Błędy, które popełniają ludzie przy punktacji Carcassonne</b><ul>
+    <li>Liczenie niedokończonych miast jak ukończonych pod koniec. Kafelek ukończonego miasta jest wart 2, niedokończonego tylko 1, tak samo jest z herbami.</li>
+    <li>Zapomnienie o samym kafelku klasztoru. Niedokończony klasztor z 5 sąsiadami jest warty 6, a nie 5.</li>
+    <li>Liczenie niedokończonych miast dla pól. Pola dostają punkty tylko za ukończone miasta.</li>
+    <li>Dzielnie punktów w remisie. Każdy gracz z równą liczbą podwładnych dostaje pełne punkty.</li>
+    <li>Dawanie punktów graczowi z mniejszą liczbą podwładnych. Tylko gracz lub gracze z największą liczbą dostają cokolwiek.</li>
+    <li>Punktowanie pól w trakcie gry lub odbieranie chłopów. Chłopi pozostają aż do samego końca.</li>
+    <li>Zapomnienie o odebraniu podwładnych po punktacji elementu w trakcie gry.</li>
+    <li>Liczenie fragmentów murów miasta zamiast kafelków. Licz każdy kafelek raz, niezależnie ile miasta na nim jest.</li>
+  </ul></div>
+
+  <h2 id="who-wins">Kto wygrywa</h2>
+  <p>Twój końcowy wynik to wszystko, co zebrałeś na torze punktacji podczas gry, plus niedokończone elementy i pola z końca. Gracz z największą liczbą punktów wygrywa. Jeśli dwóch graczy ma tę samą sumę, dzielą zwycięstwo. Tor jest krótszy niż większość końcowych wyników, więc jeśli twój znacznik okrążył go kilka razy, nie zapomnij dodać okrążeń.</p>
+
+  <h2 id="whole-game">Koniec gry, policzone</h2>
+  <div class="card walk"><p>Ostatni kafelek został właśnie położony, a twój znacznik na torze pokazuje, że zebrałeś 64 punkty podczas gry. Oto co wciąż leży na stole:</p><ol>
+    <li><b>Niedokończone miasto</b> z 3 kafelków i 1 herbem, w którym masz jedynego podwładnego: 3 + 1 = 4 punkty.</li>
+    <li><b>Niedokończona droga</b> na 2 kafelkach z twoim podwładnym: 2 punkty.</li>
+    <li><b>Niedokończony klasztor</b> z 5 kafelkami wokół: 1 + 5 = 6 punktów.</li>
+    <li><b>Twoje pierwsze pole</b>, w którym twój chłop jest sam, dotyka 3 ukończonych miast: 3 × 3 = 9 punktów.</li>
+    <li><b>Twoje drugie pole</b> jest współdzielone z Anną, po 1 chłopa każdy, i dotyka 2 ukończonych miast. Macie remis, więc oboje dostajecie 2 × 3 = 6 punktów.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 punktów</div><p>Żeby to sprawdzić w kalkulatorze powyżej, wprowadź 3 kafelki miast, 1 herb, 2 kafelki dróg, 1 klasztor z 5 kafelek wokół i 5 ukończonych miast do pól (3 z pierwszego i 2 z drugiego). Wyświetli to 27 punktów, które dodajesz do swoich 64.</p></div>
+
+  <h2 id="common-questions">Częste pytania</h2>
+  <div class="faq">
+    <details open><summary>Czy dostaję punkty za pole, jeśli nie mam na nim podwładnego?</summary><p>Nie. Tylko gracze, którzy mają najwięcej podwładnych na tym polu, dostają za to punkty. Ukończone miasto bez podwładnych nie daje nikomu punktów, choć nadal może pomóc chłopom w sąsiednich polach na koniec gry.</p></details>
+    <details><summary>Co, jeśli ukończę pole, a w tej samej turze postawię na nim podwładnego?</summary><p>Jest punktowane od razu, a podwładny wraca do ciebie w tej samej turze.</p></details>
+    <details><summary>Czy dzielimy punkty, jeśli mamy remis?</summary><p>Nie. Każdy gracz, który ma remis pod względem najwięcej podwładnych, otrzymuje pełną pulę punktów.</p></details>
+    <details><summary>Czy jedno miasto może dać punkty dwóm polom?</summary><p>Tak. Każde pole jest punktowane osobno, więc miasto stykające się z wieloma polami jest liczone raz za każde z nich.</p></details>
+    <details><summary>Czy chłopi kiedykolwiek wracają?</summary><p>Nie. Chłop zostaje na swoim polu do końca gry, więc dwa razy zastanów się, zanim go wcześnie postawisz.</p></details>
+    <details><summary>Czy miasto z 2 kafelków punktuje mniej?</summary><p>Nie, w obecnych zasadach jest to 2 punkty za kafelek, tak jak w każdym innym mieście, więc 4 punkty, gdy jest ukończone. Starsze wydania zasad różnią się w niektórych szczegółach; jeśli grasz według starego podręcznika, trzymaj się go.</p></details>
+    <details><summary>A co z dodatkami?</summary><p>Ten przewodnik obejmuje tylko grę podstawową. Rozszerzenia, takie jak Karczmy i katedry czy Opat, dodają nowe elementy i zmieniają niektóre punkty, a wyjaśnimy je na oddzielnych stronach.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Nie chcesz liczyć tego wszystko ręcznie?</b><p>W Score Night dotykasz drogi, miasta lub klasztoru, gdy są ukończone, wybierasz, kto dostaje punkty, a na koniec wpisujesz resztę. Każda suma sama się sumuje, z dziennikiem każdego punktowania.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Nieoficjalny przewodnik napisany własnymi słowami. Nie jest związany z wydawcą Carcassonne. Nazwy gier należą do ich właścicieli. Pełne zasady są w podręczniku wydawców.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} punkt",
+  "few": "{n} punkty",
+  "many": "{n} punktów",
+  "other": "{n} punkty"
+ },
+ "tiles": {
+  "one": "{n} kafelek",
+  "few": "{n} kafelków",
+  "many": "{n} kafelków",
+  "other": "{n} kafelków"
+ },
+ "shields": {
+  "one": "{n} herb",
+  "few": "{n} herby",
+  "many": "{n} herbów",
+  "other": "{n} herby"
+ },
+ "finishedCities": {
+  "one": "{n} ukończone miasto",
+  "few": "{n} ukończone miasta",
+  "many": "{n} ukończone miasta",
+  "other": "{n} ukończone miasta"
+ },
+ "cityLine": "Niedokończone miasta: {tiles}, po 1 punkcie każde = {pts}",
+ "cityShieldLine": "Niedokończone miasta: {tiles} i {shields}, po 1 punkcie każde = {pts}",
+ "roadLine": "Niedokończone drogi: {tiles}, po 1 punkcie każda = {pts}",
+ "monasteryLine": {
+  "one": "{n} niedokończony klasztor: 1 punkt za klasztor + {tiles} wokół niego = {pts}",
+  "few": "{n} niedokończone klasztory: 1 punkt za każdy klasztor ({n}) + {tiles} wokół nich = {pts}",
+  "many": "{n} niedokończone klasztory: 1 punkt za każdy klasztor ({n}) + {tiles} wokół nich = {pts}",
+  "other": "{n} niedokończone klasztory: 1 punkt za każdy klasztor ({n}) + {tiles} wokół nich = {pts}"
+ },
+ "fieldLine": "Pola: {cities}, po 3 punkty każde = {pts}",
+ "addToTrack": "Dodaj to do swojego wyniku na ścieżce",
+ "emptyHint": "Dodaj to, co jest jeszcze na stole powyżej, a punkty pojawią się tutaj"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../pl/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../pl/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/pl/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Polski</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/" class="current">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

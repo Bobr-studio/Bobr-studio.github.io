@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>먼치킨에서 레벨과 전투를 계산하는 방법 — Bobr Studio</title>
+<meta name="description" content="본편 먼치킨에서 레벨, 장비, 전투력이 어떻게 작동하는지, 그리고 누가 이기는지 알려주는 전투 계산기를 소개해요.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ko/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">규칙 안내</a><details class="langs"><summary>🌐 한국어</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/" class="current">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">규칙 안내</a> › 먼치킨</div>
+  <h1>먼치킨에서 레벨과 전투를 계산하는 방법 <span class="hand">누가 더 강하고, 누가 이기는지</span></h1>
+  <p class="lead">먼치킨은 게임 마지막에 점수를 셈해요. 대신 게임 내내 두 가지 숫자에 신경 써야 해요. 바로 내 레벨과 전투력이에요. 아래 계산기가 싸움 결과를 순식간에 알려주고, 왜 이기거나 졌는지 쉽게 설명해줘요. 이 아래로 레벨, 장비, 전투, 그리고 10레벨 달리기까지 예시와 함께 단계별로 설명해 드릴게요. 거의 모든 테이블에서 자주 혼동하는 부분들도 함께 다뤘어요.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>이 싸움은 누가 이기나요?</h3>
+      <p>싸움의 양쪽 정보를 입력해 주세요. 내 전투력은 내 레벨에 장비 보너스를 더한 값이고, 몬스터 전투력은 몬스터 레벨에 받은 보너스를 더한 값이에요.</p>
+      <h4>내 편</h4>
+      <div class="row"><span class="name">내 레벨<small>1에서 10 사이</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="레벨 내리기">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="레벨 올리기">+</button></div></div>
+      <div class="row"><span class="name">내 장비 보너스<small>사용 중인 모든 장비의 보너스 합계; 0보다 작을 수도 있어요</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="장비 보너스 줄이기">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="장비 보너스 늘리기">+</button></div></div>
+      <div class="row"><span class="name">일회용 보너스<small>물약 등 내 편을 위한 일회성 전투 보너스</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="일회용 보너스 줄이기">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="일회용 보너스 늘리기">+</button></div></div>
+      <div class="row"><span class="name">조력자 전투력<small>조력자의 레벨에 장비 보너스를 더한 값; 조력자가 없으면 0으로 남겨두세요</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="조력자 전투력 줄이기">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="조력자 전투력 늘리기">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> 전사가 우리 편(나 혹은 조력자)으로 싸워요</label>
+      <h4>몬스터 편</h4>
+      <div class="row"><span class="name">몬스터 레벨<small>몬스터 카드에 적힌 숫자; 몬스터가 두 마리라면 레벨을 더하세요</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="몬스터 레벨 내리기">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="몬스터 레벨 올리기">+</button></div></div>
+      <div class="row"><span class="name">몬스터 보너스<small>몬스터를 더 강하게(또는 약하게) 만드는 모든 효과</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="몬스터 보너스 줄이기">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="몬스터 보너스 늘리기">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">승리했어요!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>테이블 전체의 레벨을 한 곳으로 관리하세요</b><p>Score Night는 모든 플레이어의 레벨, 장비, 전투력을 기록해 주고, 조력자와 보너스를 반영한 전투 결과를 알려주며, 도망칠 때 주사위를 굴려주는 기능까지 다 담았어요.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play에서 받기</a></div>
+      <ul><li>인터넷 없이도 사용 가능, 3~6명 지원</li><li>게임마다 2판 무료</li></ul>
+      <div class="toc"><b>이 페이지에서</b><ol><li><a href="#what-you-track">관리해야 할 항목</a></li><li><a href="#level">내 레벨</a></li><li><a href="#strength">장비와 전투력</a></li><li><a href="#fight">전투 단계별 설명</a></li><li><a href="#run-away">패배와 도망치기</a></li><li><a href="#who-wins">승리 조건</a></li><li><a href="#mistakes">자주 하는 실수</a></li><li><a href="#examples">예시</a></li><li><a href="#whole-turn">전투 전체 계산 예시</a></li><li><a href="#common-questions">자주 묻는 질문</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">관리해야 할 항목</h2>
+  <p>먼치킨에는 점수 기록지가 없으며 게임 마지막에 점수를 세지 않아요. 대신 게임 내내 각 플레이어는 몇 가지 숫자를 계속 업데이트해야 하고, 이 숫자는 싸움, 저주, 새로운 장비 획득 등 매번 변해요. 모든 사람이 볼 수 있는 곳에 각자의 숫자를 적어두면 도움이 돼요.</p>
+  <ol class="steps">
+    <li><b>내 레벨.</b> 모든 플레이어는 1레벨에서 시작해요. 레벨은 승패를 가르는 핵심이에요. 먼저 10레벨에 도달하면 승리하니까요.</li>
+    <li><b>내 장비 보너스.</b> 사용 중인 아이템마다 보너스를 주는데, 이들을 모두 더한 값이 바로 내 장비 보너스예요.</li>
+    <li><b>내 전투력.</b> 이것이 바로 싸울 때 쓰는 숫자예요. 내 레벨에 장비 보너스를 더한 값이며, 따로 기록할 필요는 없어요. 둘 중 하나가 변할 때마다 같이 바뀌니까요.</li>
+    <li><b>내 성별과 직업.</b> 몇몇 카드는 남성이나 여성 캐릭터에게만 작동하므로 내 성별을 모두 알리는 게 좋아요. 또 내 직업이 전사라면 꼭 기억해 주세요. 동점이 나오면 전사가 승리하거든요.</li>
+  </ol>
+  <div class="tip"><b>레벨과 전투력은 다른 개념이에요.</b> 레벨은 승리까지 얼마나 남았는지 나타내고, 전투력은 공격의 강도를 나타내요. 예를 들어 4레벨 영웅이 장비 보너스 6을 갖고 있다면 전투력 10으로 싸우지만, 승리(10레벨)까지 아직 6레벨이나 떨어져 있는 거예요.</div>
+
+  <h2 id="level">내 레벨: 오름과 내림</h2>
+  <div class="line"><div class="card"><h3>내 레벨이 바뀌는 방법</h3>
+    <p>1레벨로 시작해요. 레벨을 올리는 주된 방법은 몬스터를 처치하는 건데요: 처치하면 1레벨을 얻고, 더 강한 몬스터는 2레벨을 주기도 해요. 몬스터 카드에 몇 레벨을 주는지 적혀 있죠. 어떤 카드는 레벨을 직접 올리거나 내리기도 하고, 싸워서 지면 몬스터 카드에 적힌 대로 레벨을 잃을 수도 있어요.</p>
+    <p>제한이 두 가지 있어요. 레벨이 <b>1 아래로 내려가지 않아요</b>: 1레벨인데 레벨을 깎이는 효과가 있으면 그냥 1레벨에 머물러요. 그리고 <b>10을 넘지도 않아요</b>, 10레벨이 게임의 끝이니까요.</p>
+    <p class="where">어디를 봐야 할까요: 본인의 레벨을 나타내는 숫자예요. 승리 조건이 되는 건 오로지 레벨뿐이고, 전투력은 상관없어요.</p>
+    <div class="ex"><b>예시:</b> 1레벨 상태에서 몬스터에게 레벨을 1 잃었어요. 그래도 1레벨에 머물러요. 다음 턴에 2레벨을 주는 몬스터를 잡았더니 3레벨이 됐네요.</div></div></div>
+
+  <h2 id="strength">내 장비와 전투력</h2>
+  <div class="line"><div class="card"><h3>전투력은 레벨 더하기 장비</h3>
+    <p>전투력을 구하려면 내 레벨에 지금 쓰고 있는 모든 장비의 보너스를 더하면 돼요. 뭔가 변하기 전까지는 이 숫자가 매 싸움에서의 내 전투력이에요.</p>
+    <p>장비 보너스는 보통 양수지만, 합계가 0 아래로 떨어질 수도 있어요. 그건 허용되고, 그냥 약해지는 거예요: 2레벨 영웅이 장비 보너스 −3을 받으면 전투력이 −1이 되죠. 네, 마이너스 1이에요. 숨어야 할 때네요.</p>
+    <p class="where">어디를 봐야 할까요: 내 레벨, 그리고 내 앞에 놓인 각 장비의 보너스 숫자요.</p>
+    <div class="ex"><b>예시:</b> 4레벨에 장비 보너스가 2 + 3 + 1. 장비 보너스 합이 6이니 전투력은 4 + 6 = 10이 돼요.</div></div></div>
+
+  <div class="line"><div class="card"><h3>일회용 보너스</h3>
+    <p>물약 같은 카드는 딱 한 번 싸울 때만 보너스를 줘요. 그 싸움 동안 내 쪽 전투력에 더하고, 싸움이 끝나면 사라져요. 장비 보너스를 바꾸지 않고, 다음 싸움으로 넘어가지도 않아요.</p>
+    <div class="ex"><b>예시:</b> 내 전투력이 10인데 물약 3짜리를 싸움에 썼어요. 이번 싸움에서는 내 쪽이 13이 되죠. 다음 싸움이면 다시 10으로 돌아와요.</div></div></div>
+
+  <h2 id="fight">싸움, 단계별로</h2>
+  <ol class="steps">
+    <li><b>내 쪽 전투력을 세요.</b> 내 전투력(레벨 더하기 장비)에, 날 위해 써진 일회용 보너스를 더해요.</li>
+    <li><b>조력자가 있으면 더해요.</b> 다른 플레이어 한 명이 내 싸움에 참여할 수 있어요. 그 사람의 전체 전투력, 즉 레벨 더하기 장비가 내 전투력에 더해져요.</li>
+    <li><b>몬스터 전투력을 세요.</b> 몬스터 카드에 적힌 레벨을 가져오고, 싸움 도중 받은 보너스를 더해요(보너스가 음수일 수도 있어서 약해질 수 있어요). 몬스터가 둘이면 둘을 합쳐요.</li>
+    <li><b>비교해요.</b> 내 쪽이 몬스터보다 <b>강하면</b> 이겨요. 똑같아선 안 돼요: <b>동점이면 몬스터가 이겨요</b>, 단 전사가 내 쪽에 있으면(나거나 조력자거나) 동점일 때 내가 이겨요.</li>
+    <li><b>레벨을 챙겨요.</b> 이기면 몬스터가 주는 레벨 수만큼 올라가요, 보통 1이고 가끔 2예요. 몬스터가 둘이면 둘 다 주는 레벨을 다 받아요. 조력자는 도와준 것만으론 레벨을 못 받아요, 예외가 하나 있는데: 엘프는 남이 몬스터를 잡는 걸 도울 때마다 1레벨씩 올라요. 그 뒤 일회용 보너스들은 버려요.</li>
+  </ol>
+  <div class="tip"><b>동점 규칙 한 줄로:</b> 숫자가 같으면 몬스터가 이겨요, 단 내 쪽에 전사가 없으면요. 이 규칙을 제일 많이 까먹고, 의외로 많은 싸움의 승패를 가른답니다.</div>
+
+  <h2 id="run-away">지고 도망치기</h2>
+  <p>몬스터가 더 강하거나, 전사 없이 동점이면 싸움에서 져요. 아직 잡힌 건 아니에요: 도망칠 기회가 있어요. 주사위를 굴려요. <b>5나 6</b>이 나오면 도망쳐요. 1, 2, 3, 4가 나오면 도망 실패고, 몬스터 카드에 진 사람에게 한다 적힌 걸 당해요. 레벨을 잃거나 장비를 잃거나 더 안 좋은 일이 생길 수 있으니 숫자를 바로 고치세요.</p>
+  <p>최악은 캐릭터가 죽는 거예요. 기본 규칙에선 아무도 탈락하지 않아요: 장비를 잃어서 장비 보너스가 0이 되지만, <b>레벨은 그대로예요</b>. 그리고 게임을 계속해요.</p>
+  <div class="tip">싸움에서 진 뒤엔 두 숫자를 확인해요: 내 레벨과 내 장비 보너스. 전투력은 그냥 둘을 더한 거라 저절로 맞춰져요.</div>
+
+  <h2 id="who-wins">어떻게 이기나</h2>
+  <p><b>10레벨</b>에 처음 도달한 플레이어가 이겨요. 함정이 하나 있어요: 9에서 10으로 가는 마지막 레벨은 보통 <b>몬스터를 처치해야만 올라요</b>. 그냥 레벨을 주는 카드로는 9에서 10으로 못 가요, 카드에 그렇게 할 수 있다고 적혀 있지 않는 한요.</p>
+  <p>레벨은 절대로 10을 넘지 않아요. 9레벨에서 몬스터를 처치해 2레벨을 얻으면 11레벨이 아니라 10레벨에서 멈춰요. 그대로 승리해요.</p>
+  <div class="warn"><b>사람들이 마무리에서 자주 실수해요</b><ul>
+    <li>조력자에게 레벨을 부여하는 경우 (엘프는 예외). 9레벨에서 몬스터를 도와 이기면 레벨은 올라가지 않아요: 레벨을 얻는 것은 몬스터를 싸운 플레이어뿐이예요.</li>
+    <li>조력자에게 레벨을 하나 더 줍니다. 단, 엘프만 레벨을 받을 수 있어요. 레벨 9일 때 다른 플레이어가 몬스터를 처치하는 걸 도와줘도 내 레벨은 오르지 않아요. 실제로 싸운 플레이어만 레벨을 받아요.</li>
+  </ul></div>
+
+  <h2 id="mistakes">자주 하는 실수</h2>
+  <div class="warn"><ul>
+    <li>동점을 승리로 부르지 마세요. 전력이 같으면 몬스터가 이기지만, 당신의 편에 전사가 있다면 예외예요.</li>
+    <li>전투 후 보너스를 유지하지 마세요. 일회용 보너스 (물약 등)는 전투 한 번만 지속돼요.</li>
+    <li>조력자만의 레벨만 추가하지 마세요. 조력자는 자신의 레벨과 장비, 전체 전투력을 가져와요.</li>
+    <li>레벨 1 아래로 떨어지지 마세요. 레벨 1은 바닥이며, 거기서 레벨을 잃어도 별변화가 없어요.</li>
+    <li>죽을 때 레벨을 잃어요. 사망은 장비를 가져가지만 레벨은 그대로예요.</li>
+    <li>죽어도 레벨을 잃지 않아요. 사망하면 장비는 잃지만 레벨은 그대로예요.</li>
+  </ul></div>
+
+  <h2 id="examples">예시</h2>
+  <div class="examples num">
+    <div class="card"><b>기본 전투력</b><p>전투력 10이에요.</p><div class="big">전투력 10</div></div>
+    <div class="card"><b>동점이에요</b><p>전투력 10 대 몬스터의 전투력 10. 전사가 없으면 몬스터가 이기지만, 당신이 전사라면 이겨요.</p><div class="big">몬스터이거나 전사예요.</div></div>
+    <div class="card"><b>장비가 0 이하예요</b><p>레벨 2에 장비 보너스 −3입니다. 당신의 전투력은 2 − 3이에요.</p><div class="big">전투력 −1예요.</div></div>
+    <div class="card"><b>조력자와 함께예요</b><p>당신의 전투력 10, 레벨 3에 장비 2인 조력자가 더해지면 5예요. 몬스터의 전투력 10 대, 15는 10보다 커요.</p><div class="big">이겨요.</div></div>
+    <div class="card"><b>큰 마침이에요</b><p>레벨 9에서 몬스터를 처치해 2레벨을 얻으면 11레벨이 아니라 10레벨에서 멈춰요.</p><div class="big">레벨 10, 게임을 이겨요.</div></div>
+    <div class="card"><b>도망치기예요</b><p>졌어요, 주사위를 굴려 4가 나왔어요: 운이 안 좋아요, 몬스터 카드대로 해요. 5나 6을 굴리면 빠져나갈 수 있었어요.</p><div class="big">5나 6을 굴리면 도망쳐요.</div></div>
+  </div>
+
+  <h2 id="whole-turn">전투 전체가 카운트돼요.</h2>
+  <div class="card walk"><ol>
+    <li><b>Your strength:</b> 당신의 레벨 6에 장비 보너스 4가 있어요. 6 + 4 = 10예요.</li>
+    <li><b>The monster:</b> 몬스터의 레벨 12이고, 전투 중 +3 보너스를 받아요. 12 + 3 = 15예요. 당신은 5가 부족해요.</li>
+    <li><b>A potion:</b> 2의 물약을 사용해요. 당신의 편은 10 + 2 = 12예요. 여전히 3이 모자라요.</li>
+    <li><b>A helper:</b> 레벨 3에 장비 2인 조력자가 참가해요. 그들의 전투력은 3 + 2 = 5예요. 그러면 당신의 쪽은 12 + 5 = 17예요.</li>
+    <li><b>Compare:</b> 17 대 15. 내 편이 더 강해서 이겨요. (만약 15 대 15였다면, 내 편에 전사가 있어야 이겨요.)</li>
+    <li><b>Levels:</b> 몬스터가 1레벨을 줘서 당신의 레벨이 6에서 7로 올라가요. 조력자는 레벨 3에서 멈춰요.</li>
+    <li><b>Clean up:</b> 물약이 사라졌어요. 당신의 전투력은 레벨과 장비: 7 + 4 = 11예요.</li>
+  </ol><div class="sum num">17 대 15: 이겨요, 레벨 6 → 7, 전투력 11예요.</div></div>
+
+  <h2 id="common-questions">자주 묻는 질문</h2>
+  <div class="faq">
+    <details open><summary>동점 때는 누가 이겨요?</summary><p>몬스터예요. 전사가 당신의 편이라면 비김도 당신에게 승리가 돼요.</p></details>
+    <details><summary>내 전투력은 내 레벨과 같은가요?</summary><p>아니요. 전투력은 당신의 레벨과 장비 보너스예요. 그리고 당신이 싸우는 것이고, 레벨만 승리에 카운트돼요.</p></details>
+    <details><summary>내 전투력이 음수가 될 수 있어요?</summary><p>네. 장비 보너스가 0 아래라면 전투력도 0 아래로 떨어질 수 있어요. 레벨 2에 장비 −3은 전투력 −1예요.</p></details>
+    <details><summary>내 레벨은 1 아래로 갈 수 없어요.</summary><p>아니요. 레벨 1이 가장 낮아요. 레벨 1에서 레벨을 잃으면 그냥 1에서 멈추어요.</p></details>
+    <details><summary>내 조력자도 레벨이 올라가나요?</summary><p>아니요. 몬스터를 판 플레이어만 레벨을 가져가요. 조력자는 그들의 전력을 더하고 그게 끝이에요.</p></details>
+    <details><summary>카드로 레벨 10에 도달할 수 있나요?</summary><p>보통은 아니에요: 10레벨은 몬스터를 처치해야만 올라요. 카드가 그것을 직접 허용하면 예외예요.</p></details>
+    <details><summary>제가 죽으면 어떻게 돼요?</summary><p>장비를 잃어서 장비 보너스가 0이 돼요. 레벨은 그대로예요. 그리고 계속 플레이해요.</p></details>
+    <details><summary>만약 동시에 두 마리의 몬스터와 싸우면 어떻게 돼요?</summary><p>두 몬스터의 레벨과 보너스를 합쳐요. 이기면 두 몬스터로부터 레벨을 가져가요.</p></details>
+    <details><summary>확장판은요?</summary><p>이 가이드는 베이스 게임만 커버해요; 확장 및 기타 먼치킨 세트는 자신만의 레이스, 클래스와 규칙을 추가해요 (한 가지는 심지어 레벨 20까지 플레이해요), 그러니 그들의 룰북을 확인해줘요.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>대신 몬스터를 보는 것을 오히려 선호해요?</b><p>Score Night에서 모든 사람의 레벨, 장비, 전투력이 한 화면에 다 모여 있어요. 전투가 저절로 모여들고, 앱이 처치 없이 누군가 10레벨에 도달하는 걸 막아줍니다.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">우리만의 말로 쓴 비공식 가이드예요. 우리는 먼치킨의 출판사와는 관련이 없는 독립적인 가이드예요. 게임 이름은 각자의 소유주에게 속해 있어요. 전체 규칙은 출판사의 규칙서에 다 나와요.</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "레벨 {v}",
+ "termGear": "장비 {v}",
+ "termOnce": "일회용 {v}",
+ "termHelper": "조력자 {v}",
+ "termBonuses": "보너스 {v}",
+ "yourSide": "내 쪽: {expr} = {total}",
+ "monsterSum": "몬스터: {expr} = {total}",
+ "monsterPlain": "몬스터: {expr}",
+ "killMonster": "{you}이(가) {mon}보다 크니까 몬스터를 쓰러뜨려요.",
+ "tieWarriorWins": "{you} 대 {mon}, 동점이에요. 동점이면 보통 몬스터가 이기지만, 내 쪽에 전사가 있어서 이겨요.",
+ "tieMonsterWins": "{you} 대 {mon}, 동점이고 동점은 몬스터가 이겨요. 힘이 1만 더 있거나 내 쪽에 전사가 있으면 이길 수 있어요.",
+ "monsterWins": {
+  "other": "{you}이(가) {mon}보다 작아서 몬스터가 이겨요. 이기려면 {n}만큼 더 필요해요."
+ },
+ "levelWin": "레벨 10이 되어 게임에서 이겨요!",
+ "levelUpTo9": "레벨 9로 올라가요. 몬스터가 2레벨을 주면 레벨 10, 게임에서 이겨요!",
+ "levelUp": "레벨 {a}(으)로 올라가요 (몬스터가 2레벨을 주면 {b}).",
+ "helperNoLevel": "조력자는 레벨이 오르지 않아요 (엘프라면 예외예요).",
+ "runAway": "주사위를 굴려 도망치세요. 5나 6이면 도망쳐요. 아니면 몬스터 카드에 적힌 대로 하세요.",
+ "headWin": "이겼어요!",
+ "headLose": "몬스터가 이겨요"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ko/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ko/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ko/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 한국어</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/" class="current">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

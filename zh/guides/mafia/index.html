@@ -1,0 +1,325 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>如何主持黑手党 — Bobr Studio</title>
+<meta name="description" content="一份给黑手党主持人的分步指南：每个身份多少人、第一夜、完整夜晚流程、白天投票、平票处理和胜负判定。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #2A2E37; font: 700 24px Rubik; color: var(--cream); cursor: pointer; }
+  .step button:disabled { opacity: .4; cursor: default; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; color: var(--cream); }
+  .result { margin-top: 14px; color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 34px/1.1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; }
+  .result p { margin: 10px 0 0; font-size: 15px; line-height: 1.5; color: #D9CFBF; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; border-radius: 16px; padding: 14px 20px; }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--accent); color: #fff; font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .say { display: block; margin-top: 8px; padding: 8px 12px; border-radius: 10px; background: #262A32; font-style: italic; font-size: 15px; }
+  .tip { border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { border-left: 4px solid #D0645A; border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; } .warn li, .tip li { margin: 4px 0; }
+  .roles { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 14px; margin-top: 12px; }
+  .roles .card { padding: 16px 18px; } .roles p { margin: 6px 0 0; font-size: 15px; }
+  .roles .team { font-size: 13px; color: var(--muted); text-transform: uppercase; letter-spacing: .6px; }
+  table.rules { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 15px; }
+  table.rules th, table.rules td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  table.rules th { color: var(--river); font-weight: 500; } table.rules td:first-child { color: var(--river); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .ex { background: #262A32; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { border-radius: 14px; padding: 12px 18px; margin-top: 10px; }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 8px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--accent2); margin-top: 10px; }
+  @media (max-width: 720px) { .top { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } table.rules th, table.rules td { padding: 8px 6px; } }
+
+/* Настроение «нуар» для страницы Мафии: ночной город, приглушённый красный, латунь. Тёмная тема — контраст текста проверен (AA). */
+:root { --river: #F2E8D5; --river-2: #E3A58F; --cream: #F2E8D5; --ink: #DDD5C6; --muted: #ABA393; --line: #3A3E48; --accent: #A8352D; --accent2: #D9B66E; }
+body { background: #14161B radial-gradient(circle at 85% 0, rgba(168,53,45,.16), transparent 55%) no-repeat; color: var(--ink); }
+a { color: var(--river-2); }
+.studio { background: linear-gradient(180deg, #0D0E12, #1B1D24); }
+h1 .hand { color: #E8867A; }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .cta, .toc, ol.steps li, .faq details { background: #1D2027; border: 1px solid #2E323B; box-shadow: 0 10px 30px rgba(0,0,0,.35); }
+.cta { border: 2px solid var(--accent); }
+.result { background: linear-gradient(135deg, #2A1416, #3A1C1D); }
+.tip { background: #262219; }
+.warn { background: #2C1B1C; }
+.step button:focus-visible { outline: 3px solid var(--accent2); outline-offset: 1px; }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/zh/guides/mafia/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/mafia/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/mafia/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/mafia/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/mafia/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/mafia/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/mafia/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/mafia/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/mafia/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/mafia/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/mafia/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/mafia/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/mafia/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/mafia/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/mafia/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">规则指南</a><details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/mafia/">English</a><a href="../../../ru/guides/mafia/">Русский</a><a href="../../../uk/guides/mafia/">Українська</a><a href="../../../pl/guides/mafia/">Polski</a><a href="../../../cs/guides/mafia/">Čeština</a><a href="../../../de/guides/mafia/">Deutsch</a><a href="../../../fr/guides/mafia/">Français</a><a href="../../../es/guides/mafia/">Español</a><a href="../../../pt/guides/mafia/">Português</a><a href="../../../tr/guides/mafia/">Türkçe</a><a href="../../../ja/guides/mafia/">日本語</a><a href="../../../ko/guides/mafia/">한국어</a><a href="../../../zh/guides/mafia/" class="current">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">规则指南</a> › 黑手党</div>
+  <h1>如何主持黑手党 <span class="hand">给主持人的从容指南</span></h1>
+  <p class="lead">今晚你来主持，可能是头一回，也可能隔太久把夜晚流程忘得七七八八。下面按你用到的顺序全列出来了：你这桌发几个杀手、第一夜咋过、谁啥时候睁眼、白天咋投票、平票咋办、啥时候游戏结束。</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>每个身份几个？</h3>
+      <p>数一下要拿身份牌的人数。主持人不玩，别把自己算进去。</p>
+      <div class="row"><span class="name">拿身份牌的玩家<small>5-16人，不含主持人</small></span><div class="step"><button data-d="-1" aria-label="人少一点">−</button><output id="n">9</output><button data-d="1" aria-label="人多一点">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts">2杀手，7平民</div><ul id="how" class="num"></ul><p id="why"></p></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>没抄也能主持</b><p>Score Night 帮你发身份、每步提醒你该说啥、记着谁是谁、最后宣告谁赢了。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ 在 Google Play 获取</a></div>
+      <ul><li>不用网也能玩，5-16 人加主持人</li><li>两局免费体验，游戏中无广告</li></ul>
+      <div class="toc"><b>本页内容</b><ol><li><a href="#roles">身份介绍</a></li><li><a href="#before">游戏前准备</a></li><li><a href="#dealing">发身份</a></li><li><a href="#first-night">第一夜</a></li><li><a href="#night">完整夜晚流程</a></li><li><a href="#morning">天亮</a></li><li><a href="#day">白天和投票</a></li><li><a href="#ties">平票</a></li><li><a href="#game-end">游戏何时结束</a></li><li><a href="#whole-game">一局完整流程</a></li><li><a href="#host-tips">给主持人的小贴士</a></li><li><a href="#mistakes">常见坑</a></li><li><a href="#table-rules">本桌规则</a></li><li><a href="#common-questions">常见问题</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="roles">身份介绍</h2>
+  <p>分两个阵营。杀手互相认识；平民啥都不知道，只能靠聊天推理。每人发一张身份牌，主持人没有。</p>
+  <div class="roles">
+    <div class="card"><span class="team">平民阵营</span><h3>平民</h3><p>夜里没动作，闭眼睡觉。白天听、吵、投票。把杀手全投出去就赢。</p></div>
+    <div class="card"><span class="team">杀手阵营</span><h3>杀手</h3><p>夜里一起睁眼，默契选受害者。白天装成普通平民。</p></div>
+    <div class="card"><span class="team">杀手阵营</span><h3>教父</h3><p>杀手头子。跟大家一起选受害者，然后再醒一次找警长：指向一人，主持人点头或摇头。</p></div>
+    <div class="card"><span class="team">平民阵营</span><h3>警长</h3><p>每晚指一人，那人是杀手主持人就点头。教父也算杀手。白天警长可把查到的事小心说出来。</p></div>
+    <div class="card"><span class="team">平民阵营</span><h3>医生</h3><p>每晚指一人保护。要是杀手也选了同一人，天亮没人出局。</p></div>
+  </div>
+
+  <h2 id="before">游戏前准备</h2>
+  <ol class="steps">
+    <li><b>大家围成圈坐好</b>，主持人也在圈里。这样好记顺序：夜里大家互相指人，知道谁坐哪儿跟着顺多了。</li>
+    <li><b>别把主持人算进去，数一下玩家人数</b>，再定身份。得 5-16 人。页面顶部的配置助手给出常用搭配：6 人及以下 1 个杀手；7-9 人 2 个杀手，其中一个是教父；10-12 人 3 个杀手；13-16 人 4 个杀手。警长必有，6 人起加医生，其余全是平民。
+      <span class="say">比如 9 人：教父、1 个杀手、警长、医生、5 个平民。</span></li>
+    <li><b>在第一张牌出局前，大家先当面把这些争议的规则说清楚、达成一致</b>：平票时发生什么、出局者的身份是否会被揭示，以及医生是否能保护自己。不同桌的规定各不相同，在第40分钟吵架可不好玩。我们使用的默认规则在下面的<a href="#table-rules">本桌规则</a>里。</li>
+  </ol>
+  <div class="tip">如果你想换一些身份比例，可以改。只有两个限制：至少一名杀手，而且杀手的数量不能超过其他所有人的总和。否则游戏还没开始就结束了。</div>
+
+  <h2 id="dealing">发身份</h2>
+  <p>每位玩家都必须在不让别人看到的情况下了解自己的身份。如果是纸牌，先洗好正确的牌组，然后给每位玩家发一张面朝下，让大家快速看一眼并保持隐藏。作为主持人，你需要知道所有身份，所以你可以在你发牌时看牌，或者让大家都看完后把身份写下来。</p>
+  <p>在 Score Night 中，我们会用手机在圆圈里传递身份：每位玩家滑动并按住查看自己的身份，松手隐藏，然后将手机传给下一个人。最后手机会回到主持人手中，主持人可以看到所有人。如果你的小组更喜欢使用自己的纸牌，那就直接发牌，然后自己把身份输入到应用中即可。</p>
+
+  <h2 id="first-night">第一夜：杀手集合</h2>
+  <p>第一夜很短。没有人出局；杀手只是有机会看看彼此是谁的同伴。</p>
+  <ol class="steps">
+    <li><b>所有人都闭上眼睛。</b> 说出经典的台词，或者说一些气氛烘托的句子。<span class="say">“最后一辆电车进到车库。城市陷入沉睡。”</span></li>
+    <li><b>杀手们睁开眼睛互相看着对方。</b> 给他们几秒钟记住这些面孔。不说话，不握手。<span class="say">“杀手们，睁开眼睛，交换有意义的眼神。记住彼此。”</span></li>
+    <li><b>杀手闭上眼睛，而城镇苏醒了。</b> 在第一个早晨，没有新闻要宣布，所以你们直接进入第一天的讨论。</li>
+  </ol>
+  <div class="tip">有些桌子会跳过会议，让杀手在第一夜就选择一个受害者。这会让游戏更快、更残酷。无论哪种方式都可以，只要大家在开始前都知道。</div>
+
+  <h2 id="night">按顺序进行一整夜</h2>
+  <p>从第二夜开始，所有身份都会依次触发。每个身份轮流醒来，通过指向来安静地行动，然后在一轮结束前再次入睡。你需要观察、记住，并通过点头或摇头来回应。</p>
+  <ol class="steps">
+    <li><b>城市陷入沉睡。</b> 所有人都闭上眼睛。等一切都安静下来。</li>
+    <li><b>杀手们醒来并选择一个受害者。</b> 他们睁开眼睛，保持沉默地达成一致，并指向一位玩家。记住他是谁，然后把他送回睡眠。<span class="say">“后屋弥漫着雪茄和阴谋的气味。杀手们，决定吧——安静点，墙是有耳朵的。”</span></li>
+    <li><b>教父寻找警长。</b> 教父再次睁开眼睛，指向一位玩家。如果那是警长，则点头；如果不是，则摇头。教父不能查验其他杀手；那样毫无意义。如果教父已经出局，则跳过此步骤。</li>
+    <li><b>警长查验某人。</b> 警长指向一位玩家。如果该玩家是杀手，就点头；如果不是，就摇头。这里教父也算作杀手，所以教父也会得到点头。</li>
+    <li><b>医生保护某人。</b> 医生指向一位玩家。如果杀手选择了同一人，那么受害者就会幸存下来。根据我们的默认设置，医生每局可以保护自己一次，并且不能连续两夜保护同一个人。<span class="say">“医生拿起医疗包和一把伞——这场雨要下到天亮。医生，我们救谁？”</span></li>
+  </ol>
+  <div class="tip">在应用中，如果某个身份的玩家已经出局，那么它就不会再被触发了，夜晚会继续进入下一个身份。即使教父出局了，剩下的杀手仍然会像往常一样选择受害者。</div>
+
+  <h2 id="morning">早晨：夜晚发生了什么</h2>
+  <p>唤醒城镇，告诉他们新闻。在开口之前先安静地想清楚：如果杀手的受害者是医生保护的那个人，那么没有人出局。否则受害者就会离开游戏。</p>
+  <div class="line"><div class="card">
+    <p>只宣布结果，不要解释原因。如果有人出局了，就说出是谁。如果没有人出局，就说是个安静的夜晚，不要提到医生或者谁被救了：那样会把免费信息交给杀手。</p>
+    <p>默认情况下，被夜间淘汰的玩家身份是<b>不会</b>被揭露的。有些桌子会揭露，请参阅<a href="#table-rules">本桌规则</a>。</p>
+    <div class="ex"><b>举例：</b>杀手选择了凯特，医生保护了凯特。早间新闻说：“灰色的早晨，苦涩的咖啡，但这次有好消息：所有人都还在。”</div>
+  </div></div>
+  <p>早间新闻之后，检查游戏是否结束（请参阅<a href="#game-end">游戏何时结束</a>）。如果还没有，白天就开始了。</p>
+
+  <h2 id="day">白天：讨论和投票</h2>
+  <ol class="steps">
+    <li><b>讨论。</b> 大家围着圆圈，轮流发言。一个简短的发言计时能保持流程的顺利进行；我们采用每人 1 分钟的时间。这就是玩家分享怀疑和提出名字的地方，也是警长决定要透露多少信息的时刻。</li>
+    <li><b>投票。</b> 逐一叫出被提名者，问大家是否想让这名玩家出局。玩家举手，然后你进行统计。获得最多票的玩家将出局。如果没人获得任何一票，则没有人出局。</li>
+    <li><b>遗言。</b> 被投票出局的玩家会得到几秒钟来说遗言，然后离开圆圈。默认情况下，他们的身份是<b>不会</b>被揭露的。</li>
+    <li><b>检查游戏是否结束</b>，如果游戏继续，城市将再次进入夜晚。</li>
+  </ol>
+
+  <h2 id="ties">平票时</h2>
+  <p>如果两名或更多玩家票数相同，我们的默认规则是仅在这些人之间进行再投票。如果他们再次平局，那么今天没有人出局，城镇会比以前更加紧张地进入睡眠。</p>
+  <p>还有另外两种常见的方法：在第二次平局后，<b>所有</b>平局玩家都出局，或者根本不进行再投票，平局就意味着没有人出局。请在游戏开始前决定好其中一种规则，而不是在平局发生时决定。</p>
+  <div class="line"><div class="card"><div class="ex"><b>举例：</b>剩下 4 名玩家。奥斯卡得到 2 票，安娜也得到 2 票。奥斯卡和安娜之间进行再投票：现在奥斯卡得 3 票，安娜得 1 票。奥斯卡出局了。</div></div></div>
+
+  <h2 id="game-end">游戏结束以及获胜者</h2>
+  <p>每当早晨和每次投票结束后，都要检查一次：</p>
+  <ul>
+    <li><b>平民获胜</b>！只要所有杀手，包括教父，都出局了，平民阵营就获胜了。</li>
+    <li><b>杀手获胜</b>！只要杀手的数量等于或者超过所有其他玩家的总数，杀手阵营就获胜了。到了那时，城镇无法通过投票让他们出局了。</li>
+  </ul>
+  <div class="line"><div class="card"><div class="ex"><b>举例：</b>剩下 3 名玩家，1 名杀手和 2 名平民：游戏继续。下一夜杀手再淘汰一人，变成 1 对 1。杀手在早晨获胜。</div></div></div>
+  <p>游戏结束后，揭示所有人的身份，如果有人愿意，还可以讲述夜晚的故事：谁查验了谁，以及医生救了谁。这通常是夜晚最精彩的部分。</p>
+
+  <h2 id="whole-game">完整的游戏，从开始到结束</h2>
+  <p>7 名玩家：安娜、本、凯特、利亚姆、麦克、诺拉和奥斯卡。奥斯卡是教父，麦克是杀手，诺拉是警长，凯特是医生，而安娜、本和利亚姆是平民。采用默认本桌规则。</p>
+  <div class="card walk num"><ol>
+    <li><b>第一夜：</b> 奥斯卡和麦克睁开眼睛看到对方。没有人出局。</li>
+    <li><b>第一天：</b> 没人知道任何信息，但本说话很多，得到了 4 票。本出局了；他是平民阵营的一员。杀手 2 人，其他玩家 4 人。</li>
+    <li><b>第二夜：</b> 杀手指向凯特。教父查验利亚姆：你摇头。警长查验麦克：你点头。医生保护了自己，这她可以在游戏中使用一次。</li>
+    <li><b>第二早：</b> 杀手选择了被医生保护的那个玩家，所以没有人出局。</li>
+    <li><b>第二天：</b> 诺拉谨慎地将怀疑引向麦克，麦克被投票出局。杀手 1 人，其他玩家 4 人。</li>
+    <li><b>第三夜：</b> 奥斯卡现在独自一人，指向诺拉。作为教父，他查验了安娜：你摇头。诺拉查验奥斯卡：你点头。凯特已经使用了自我保护，所以她保护了利亚姆。</li>
+    <li><b>第三早：</b> 诺拉出局了。杀手 1 人，其他玩家 3 人：游戏继续。</li>
+    <li><b>第三天：</b> 奥斯卡和安娜各自得到 2 票。他们在两人之间进行再投票：奥斯卡 3 票，安娜 1 票。奥斯卡出局了。</li>
+  </ol><div class="sum">杀手没有剩下：平民在第三天获胜。</div></div>
+
+  <h2 id="host-tips">主持人提示</h2>
+  <div class="tip"><ul>
+    <li><b>保持一致的表情。</b> “是”时点头，“不是”时摇头，都要保持同样的平静表情。玩家观察你的情况比你想象的要仔细得多。</li>
+    <li><b>确保每个身份的发言时间都一样。</b> 如果杀手在 2 秒内选择，而医生思考了 20 秒，请自己在心里记着时间，确保每个身份大约花费同样的时间。在某个身份发言后暂停很久，而在身份之间短暂暂停，这能让大家知道谁还在游戏里。</li>
+    <li><b>绝对不要暗示谁采取了行动。</b> 不要看向指向某人的那个人，不要说“好选择”，在早上只宣布结果就行了。</li>
+    <li><b>在人们移动时进行对话。</b> 一段简短的故事可以遮盖有人睁眼或抬手的动静。</li>
+    <li><b>保持幽默感要良善。</b> 开玩笑时要开玩笑针对局面，而不是针对玩家：比如城市、雨水，或者那个什么都没看到的酒保。没有人应该因为是第一个出局的而被嘲笑。</li>
+    <li><b>在接近结局时增加紧张感。</b> 当只剩下 4 人或更少时，在夜幕降临前就提出这一点。这是所有人都坐直身体的时刻。</li>
+    <li><b>控制节奏。</b> 发言计时器和坚定的“到投票时间”能避免夜晚变成一场无休止的争吵。</li>
+  </ul></div>
+
+  <h2 id="mistakes">常见的错误</h2>
+  <div class="warn"><ul>
+    <li>在早上说出医生救了谁。你只需说没有人出局就好。</li>
+    <li>当警长指向教父时，你摇头。教父算作杀手，所以你应该点头。</li>
+    <li>忘记医生昨晚保护了谁。根据我们的默认设置，同一位玩家不能连续两夜被保护，所以你需要记下来，或者让应用来记住。</li>
+    <li>只在投票结束后才检查结束条件。游戏也可能在早上结束，也就是在夜晚的受害者被处理后。</li>
+    <li>在你们的桌子约定不这样做的情况下，透露一个出局者的身份。一旦说出来，就无法收回。</li>
+    <li>在夜晚已经发生的事情中途更改规则。新规则从下一步开始计算，而不是倒回去重演。</li>
+    <li>把主持人也算作玩家。主持人没有身份，夜里不会被选中，也不参与投票。</li>
+  </ul></div>
+
+  <h2 id="table-rules">本桌规则：我们的默认设置和常见的替代方案</h2>
+  <p>杀人游戏是一种民间游戏，几乎每个小组都会以略微不同的方式玩它。这些是我们开始的规则；如果你们的桌子同意了，右边的任何内容都是有效的。</p>
+  <div class="card" style="padding:8px 14px"><table class="rules">
+    <tr><th>规则</th><th>我们的默认设置</th><th>其他玩法</th></tr>
+    <tr><td>第一夜</td><td>杀手只在什么时候见面</td><td>杀手立即选择一个受害者</td></tr>
+    <tr><td>投票平票时</td><td>重新投票；再次平票，则没有人出局</td><td>重新投票，再次平票，所有平票的玩家出局；或者不重新投票，则没有人出局</td></tr>
+    <tr><td>医生自救</td><td>游戏内一次</td><td>绝不；或者每晚</td></tr>
+    <tr><td>医生：连续两夜救同一人</td><td>不允许</td><td>允许</td></tr>
+    <tr><td>白天出局者身份</td><td>不公开</td><td>公开</td></tr>
+    <tr><td>夜晚出局者身份</td><td>不公开</td><td>公开</td></tr>
+    <tr><td>警长夜间</td><td>只查验</td><td>查验或开枪</td></tr>
+    <tr><td>遗言</td><td>是</td><td>不是</td></tr>
+    <tr><td>发言计时</td><td>1 分钟</td><td>关闭，30 秒或 2 分钟</td></tr>
+  </table></div>
+  <p>如果你的警长可以开枪，操作方式如下：他们不是查验，而是指向一个人来清除他。医生也可以拯救那个人，就像杀手的受害者一样。</p>
+
+  <h2 id="common-questions">常见问题</h2>
+  <div class="faq">
+    <details open><summary>你们需要多少玩家？</summary><p>至少 5 名有身份的玩家，再加上主持游戏的主持人。本页面上的身份组合最高支持 16 名玩家，加上主持人，所以这是一场最多有 17 人的游戏。</p></details>
+    <details><summary>主持人会参与游戏吗？</summary><p>不会。主持人没有身份，知道每个人的身份，夜里不会被选中，也不投票。他们的工作是确保游戏公平又有趣。</p></details>
+    <details><summary>当警长查验时，教父会显示为杀手吗？</summary><p>是的。教父是杀手的一部分，所以警长会点头。</p></details>
+    <details><summary>医生可以自我保护吗？</summary><p>根据我们的默认设置，游戏内一次。有些桌子完全不允许，有些允许每晚都保护。在开始前要达成一致。</p></details>
+    <details><summary>如果没有人获得票，会发生什么？</summary><p>那天没有人出局，城市进入睡眠状态。</p></details>
+    <details><summary>我应该透露一个出局者的身份吗？</summary><p>根据我们的默认设置，不应该透露，无论是投票后还是夜晚之后。公开身份会让城镇获胜的难度变小；不公开身份则保持了更多神秘感。两者都可以。</p></details>
+    <details><summary>我们可以在游戏进行中途更改规则吗？</summary><p>是的，如果桌子同意的话。它将从下一步开始计算：已经发生的夜晚或投票不会被重新播放。</p></details>
+    <details><summary>额外的身份角色是怎么回事？</summary><p>本指南涵盖了经典配置：杀手、教父、警长、医生和平民。很多小组会添加自己的身份；我们把这些留到另一页再讨论吧。</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>你想把所有这些都记住吗？其实没必要。</b><p>在Score Night里，App会发身份、给你有趣的故事指导说什么、记住谁是谁，也记住医生救了谁，还会告诉你最终谁赢了。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmafia">▶ Google Play</a></div>
+
+  <p class="disclaimer">这是我们自己用语言写的一个非官方指南。黑手党是一款传统的派对游戏，每桌的规则可能会有所不同。</p>
+<script type="application/json" id="guide-strings">
+{
+ "headline": "杀手 {team} 人，好人 {town} 人",
+ "donLine": "教父：1 人（属于杀手）",
+ "mafiaLine": "杀手：{n} 人",
+ "detLine": "警长：1 人",
+ "docLine": "医生：1 人",
+ "docNoneLine": "医生：无，6 人起才有",
+ "townLine": "平民：{n} 人",
+ "tableLine": {
+  "other": "连同主持人，桌边共 {n} 人"
+ },
+ "why6": "6 人以内只有 1 名杀手，没有教父。警长 5 人起就有，医生 6 人起才有。",
+ "why9": "7 到 9 人时有 2 名杀手：教父和另外 1 人。警长和医生属于好人阵营。",
+ "why12": "10 到 12 人时有 3 名杀手：教父和另外 2 人，对抗警长、医生和平民。",
+ "why16": "13 到 16 人时有 4 名杀手：教父和另外 3 人，对抗警长、医生和平民。",
+ "whyTail": "只要至少有 1 名杀手，并且杀手少于其他所有人，各桌可以自行调整配置。",
+ "whyJoin": "{reason}{tail}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+let n = 9;
+// Как в приложении: Lineup.defaultFor (score-night lib/games/mafia/logic.dart).
+function lineup(cnt) {
+  if (cnt <= 6) return { mafia: 1, don: 0, det: 1, doc: cnt === 6 ? 1 : 0 };
+  const team = cnt <= 9 ? 2 : cnt <= 12 ? 3 : 4;
+  return { mafia: team - 1, don: 1, det: 1, doc: 1 };
+}
+function draw() {
+  document.getElementById('n').textContent = n;
+  const l = lineup(n), team = l.mafia + l.don, town = n - team, civ = town - l.det - l.doc;
+  document.getElementById('pts').textContent = f(T.headline, { team, town });
+  const lines = [];
+  if (l.don) lines.push(T.donLine);
+  lines.push(f(T.mafiaLine, { n: l.mafia }));
+  lines.push(T.detLine);
+  lines.push(l.doc ? T.docLine : T.docNoneLine);
+  lines.push(f(T.townLine, { n: civ }));
+  lines.push(p(T.tableLine, n + 1));
+  document.getElementById('how').innerHTML = lines.map(x => `<li>${x}</li>`).join('');
+  const reason = T[n <= 6 ? 'why6' : n <= 9 ? 'why9' : n <= 12 ? 'why12' : 'why16'];
+  document.getElementById('why').textContent = f(T.whyJoin, { reason, tail: T.whyTail });
+  document.querySelectorAll('.step button').forEach(b => b.disabled = (+b.dataset.d < 0 ? n <= 5 : n >= 16));
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { n = Math.max(5, Math.min(16, n + +b.dataset.d)); draw(); });
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../zh/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/zh/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/mafia/">English</a><a href="../../../ru/guides/mafia/">Русский</a><a href="../../../uk/guides/mafia/">Українська</a><a href="../../../pl/guides/mafia/">Polski</a><a href="../../../cs/guides/mafia/">Čeština</a><a href="../../../de/guides/mafia/">Deutsch</a><a href="../../../fr/guides/mafia/">Français</a><a href="../../../es/guides/mafia/">Español</a><a href="../../../pt/guides/mafia/">Português</a><a href="../../../tr/guides/mafia/">Türkçe</a><a href="../../../ja/guides/mafia/">日本語</a><a href="../../../ko/guides/mafia/">한국어</a><a href="../../../zh/guides/mafia/" class="current">中文</a></div></details>
+</div></footer>
+</body>
+</html>

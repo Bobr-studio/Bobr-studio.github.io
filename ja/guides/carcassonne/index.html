@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>カルカソンヌの得点計算 — Bobr Studio</title>
+<meta name="description" content="カルカソンヌの基本ゲームで、道、都市、修道院、草原の得点を数える方法を平易な言葉で説明しています。ゲーム中とゲーム終了時の両方についてです。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">ルールガイド</a><details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/" class="current">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">ルールガイド</a> › カルカソンヌ</div>
+  <h1>カルカソンヌの得点方法 <span class="hand">基本ゲーム、ステップバイステップ</span></h1>
+  <p class="lead">カルカソンヌでは、2つの異なるタイミングで得点を計算します。ゲーム中、道、都市、または修道院が完成した瞬間に得点が計算され、その上にあるミープルは家に帰ります。最後のタイルが置かれた後、未完成のものは少ないポイントで計算され、それから草原の得点を計算します。草原の得点はほとんどの人を混乱させます。このページでは両方を例とともに説明し、計算機がゲーム終了時のポイントを計算してくれます。</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>ゲーム終了時のカウント</h3>
+      <p>最後のタイルを置いた後、未完成の道、都市、修道院で最も多くのミープルを持っている場所（または最も多いと同数の場合）と、最も多くの農夫を持っている草原を見てください。それらすべてから数字を足し合わせてください。</p>
+      <div class="group">未完成の都市</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">都市タイル<small>未完成の都市の一部が含まれたタイル</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="都市タイルが1枚少ない">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="都市タイルが1枚多い">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">紋章<small>その都市内の紋章バッジ</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="紋章が1つ少ない">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="紋章が1つ多い">+</button></div></div>
+      <div class="group">未完成の道</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">道タイル<small>未完成の道が通るタイル</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="道タイルが1枚少ない">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="道タイルが1枚多い">+</button></div></div>
+      <div class="group">未完成の修道院</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">修道院<small>完全に囲まれていない修道院</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="修道院が1つ少ない">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="修道院が1つ多い">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">周囲のタイル<small>すべての8つの隣接タイルがカウントされます。角も含まれます。最大7つずつです</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="周囲のタイルが1枚少ない">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="周囲のタイルが1枚多い">+</button></div></div>
+      <div class="group">草原</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">完成した都市<small>あなたが勝つ草原に接している、草原ごとに数えられた</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="完成した都市が1つ少ない">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="完成した都市が1つ多い">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19ポイント</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>すべてのスコアをスマホで管理</b><p>Score Nightはスコアリングトラックを置き換えます。各道、都市、または修道院が完成するたびに記録し、ゲーム終了時のスコアをすべてのプレイヤーに記録します。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Playで入手</a></div>
+      <ul><li>インターネット接続不要、2～5人用</li><li>もはやトラックを失くすことはありません</li><li>各ゲーム2回まで無料</li></ul>
+      <div class="toc"><b>このページの内容</b><ol><li><a href="#when-to-count">いつカウントするか</a></li><li><a href="#who-gets-points">誰がポイントを得るか</a></li><li><a href="#roads">道</a></li><li><a href="#cities">都市と紋章</a></li><li><a href="#monasteries">修道院</a></li><li><a href="#fields">草原</a></li><li><a href="#field-examples">草原の例</a></li><li><a href="#mistakes">よくある間違い</a></li><li><a href="#who-wins">誰が勝つか</a></li><li><a href="#whole-game">ゲーム終了時のカウント</a></li><li><a href="#common-questions">よくある質問</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">いつ数えるか</h2>
+  <ol class="steps">
+    <li><b>ゲーム中、何かが完成した瞬間に。</b> タイルが道、都市、または修道院を閉じたとき、その特徴はすぐに得点されます。たとえ他のプレイヤーの番でもです。最も多くのミープルを持っているプレイヤーは、スコアリングトラックのマーカーを動かし、それからその特徴にあるすべてのミープルは所有者のもとに戻り、再び配置される準備ができます。</li>
+    <li><b>ゲーム中はそれ以外のものは得点されません。</b> 未完成の特徴は待機し、草原は決してゲーム終了前に得点されません。草原に横たわっている農夫はゲーム全体をそこで過ごします。</li>
+    <li><b>最後のタイルが置かれたら、ゲームは終了します。</b> 今、テーブルにまだあるすべてのミープルを見てください。それぞれは未完成のものの上に立っています：道、都市、または修道院。それらを1つの特徴ずつ、完成したものより少ないポイントで得点します（都市と修道院は少ないポイントで、道は同じポイントです）。</li>
+    <li><b>草原は最後に来ます。</b> すべての未完成の特徴を数えた後、完成した都市に隣接する完成した都市のポイントを獲得することで、草原にポイントを付けることができます。なぜなら、まだ何が変わるかもしれないので、それまで数えないからです。</li>
+  </ol>
+  <div class="tip">テーブルを片付けるのが一番簡単です。特徴を数え、ミープルを取り除き、次の特徴に進みます。 農夫だけが残ったら、草原の番です。</div>
+
+  <h2 id="who-gets-points">誰がポイントを獲得するのですか</h2>
+  <p>すでにミープルが置かれている道、都市、または草原に別のミープルを置くことはできません。 しかし、別々のピースにミープルが置かれていると、後に結合して1つの特徴に複数のミープルが置かれることがあります。 そのとき、各プレイヤーのミープルを数えます。 最も多いミープルを持つプレイヤーがすべてのポイントを獲得します。 2人以上のプレイヤーが最も多いポイントを獲得した場合、<b>それぞれがフルポイントを獲得します</b>。誰もポイントを分割しません。 ミープルが少ないプレイヤーは何も得られません。 ミープルが全くない特徴は誰にもポイントを与えません。</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>例:</b> 完成した都市には5つのタイルと2つの紋章があり、10 + 4 = 14点となります。 安奈には2つのミープルがいて、マイクには2つ、そしてあなたには1つあります。 安奈とマイクはそれぞれ14点を獲得します。 あなたは何も得られませんが、あなたのミープルは戻ってきます。</div></div></div>
+
+  <h2 id="roads">道</h2>
+  <div class="line"><div class="card"><h3>何を数えるか</h3>
+    <p>道を1つの端からもう1つの端までたどり、道が横切るタイルを数えます。 道は、十字路、都市、修道院、またはループで自分で自分に会うときに、両端が止まることで完成します。</p>
+    <p><span class="when during">ゲーム中</span>完成した道は各タイル1点を与えます。</p>
+    <p><span class="when end">ゲーム終了時</span>未完成の道も各タイル1点を与えます。 道はどちらの方法でも同じ価値があります。</p>
+    <p class="where">どこを見てみるか: 道に立っているミープル。</p>
+    <div class="ex"><b>例:</b> 道は十字路から出発し、2つのプレーンタイルを越え、都市の門で終わります。 十字路タイルと都市タイルを数えると、4つのタイルに触れています。 したがって、4点となります。 ゲーム終了時に3つのタイルの道がまだ開いている場合、3点を与えます。</div></div></div>
+
+  <h2 id="cities">都市と紋章</h2>
+  <div class="line"><div class="card"><h3>何を数えるか</h3>
+    <p>都市のいずれかの部分があるタイルを数え、次に紋章を数えます。 紋章は、都市タイルに印刷された小さなコート・オブ・アームズのバッジです。 都市は壁が完全に周囲を閉じ、開いている端や開いている端がない場合に完成します。</p>
+    <p><span class="when during">ゲーム中</span>完成した都市は各タイル2点と各紋章2点を与えます。 紋章のない2つのタイルの最小の都市は4点の価値があります。</p>
+    <p><span class="when end">ゲーム終了時</span>未完成の都市は各タイル1点と各紋章1点のみを与えます。 完成した場合の半分の価値があります。</p>
+    <p class="where">どこを見てみるか: 都市の壁の中に立っているミープル。</p>
+    <div class="ex"><b>例:</b> 完成した都市は4つのタイルと1つの紋章があり、4×2=8点となり、タイルのタイルと紋章の2点、合計10点となります。 ゲーム終了時に3つのタイルと1つの紋章を持つ未完成の都市は3+1=4点となります。</div></div></div>
+
+  <h2 id="monasteries">修道院</h2>
+  <div class="line"><div class="card"><h3>何を数えるか</h3>
+    <p>修道院はそのタイルの真ん中にある。 その周囲の8つのスペースを見てみます: 左、右、上、下、そして4つの角。 修道院はこれらのタイルがすべて埋まっている場合に完成します。</p>
+    <p><span class="when during">ゲーム中</span>完成した修道院は9点を与えます: 修道院タイル1点と8つのタイル1点ずつ。</p>
+    <p><span class="when end">ゲーム終了時</span>未完成の修道院は修道院タイル1点とその周囲のタイル1点ずつを与えます。 したがって、1から8点の間になります。</p>
+    <p class="where">どこを見てみるか: 修道院にあるミープル。 修道院には1つのミープルしか置くことができません。 したがって、共有することはありません。</p>
+    <div class="ex"><b>例:</b> ゲーム終了時に、あなたの修道院には5つのタイルが周囲にあり、3つの空のスペースがあります。 1+5=6点となります。</div></div></div>
+
+  <h2 id="fields">草原</h2>
+  <div class="line"><div class="card"><h3>何を数えるか</h3>
+    <p>草原は緑の草のストレッチです。 タイルを横切って、草がつながっている限り続きます。 道、都市の壁、テーブルのタイルの端がそれを切ります。 したがって、大きな草原は複数の個別のフィールドに分割される可能性があります。 草原に寝ているミープルは農夫です。</p>
+    <p><span class="when during">ゲーム中</span>何もありません。 草原はゲーム終了まで数えられず、農夫はその場所に残ります。</p>
+    <p><span class="when end">ゲーム終了時</span>、農夫がいる草原を一つずつ確認します。その草原に壁が接しているすべての<b>完成した</b>都市を見つけてください。その草原で農夫が最も多いプレイヤーは、その都市一つにつき3点を獲得します。未完成の都市は草原に点数をもたらしません。</p>
+    <p class="where">確認する場所は、草の中にいる農夫さんを見つけ、その草原の境界を辿り、触れている都市の壁すべてを確認してください。</p>
+    <div class="ex"><b>例：</b>あなたの農夫のいる草原が、完成した都市3つと未完成の都市1つに接している場合です。これは 3 × 3 = 9点となります。未完成の都市は点数になりません。</div>
+    <p>すべての草原は独立して点数計算されます。もしある都市が二つの異なる草原に触れていたら、両方の草原でカウントされます。そして、同じプレイヤーが両方の草原で勝利した場合、その都市はそのプレイヤーに3点を2回も与えます。</p></div></div>
+  <div class="tip"><b>草原の都市を見つける簡単な方法：</b>農夫の上の指を置き、道路や壁を越えないように草の境界をなぞってください。その指が沿った完成した都市の壁は、どれだけ長くても、この草原にとっては1回分としてカウントされます。</div>
+
+  <h2 id="field-examples">草原の例</h2>
+  <div class="examples num">
+    <div class="card"><b>一つの草原に、多くの都市</b><p>あなたの農夫が広い草原に一人でいます。その端には完成した都市が4つ、未完成の都市が2つあります。点数になるのは完成した都市だけです：4 × 3。</p><div class="big">12点</div></div>
+    <div class="card"><b>二つの草原の間の都市</b><p>道が草を二つに分割し、その両方の半分が同じ完成した都市に触れています。あなたの農夫が北側の草原に、ユイさんの農夫が南側の草原にいます。二つの草原なので、お二人ともその都市で3点ずつ獲得します。</p><div class="big">それぞれ3点</div></div>
+    <div class="card"><b>共有された草原</b><p>ゲーム中に農夫が合体してできた二つの草原があります。今、あなたとユイさんはそれぞれ2人の農夫をその中に持っており、それは完成した都市5つに触れています。引き分けなので、お二人とも 5 × 3 点を獲得します。</p><div class="big">それぞれ15点</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>数の不利</b><p>同じ草原ですが、ユイさんが2人の農夫、あなたが1人です。ユイさんが最も多いため、ユイさんには15点すべてが、あなたはこの草原では何も得られません。</p><div class="big">あなたは0点です</div></div>
+    <div class="card"><b>一人のプレイヤーが持つ二つの草原</b><p>あなたが二つの草原それぞれに農夫を置いていて、その一つが完成した都市に触れています。それぞれの草原で独立してカウントされるため、その都市はあなたに 3 + 3 点を与えます。</p><div class="big">6点</div></div>
+    <div class="card"><b>完成した都市がない場合</b><p>未完成の都市のみに触れている草原、あるいは全く都市に触れていない草原の農夫は、点数になりません。農夫はただそこにいるだけです。</p><div class="big">0点</div></div>
+  </div>
+
+  <h2 id="mistakes">よくある間違い</h2>
+  <div class="warn"><b>カルカソンヌの得点に関するよくある間違い</b><ul>
+    <li>ゲーム終了時に未完成の都市を完成した都市のように採点すること。完成した都市のタイルは2点、未完成の都市は1点のみであり、紋章についても同様です。</li>
+    <li>修道院タイル自体を忘れること。隣接するものが5つの未完成の修道院は、5点ではなく6点の価値があります。</li>
+    <li>草原の点数計算で未完成の都市を数えること。草原は完成した都市に対してのみ点数を得ます。</li>
+    <li>引き分けの場合に点を分割すること。ミープル数が最も多いプレイヤーが同数である場合、全員が満点のポイントを得ます。</li>
+    <li>ミープル数が少ないプレイヤーに点数を与えること。最も多くのミープルを持つプレイヤー、またはそのプレイヤーのみが何かを得ることができます。</li>
+    <li>ゲーム中に草原を採点すること、または農夫を戻すことです。農夫は最後まで残ります。</li>
+    <li>ゲーム中にフィーチャーが採点された後、ミープルを戻すのを忘れること。</li>
+    <li>都市のタイルではなく、壁のピースを数えること。いくら都市がタイルに乗っていても、タイルごとに一度だけ数えてください。</li>
+  </ul></div>
+
+  <h2 id="who-wins">勝者は誰ですか</h2>
+  <p>最終得点は、ゲーム中に得点トラックで獲得した全てに加え、未完成のフィーチャーと最終的な草原の点数です。最も多くのポイントを獲得したプレイヤーが勝ちます。もし二人のプレイヤーの合計が同じ場合は、勝利を共有します。トラックはほとんどの最終得点よりも短いため、あなたのマーカーが一周していた場合は、周回数を加算するのを忘れないでください。</p>
+
+  <h2 id="whole-game">ゲーム終了時の点数計算</h2>
+  <div class="card walk"><p>最後のタイルが置かれたばかりで、トラック上のマーカーを見ると、ゲーム中に64点を獲得したことがわかります。テーブルに残っているのは以下の通りです：</p><ol>
+    <li><b>未完成の都市</b>（タイル3枚、紋章1つで、あなたが唯一ミープルを持っている場合）：3 + 1 = 4点です。</li>
+    <li><b>未完成の道</b>（あなたのミープルが乗っているタイル2枚超）：2点です。</li>
+    <li><b>未完成の修道院</b>（周囲にタイルが5つある場合）：1 + 5 = 6点です。</li>
+    <li><b>あなたの最初の草原</b>：あなたの農夫が単独でおり、完成した都市3つに接している場合、3 × 3 = 9点となります。</li>
+    <li><b>あなたの2番目の草原</b>はユミさんと共有していて、お互いに農夫が1人ずつおり、完成した都市2つに接しています。同点のため、二人とも 2 × 3 = 6点となります。</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91点</div><p>上の計算機で確認するには、都市タイル3枚、紋章1つ、道タイル2枚、周囲のタイル5枚の修道院1つ、草原用の完成都市5つ（最初の草原から3つ、2つ目の草原から2つ）を入力してください。あなたの64点に加算される27点が表示されます。</p></div>
+
+  <h2 id="common-questions">よくある質問</h2>
+  <div class="faq">
+    <details open><summary>ミープルを置いていない地形でも得点できますか？</summary><p>いいえ。その地形に最も多くミープルを置いているプレイヤーだけが得点します。ミープルのない完成都市は誰にも得点を与えませんが、ゲーム終了時に隣接する草原の農夫の助けにはなります。</p></details>
+    <details><summary>同じターンに地形を完成させ、そこにミープルを置いたらどうなりますか？</summary><p>すぐに得点計算され、ミープルは同じターンに手元に戻ります。</p></details>
+    <details><summary>同点の場合、得点は分け合いますか？</summary><p>いいえ。最多ミープル数で並んだ全員が満額の得点を得ます。</p></details>
+    <details><summary>1つの都市が2つの草原に得点を与えることはありますか？</summary><p>はい。草原ごとに個別に得点計算されるため、複数の草原に接している都市はそれぞれで1回ずつカウントされます。</p></details>
+    <details><summary>農夫は戻ってきますか？</summary><p>いいえ。農夫はゲーム終了までその草原に留まります。早期に置く際はよく考えてください。</p></details>
+    <details><summary>2枚の都市タイルの都市は得点が少ないですか？</summary><p>いいえ。現在のルールでは他の都市と同様にタイル1枚につき2点なので、完成時は4点です。古い版のルールブックでは細部が異なる場合があります。古いルールで遊ぶならそれに従ってください。</p></details>
+    <details><summary>エクスパンションはどうですか？</summary><p>このガイドは基本セットのみを扱っています。「宿屋と大聖堂」や「修道院長」などの拡張は新しいピースを追加し、一部の得点を変更します。それらは別ページで解説します。</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>すべて手動で数えるのは面倒ですか？</b><p>Score Nightでは、道・都市・修道院が完成したらタップし、得点する人を選び、最後には残ったものを入力するだけです。合計は自動で計算され、すべての得点が記録されます。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">非公式ガイドであり、独自の言葉で書かれています。カルカソンヌの出版社とは提携していません。ゲーム名は各権利者に帰属します。完全なルールは出版社のルールブックにあります。</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "other": "{n}点"
+ },
+ "tiles": {
+  "other": "{n}タイル"
+ },
+ "shields": {
+  "other": "紋章{n}個"
+ },
+ "finishedCities": {
+  "other": "完成した都市{n}つ"
+ },
+ "cityLine": "未完成の都市: {tiles}、1つ1点 = {pts}",
+ "cityShieldLine": "未完成の都市: {tiles}と{shields}、1つ1点 = {pts}",
+ "roadLine": "未完成の道: {tiles}、1つ1点 = {pts}",
+ "monasteryLine": {
+  "other": "未完成の修道院{n}つ: 修道院ごとに1点（{n}）+ 周囲の{tiles} = {pts}"
+ },
+ "fieldLine": "草原: {cities}、1つ3点 = {pts}",
+ "addToTrack": "これを得点トラックの点数に加えてください",
+ "emptyHint": "盤面に残っているものを上で入力すると、ここに得点が表示されます"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ja/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ja/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ja/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 日本語</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/" class="current">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

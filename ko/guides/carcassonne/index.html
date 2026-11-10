@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>카르카손 점수 계산법 — Bobr Studio</title>
+<meta name="description" content="카르카손 기본 게임에서 도로, 도시, 수도원, 들판의 점수를 세는 방법을 쉽게 설명합니다.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ko/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">규칙 안내</a><details class="langs"><summary>🌐 한국어</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/" class="current">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">규칙 안내</a> › 카르카손</div>
+  <h1>카르카손 <span class="hand">기본 게임</span> 점수 계산법</h1>
+  <p class="lead">카르카손에서 점수를 두 가지 시점에 계산합니다. 게임 중에는 도로, 도시, 수도원이 완성되면 즉시 점수를 계산하고, 그 위에 있는 미플은 집으로 돌아갑니다. 마지막 타일이 놓이면 미완성 요소는 더 적은 점수로 계산되고, 그 다음은 거의 모든 사람이 혼란스러워하는 들판입니다. 이 페이지에서는 두 가지 모두를 예시와 함께 설명하며, 계산기는 게임 종료 시점을 대신 계산해 드립니다.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>게임 종료 시 계산</h3>
+      <p>마지막 타일을 놓은 후, 미완성 도로, 도시, 수도원 중 미플이 가장 많은 곳(동수인 경우)을 확인하고, 농부가 가장 많은 들판을 확인하세요. 모든 점수를 합산하세요.</p>
+      <div class="group">미완성 도시</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">도시 타일<small>미완성 도시의 일부인 타일</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="도시 타일 하나 적음">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="도시 타일 하나 더">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">방패<small>그 도시 안의 방패 배지</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="방패 하나 적음">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="방패 하나 더">+</button></div></div>
+      <div class="group">미완성 도로</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">도로 타일<small>미완성 도로가 지나가는 타일</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="도로 타일 하나 적음">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="도로 타일 하나 더">+</button></div></div>
+      <div class="group">미완성 수도원</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">수도원<small>완전히 둘러싸여 있지 않은 수도원</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="수도원 하나 적음">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="수도원 하나 더">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">주변 타일<small>모든 8개의 이웃 타일이 포함되며, 모서리도 포함됩니다; 최대 7개씩</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="주변 타일 하나 적음">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="주변 타일 하나 더">+</button></div></div>
+      <div class="group">들판</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">완성된 도시<small>이기는 들판에 접촉하는 완성된 도시, 들판별로 계산됩니다</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="완성된 도시 하나 적음">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="완성된 도시 하나 더">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19점</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>전체 점수를 휴대폰에 저장하세요</b><p>Score Night는 점수 트랙을 대체합니다: 도로, 도시 또는 수도원이 완성될 때마다 기록하고, 모든 플레이어의 게임 종료 시점을 기록하세요.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play에서 받기</a></div>
+      <ul><li>인터넷 없이 2~5명 플레이 가능</li><li>더 이상 트랙을 잃어버리지 마세요</li><li>게임마다 2판 무료</li></ul>
+      <div class="toc"><b>이 페이지에서</b><ol><li><a href="#when-to-count">언제 계산할까?</a></li><li><a href="#who-gets-points">누가 점수를?</a></li><li><a href="#roads">도로</a></li><li><a href="#cities">도시와 방패</a></li><li><a href="#monasteries">수도원</a></li><li><a href="#fields">들판</a></li><li><a href="#field-examples">들판 예시</a></li><li><a href="#mistakes">자주 하는 실수</a></li><li><a href="#who-wins">누가 이길까?</a></li><li><a href="#whole-game">계산된 게임 종료</a></li><li><a href="#common-questions">자주 묻는 질문</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">언제 계산하나요</h2>
+  <ol class="steps">
+    <li><b>게임 중, 무언가가 완성된 순간입니다.</b> 타일이 도로, 도시 또는 수도원을 닫으면 즉시 점수를 계산합니다. 다른 플레이어의 차례일지라도요. 가장 많은 미플을 가진 플레이어는 점수 트랙의 마커를 이동시키고, 그 특징에 있는 모든 미플은 다시 소유자에게 돌아갑니다.</li>
+    <li><b>게임 중에는 아무것도 더 계산하지 않습니다.</b> 미완성 요소는 기다리며, 들판은 게임 종료 전에 절대 계산되지 않습니다. 들판에 있는 농부는 게임 전체를 그곳에 머뭅니다.</li>
+    <li><b>마지막 타일이 놓이면 게임이 종료됩니다.</b> 이제 테이블 위에 있는 모든 미플을 확인하세요. 각 미플은 도로, 도시 또는 수도원과 같은 미완성 요소 위에 서 있습니다. 하나씩 특징을 계산하되, 완성된 것보다 더 적은 점수로 계산합니다(도시와 수도원은 더 적게 계산되며, 도로는 동일합니다).</li>
+    <li><b>들판은 마지막에 센대요.</b> 모든 미완성된 특징들이 센 후에, 들판에 있는 농부들의 점수를 센대요. 들판은 완성된 도시 옆에 있으면 점수를 얻을 수 있기 때문에, 더 이상 아무것도 바뀌지 않을 때 센대요.</li>
+  </ol>
+  <div class="tip">테이블을 정리하는 것이 가장 쉬우니, 하나의 특징을 센 후에 미플을 제거하고, 다음으로 이동하세요. 농부들만 남았을 때, 들판을 센 때입니다.</div>
+
+  <h2 id="who-gets-points">누가 점수를 얻나요</h2>
+  <p>미플이 이미 있는 도로, 도시, 또는 들판에 또 다른 미플을 놓을 수 없어요. 하지만 두 개의 별개인 피스가 미플과 함께 성장하고 합쳐질 수 있고, 그러면 하나의 특징에 여러 개의 미플이 생길 수 있어요. 점수를 세는 때, 각 플레이어의 미플을 센대요. 가장 많은 미플을 가진 플레이어가 모든 점수를 얻어요. 두 명 이상의 플레이어가 가장 많은 미플을 가지고 있을 때, <b>각각이 모든 점수를 얻어요</b>, 아무도 점수를 나누지 않아요. 미플이 적은 플레이어는 아무것도 얻지 못해요. 미플이 하나도 없는 특징은 아무도 점수를 얻지 못해요.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>예:</b> 완성된 도시가 5개의 타일과 2개의 방패를 가지고 있으면, 10 + 4 = 14점이에요. 지현이 2개의 미플을 가지고 있고, 민수는 2개의 미플을 가지고 있고, 당신은 1개의 미플을 가지고 있어요. 지현이와 민수는 각각 14점을 얻어요. 당신은 아무것도 얻지 못하지만, 미플은 돌아오게 되요.</div></div></div>
+
+  <h2 id="roads">도로</h2>
+  <div class="line"><div class="card"><h3>무엇을 센대요</h3>
+    <p>도로를 한쪽 끝에서 다른쪽 끝까지 따라가서 타일을 센대요. 도로는 끝나는 때 완성되요: 교차로에서, 도시에서, 수도원에서, 또는 루프에서 자신을 만날 때.</p>
+    <p><span class="when during">게임 중</span>완료된 도로는 각 타일마다 1점을 줘요.</p>
+    <p><span class="when end">게임 끝</span>미완성된 도로도 각 타일마다 1점을 줘요. 도로는 두 가지 경우 모두 같은 값을 가지는 유일한 특징이에요.</p>
+    <p class="where">어디를 보나요: 도로 위에 서 있는 미플이에요.</p>
+    <div class="ex"><b>예:</b> 도로는 교차로를 떠나서 2개의 일반 타일을 지나서 도시 게이트에서 끝나요. 교차로 타일과 도시 타일을 센 후에, 4개의 타일을 터치했어요. 그래서 4점이에요. 게임 끝에 3개의 타일이 있는 도로가 아직 열린 끝을 가지고 있으면, 3점을 줘요.</div></div></div>
+
+  <h2 id="cities">도시와 방패</h2>
+  <div class="line"><div class="card"><h3>무엇을 센대요</h3>
+    <p>도시의 일부가 있는 타일을 센 후에, 방패를 센대요. 방패는 도시 타일에 있는 작은 문장입니다. 도시가 완성되면 벽이 모두 닫히고 열린 끝이나 열린 변이 없을 때 완성되요.</p>
+    <p><span class="when during">게임 중</span>완료된 도시가 각 타일마다 2점을 주고, 각 방패마다 2점을 더 주어요. 가장 작은 도시, 2개의 타일과 방패가 없는 경우, 4점을 줘요.</p>
+    <p><span class="when end">게임 끝</span>미완성된 도시가 각 타일마다 1점을 주고, 각 방패마다 1점을 주어요. 완성된 경우의 반만큼이에요.</p>
+    <p class="where">어디를 보나요: 도시 성벽 안에 서 있는 미플이에요.</p>
+    <div class="ex"><b>예:</b> 완성된 도시가 4개의 타일과 1개의 방패를 가지고 있으면, 4 × 2 = 8점을 타일에 주고, 방패에 2점을 더 주면, 10점을 줘요. 미완성된 도시가 3개의 타일과 1개의 방패를 가지고 있으면, 3 + 1 = 4점을 줘요.</div></div></div>
+
+  <h2 id="monasteries">수도원</h2>
+  <div class="line"><div class="card"><h3>무엇을 센대요</h3>
+    <p>수도원이 타일의 중간에 있어요. 주변 8개의 공간을 봐요: 왼쪽, 오른쪽, 위, 아래, 그리고 4개의 코너. 수도원이 완성되면 8개의 공간이 모두 타일로 채워졌을 때 완성되요.</p>
+    <p><span class="when during">게임 중</span>완료된 수도원이 9점을 줘요: 1점은 수도원 타일에, 그리고 8개의 타일마다 1점을 줘요.</p>
+    <p><span class="when end">게임 끝</span>미완성된 수도원이 1점을 타일마다 주고, 주변에 있는 타일마다 1점을 줘요. 그래서 1~8점 사이를 가질 수 있어요.</p>
+    <p class="where">어디를 보나요: 수도원 위의 미플이에요. 수도원에는 미플이 하나만 놓일 수 있어서 점수를 나눌 일이 없어요.</p>
+    <div class="ex"><b>예:</b> 게임 끝에, 당신의 수도원이 5개의 타일을 가지고 있고, 3개의 빈 공간이 있으면, 1 + 5 = 6점을 줘요.</div></div></div>
+
+  <h2 id="fields">들판</h2>
+  <div class="line"><div class="card"><h3>무엇을 센대요</h3>
+    <p>들판은 초록 풀밭이에요. 풀이 이어지는 한 여러 타일에 걸쳐 계속돼요. 도로, 도시 성벽, 테이블에 놓인 타일의 가장자리가 들판을 끊기 때문에, 큰 풀밭 하나가 여러 개의 들판으로 나뉠 수 있어요. 들판에 눕혀 놓은 미플은 농부예요.</p>
+    <p><span class="when during">게임 중</span>아무것도 없어요. 들판은 게임 끝에만 센대요, 그리고 농부는 그 자리에 머물러요.</p>
+    <p><span class="when end">게임 종료 시</span> 농부가 있는 들판을 하나씩 살펴보세요. 그 들판의 벽에 닿는 모든 <b>완성된</b> 도시를 찾으세요. 해당 들판에서 농부가 가장 많은 플레이어는 그 도시 하나당 3점을 얻어요. 미완성 도시는 들판에 점수를 주지 않아요.</p>
+    <p class="where">어디를 보냐면요: 풀밭에 있는 농부들을 보고, 들판 가장자리를 따라 걸으면서 그 들판이 닿는 모든 도시 벽을 살펴보세요.</p>
+    <div class="ex"><b>예시:</b> 당신의 농부 들판이 완성된 도시 3개와 미완성 도시 1개에 닿아요. 그럼 3 × 3 = 9점이고, 미완성 도시는 계산하지 않아요.</div>
+    <p>모든 들판은 각자 점수가 매겨져요. 만약 한 도시가 두 개의 다른 들판에 닿는다면, 두 들판 모두에 계산된답니다. 그리고 같은 플레이어가 두 들판에서 승리하면, 그 도시는 그 플레이어에게 3점을 두 번 줘요.</p></div></div>
+  <div class="tip"><b>들판의 도시를 쉽게 찾는 방법:</b> 농부에게 손가락을 대고, 도로나 벽을 가로지르지 않으면서 풀밭을 따라 바깥쪽으로 선을 그으세요. 당신의 손가락이 따라가는 모든 완성 도시 벽은, 벽이 아무리 길어도 이 들판에 대해 한 번씩 계산돼요.</div>
+
+  <h2 id="field-examples">들판 예시</h2>
+  <div class="examples num">
+    <div class="card"><b>하나의 들판, 여러 도시</b><p>당신의 농부가 넓은 들판에 혼자 있어요. 들판 가장자리에는 완성된 도시 4개와 미완성 도시 2개가 있어요. 완성된 도시만 계산돼요: 4 × 3.</p><div class="big">12점</div></div>
+    <div class="card"><b>두 들판 사이의 도시</b><p>도로가 풀밭을 두 부분으로 나누었고, 두 조각 모두 같은 완성된 도시에 닿아요. 당신의 농부는 북쪽 들판에, 민지의 농부는 남쪽 들판에 있어요. 두 들판이니까, 두 분 모두 그 도시당 3점을 받아요.</p><div class="big">각 3점씩</div></div>
+    <div class="card"><b>공유되는 들판</b><p>게임 중에 농부들이 합쳐진 두 들판이 있어요. 이제 당신과 민지 모두 그 들판에 농부를 2마리씩 가지고 있고, 그 들판은 완성된 도시 5개에 닿아요. 동점이니, 두 분 모두 5 × 3점을 얻어요.</p><div class="big">각 15점씩</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>패배자</b><p>같은 들판이지만, 민지는 농부를 2마리 가지고 있고 당신은 1마리 있어요. 민지가 가장 많으므로, 민지는 15점을 모두 가져가고 당신은 이 들판에 대해 아무것도 못 받아요.</p><div class="big">당신은 0점</div></div>
+    <div class="card"><b>한 플레이어, 두 들판</b><p>당신은 두 들판 각각에 농부를 가지고 있고, 하나의 완성된 도시가 둘 다에 닿아요. 각 들판이 이것을 별도로 계산하므로, 그 도시는 당신에게 3 + 3점을 줘요.</p><div class="big">6점</div></div>
+    <div class="card"><b>완성된 도시가 없어요</b><p>미완성 도시만 닿거나 아예 도시가 없는 들판에 농부가 있는 경우, 점수를 얻지 못해요. 농부는 그냥 거기에 있게 됩니다.</p><div class="big">0점</div></div>
+  </div>
+
+  <h2 id="mistakes">자주 하는 실수</h2>
+  <div class="warn"><b>Carcassonne 점수 계산 시 사람들이 하는 실수</b><ul>
+    <li>게임 종료 시 미완성 도시도 완성 도시처럼 점수를 계산하는 것. 완성 도시 타일은 2점이고, 미완성 도시는 1점이에요. 방패도 마찬가지예요.</li>
+    <li>수도원 타일 자체를 잊어버리는 것. 이웃 5개가 있는 미완성 수도원은 5점이 아니라 6점이에요.</li>
+    <li>들판에 대해 미완성 도시를 계산하는 것. 들판은 완성된 도시에 대해서만 점수를 얻어요.</li>
+    <li>동점일 때 점수를 나누는 것. 미플 수가 가장 많은 플레이어는 동점일 경우 전체 점수를 받아요.</li>
+    <li>미플 수가 적은 플레이어에게 점수를 주는 것. 가장 많은 플레이어 또는 플레이어만이 무언가를 얻어요.</li>
+    <li>게임 도중에 들판 점수를 계산하거나 농부를 회수하는 것. 농부는 마지막까지 남아 있어야 해요.</li>
+    <li>게임 중에 특징에 대한 점수를 계산한 후 미플을 회수하는 것을 잊는 것.</li>
+    <li>도시 타일 대신 도시의 벽 조각들을 세는 것. 도시가 타일에 얼마나 많이 있든, 각 타일을 한 번씩 세세요.</li>
+  </ul></div>
+
+  <h2 id="who-wins">누가 이기나요</h2>
+  <p>최종 점수는 게임 중에 점수 트랙에서 모은 모든 점수와, 게임 종료 시의 미완성 특징 및 들판 점수를 합친 것이에요. 점수가 가장 높은 플레이어가 승리해요. 두 플레이어가 총점이 같으면 승리를 공유해요. 트랙이 대부분의 최종 점수보다 짧으니, 마커가 트랙을 한 바퀴 돌았다면 라운드를 추가하는 것을 잊지 마세요.</p>
+
+  <h2 id="whole-game">게임 종료 시, 계산 완료</h2>
+  <div class="card walk"><p>마지막 타일이 막 놓였고, 트랙에 있는 당신의 마커가 게임 중에 64점을 모았음을 보여줘요. 테이블에 남아있는 것은 다음과 같아요:</p><ol>
+    <li><b>미완성된 도시</b>예요. 타일이 3개에 방패가 1개 있고, 당신의 미플이 유일해요. 점수는 3 + 1 = 4점이에요.</li>
+    <li><b>미완성된 도로</b>인데, 2개 이상의 타일 위에 당신의 미플이 놓여 있어요. 2점이에요.</li>
+    <li><b>미완성된 수도원</b>이에요. 주변 타일이 5개 있어요. 점수는 1 + 5 = 6점이에요.</li>
+    <li><b>당신의 첫 번째 들판</b>, 당신의 농부가 혼자 있는 들판으로, 완성된 도시 3개에 닿아요: 3 × 3 = 9점.</li>
+    <li><b>당신의 두 번째 들판</b>은 민지와 공유되며, 각 1명의 농부를 가지고 있고, 완성된 도시 2개에 닿아요. 동점이니까, 두 분 모두 2 × 3 = 6점을 얻어요.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91점</div><p>위 계산기로 확인하려면, 도시 타일 3개, 방패 1개, 도로 타일 2개, 주변 타일 5개인 수도원 1개, 들판에 대한 완성된 도시 5개(첫 번째 들판에서 3개, 두 번째에서 2개)를 입력하세요. 64점에 더할 27점이 나옵니다.</p></div>
+
+  <h2 id="common-questions">자주 묻는 질문</h2>
+  <div class="faq">
+    <details open><summary>미플을 놓지 않은 지형도 점수를 얻나요?</summary><p>아니요. 그 지형에 미플을 가장 많이 둔 플레이어만 점수를 받습니다. 미플이 없는 완성된 도시는 아무도 점수를 못 받지만, 게임 종료 시 인접한 들판의 농부들에게는 도움이 될 수 있어요.</p></details>
+    <details><summary>한 턴에 지형을 완성하고 미플을 놓으면 어떻게 되나요?</summary><p>바로 점수가 계산되고, 미플은 같은 턴에 내 손으로 돌아옵니다.</p></details>
+    <details><summary>동점이면 점수를 나누나요?</summary><p>아니요. 최다 미플 동점인 모든 플레이어가 풀 점수를 받습니다.</p></details>
+    <details><summary>도시 하나가 두 들판에 점수를 줄 수 있나요?</summary><p>네. 각 들판은 따로 계산되니, 여러 들판과 닿은 도시는 들판마다 한 번씩 세집니다.</p></details>
+    <details><summary>농부는 돌아오나요?</summary><p>아니요. 농부는 게임 끝까지 들판에 머무르니, 초반에 놓을 땐 신중히 생각하세요.</p></details>
+    <details><summary>타일 2개짜리 도시는 점수가 적나요?</summary><p>아니요. 현재 규칙에선 다른 도시와 똑같이 타일당 2점이라, 완성 시 4점입니다. 예전 판본 규칙은 세부 사항이 다를 수 있으니, 그 규칙서대로 하시면 됩니다.</p></details>
+    <details><summary>확장판은요?</summary><p>이 가이드는 기본판만 다룹니다. '여관과 대성당'이나 '수도원장' 같은 확장은 새 피스가 생기고 점수 계산이 달라지니, 따로 설명할게요.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>이걸 다 손으로 계산하기 번거롭나요?</b><p>Score Night에서는 도로, 도시, 수도원이 완성될 때마다 탭해서 점수 받을 사람을 고르고, 마지막에 남은 것만 입력하면 돼요. 모든 합계가 자동으로 계산되고, 매 점수 기록이 남아요.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">비공식 가이드로, 저희 말로 쓴 글입니다. 카르카손 퍼블리셔와 무관해요. 게임 이름은 각 권리자에게 있습니다. 전체 규칙은 퍼블리셔의 규칙서를 참고하세요.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "other": "{n}점"
+ },
+ "tiles": {
+  "other": "타일 {n}개"
+ },
+ "shields": {
+  "other": "방패 {n}개"
+ },
+ "finishedCities": {
+  "other": "완성된 도시 {n}개"
+ },
+ "cityLine": "미완성 도시: {tiles}, 하나에 1점 = {pts}",
+ "cityShieldLine": "미완성 도시: {tiles}와 {shields}, 하나에 1점 = {pts}",
+ "roadLine": "미완성 도로: {tiles}, 하나에 1점 = {pts}",
+ "monasteryLine": {
+  "other": "미완성 수도원 {n}개: 수도원마다 1점({n}) + 주변 {tiles} = {pts}"
+ },
+ "fieldLine": "들판: {cities}, 하나에 3점 = {pts}",
+ "addToTrack": "이 점수를 점수 트랙에 더하세요",
+ "emptyHint": "테이블에 남은 것을 위에 입력하면 여기에 점수가 나와요"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ko/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ko/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ko/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 한국어</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/" class="current">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

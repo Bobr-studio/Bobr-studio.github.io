@@ -1,0 +1,299 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>小白世纪等级与战斗计算指南 — Bobr Studio</title>
+<meta name="description" content="小白世纪基础规则中等级、装备与战力的运作方式，附带能告诉你谁会赢的战斗计算器。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">规则指南</a><details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/" class="current">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">规则指南</a> › 小白世纪</div>
+  <h1>小白世纪等级与战斗计算 <span class="hand">谁更强，谁会赢</span></h1>
+  <p class="lead">小白世纪不在游戏结束时算分。整局游戏你只需要盯好两个数字：你的等级和战力。下面的计算器能在一秒内算清任何一场战斗，并用大白话告诉你为什么赢或输。往下走，我们会一步步详解等级、装备、战斗以及冲向 10 级的过程，附上例子和每桌玩家都会犯的小迷糊。</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>这场战斗谁会赢？</h3>
+      <p>输入战斗双方的数据。你的战力等于你的等级加上装备加成，怪物的战力则是它的等级加上所有额外加成。</p>
+      <h4>你这边</h4>
+      <div class="row"><span class="name">你的等级<small>从 1 到 10</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="降低等级">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="提升等级">+</button></div></div>
+      <div class="row"><span class="name">你的装备加成<small>你当前使用的所有装备带来的加成总和；可能为负数</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="减少装备加成">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="增加装备加成">+</button></div></div>
+      <div class="row"><span class="name">一次性加成<small>药水及其他仅在本次战斗中生效的加成</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="减少一次性加成">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="增加一次性加成">+</button></div></div>
+      <div class="row"><span class="name">帮手的战力<small>帮手的等级加上装备加成；没人帮忙就留 0</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="减少帮手战力">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="增加帮手战力">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> 我方有战士参战（你或你的帮手）</label>
+      <h4>怪物那边</h4>
+      <div class="row"><span class="name">怪物等级<small>卡片上印的数字；如果有两只怪物，把它们的等级加起来</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="降低怪物等级">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="提高怪物等级">+</button></div></div>
+      <div class="row"><span class="name">怪物加成<small>任何用来让它变强（或变弱）的牌</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="减少怪物加成">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="增加怪物加成">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">你赢了！</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>把全桌玩家的等级记在一个地方</b><p>Score Night 会帮你记录每位玩家的等级、装备和战力，算清包含帮手和加成的战斗，甚至在你逃跑时自动替你掷骰子。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ 在 Google Play 获取</a></div>
+      <ul><li>无需联网，适合 3 到 6 人游玩</li><li>每款游戏可免费玩两局</li></ul>
+      <div class="toc"><b>本页内容</b><ol><li><a href="#what-you-track">你需要记录什么</a></li><li><a href="#level">你的等级</a></li><li><a href="#strength">装备与战力</a></li><li><a href="#fight">战斗详解，一步步教你</a></li><li><a href="#run-away">战败与逃跑</a></li><li><a href="#who-wins">获胜条件</a></li><li><a href="#mistakes">常见误区</a></li><li><a href="#examples">实例演示</a></li><li><a href="#whole-turn">完整战斗计算示例</a></li><li><a href="#common-questions">常见问题</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">你需要记录什么</h2>
+  <p>小白世纪没有计分表，游戏结束也不用算分。整局游戏里，每位玩家只需要随时更新几项数据，它们随时都在变：每次战斗后、每次中诅咒、每次拿到新装备。建议你把自己的数据记在大家都能看得到的地方，这样对桌游体验很有帮助。</p>
+  <ol class="steps">
+    <li><b>你的等级。</b> 所有人从 1 级开始。等级决定了谁能赢：先升到 10 级者获胜。</li>
+    <li><b>你的装备加成。</b> 你当前使用的每一件物品都会提供加成。把它们全部加在一起，得到的总数就是你的装备加成。</li>
+    <li><b>你的战力。</b> 这就是你用来战斗的数字。它等于你的等级加上装备加成，你不需要单独记它：只要等级或装备加成变了，战力自然会跟着变。</li>
+    <li><b>你的性别和职业。</b> 有些牌只对男性或女性角色生效，所以桌游大家最好都知道你是哪种。如果你的职业是战士，一定要记牢：平手时战士获胜。</li>
+  </ol>
+  <div class="tip"><b>等级和战力不是一回事。</b> 等级代表你离胜利有多近，战力代表你出手有多重。一个 4 级英雄加上 6 点装备加成，战斗时的战力是 10，但离胜利还差 6 级呢。</div>
+
+  <h2 id="level">你的等级：升与降</h2>
+  <div class="line"><div class="card"><h3>等级是如何变化的</h3>
+    <p>你从 1 级开始。升级的主要方式是击败怪物：通常得 1 级，有些大怪物给 2 级。怪物卡上会写明给几级。有些卡牌也能直接升降级，输了战斗如果怪物卡说要掉级，也会掉 1 级。</p>
+    <p>有两个限制。你的等级<b>永远不会低于 1</b>：如果你在 1 级，有效果让你掉级，你就保持在 1 级。等级也<b>永远不会超过 10</b>，因为 10 级就是游戏结束。</p>
+    <p class="where">看哪里：你记录的等级数字。只有等级算胜负，战力不算。</p>
+    <div class="ex"><b>例子：</b>你在 1 级，输给怪物掉 1 级。你还是 1 级。下一回合你打赢一个给 2 级的怪物，于是升到 3 级。</div></div></div>
+
+  <h2 id="strength">你的装备和战力</h2>
+  <div class="line"><div class="card"><h3>战力等于等级加装备</h3>
+    <p>算战力时，拿你的等级，加上你正在用的所有装备的加成。这就是你每场战斗的战力，直到有东西改变它。</p>
+    <p>装备加成通常是正数，但总和可能降到零以下。这允许，只是让你变弱：比如 2 级英雄装备加成 −3，战力就是 −1。没错，负一。该躲躲了。</p>
+    <p class="where">看哪里：你的等级，加上你面前每件装备上的加成数字。</p>
+    <div class="ex"><b>例子：</b>4 级，装备加成 2 + 3 + 1。装备总加成 6，所以战力是 4 + 6 = 10。</div></div></div>
+
+  <div class="line"><div class="card"><h3>一次性加成</h3>
+    <p>药水之类的卡牌只给一场战斗的加成。那场战斗时加到你这边的战力上，战斗一结束就没了。它们不改变你的装备加成，也不会带到下一场战斗。</p>
+    <div class="ex"><b>例子：</b>你战力 10，往战斗里扔张加 3 的药水。这场战斗你这边就是 13。下一场又回到 10。</div></div></div>
+
+  <h2 id="fight">战斗，一步步来</h2>
+  <ol class="steps">
+    <li><b>算你这边。</b> 你的战力（等级加装备），再加任何为你打出的一次性加成。</li>
+    <li><b>有帮手就加上。</b> 另一名玩家可以加入你的战斗。他们的全部战力（等级加装备）加到你这边。</li>
+    <li><b>算怪物。</b> 拿怪物卡上印的等级，加上战斗中它得到的加成（加成也可能是负数，让它变弱）。如果有两只怪物，把它们的战力加在一起。</li>
+    <li><b>比大小。</b> 你这边<b>比怪物强</b>才算赢。打平不够：<b>平手怪物赢</b>，除非你这边有战士在战斗（你或你的帮手）。那种情况下平手你赢。</li>
+    <li><b>拿级数。</b> 赢了就按怪物给的级数升级，通常 1 级，有时 2 级。两只怪物就拿两只的级数。帮手帮忙不升级，只有一个例外：精灵帮别人打死一只怪物就升 1 级。然后一次性加成卡丢弃。</li>
+  </ol>
+  <div class="tip"><b>平手规则一句话：</b> 数字一样怪物赢，除非你这边有战士。这规则最容易被忘，却能决定出奇多的战斗。</div>
+
+  <h2 id="run-away">输了跑路</h2>
+  <p>怪物更强，或者没战士的平手，你就输了战斗。但还没完：你可以逃跑。掷骰子。<b>5 或 6</b> 逃脱成功。1、2、3、4 逃不掉，怪物卡上写对输家做啥就做啥。可能掉级、丢装备、更惨，所以马上更新你的数字。</p>
+  <p>最惨是角色死掉。基础游戏里没人淘汰：你失去装备，装备加成归 0，但<b>等级保持原样</b>。然后继续玩。</p>
+  <div class="tip">输了战斗后，核对两个数字：你的等级和装备加成。战力会自己对上，因为它就是这两个加起来。</div>
+
+  <h2 id="who-wins">怎么赢</h2>
+  <p>先到<b>10 级</b>的玩家获胜。有个坑：最后一级，从 9 升 10，通常<b>只能靠杀怪物</b>得。单纯给级数的卡牌不能让你从 9 直升 10，除非卡上写明可以。</p>
+  <p>你的等级绝对不会超过 10 级。如果你在 9 级，击败一个能给你 2 等级的怪物，你到达的是 10 级，而不是 11 级，但结果都是你赢。</p>
+  <div class="warn"><b>玩家在终局常犯的错误</b><ul>
+    <li>用卡牌从 9 级升到 10 级，而不是通过战斗。除非卡牌明确允许，否则第 10 级必须是通过击败怪物才能获得的。</li>
+    <li>帮手获得等级（只有精灵才能获得）。如果你在 9 级时帮助别人击败怪物，你的等级不会上升：只有参与战斗的玩家才能获得等级。</li>
+  </ul></div>
+
+  <h2 id="mistakes">常见的错误</h2>
+  <div class="warn"><ul>
+    <li>不要把等级和战力搞混。你用战力来战斗，但你靠等级来赢下游戏。</li>
+    <li>把平局当作胜利。战力相等意味着怪物获胜，除非你这边有战士参与。</li>
+    <li>战斗后保留药水加成。一次性加成（药水等）只对单次战斗有效。</li>
+    <li>只计算帮手的等级。帮手贡献的是他的等级、他的装备，还有他全部的战力。</li>
+    <li>等级掉到 1 级以下。1 级是底线；在那里掉级不会发生任何变化。</li>
+    <li>死亡时会失去等级。死亡只会拿走你的装备，而不是你的等级。</li>
+  </ul></div>
+
+  <h2 id="examples">举例说明</h2>
+  <div class="examples num">
+    <div class="card"><b>纯战力</b><p>4 级，加上 6 的装备加成。你的战力是 4 + 6。</p><div class="big">战力 10</div></div>
+    <div class="card"><b>平手</b><p>对战一个 10 战力的怪物。如果没有战士在一边，怪物获胜。如果你是战士，你就能赢。</p><div class="big">怪物，或者战士</div></div>
+    <div class="card"><b>装备值低于零</b><p>2 级，装备加成是 −3。你的战力是 2 − 3。</p><div class="big">战力 −1</div></div>
+    <div class="card"><b>有帮手时</b><p>你的 10，加上一个 3 级、装备值是 2（也就是 5 战力）的帮手，对战一个 10 战力的怪物。15 比 10 大。</p><div class="big">你赢了</div></div>
+    <div class="card"><b>最终决战</b><p>你是 9 级，击杀一个能给你 2 等级的怪物。你停在 10 级，而不是 11 级。</p><div class="big">达到 10 级，你就赢了游戏</div></div>
+    <div class="card"><b>逃跑</b><p>你输了，掷出了 4：运气不好，按照怪物卡牌上的指示来。要是掷出 5 或 6 你就能逃出来了。</p><div class="big">掷出 5 或 6 才能逃脱</div></div>
+  </div>
+
+  <h2 id="whole-turn">整个战斗都会被计算在内</h2>
+  <div class="card walk"><ol>
+    <li><b>你的战力：</b> 你是 6 级，装备加成是 4。6 + 4 = 10。</li>
+    <li><b>怪物：</b> 它的等级是 12，在战斗中还获得了 +3 的加成。12 + 3 = 15。你差 5。</li>
+    <li><b>药水：</b> 你使用了一个值 2 的药水。你的队伍现在是 10 + 2 = 12。还是差 3。</li>
+    <li><b>帮手：</b> 另一个 3 级、装备值是 2 的玩家加入你。他的战力是 3 + 2 = 5，所以你的队伍是 12 + 5 = 17。</li>
+    <li><b>比较：</b> 17 对战 15。你的队伍更强，所以你赢了。（如果是 15 对战 15，你就需要你这边有战士才能赢。）</li>
+    <li><b>等级：</b> 怪物给你 1 等级，所以你的等级从 6 级升到 7 级。你的帮手仍然保持在 3 级。</li>
+    <li><b>清理战场：</b> 药水用完了。你的战力又恢复到你的等级加上你的装备：7 + 4 = 11。</li>
+  </ol><div class="sum num">17 对战 15：你赢了，等级从 6 级 → 7 级，战力现在是 11。</div></div>
+
+  <h2 id="common-questions">常见问题</h2>
+  <div class="faq">
+    <details open><summary>平局时谁会赢？</summary><p>怪物获胜，除非你这边有战士在战斗。如果你或者你的帮手是战士，那么平局就是对你的胜利。</p></details>
+    <details><summary>我的战力和等级一样吗？</summary><p>不一样。你的战力是你的等级加上你的装备加成，这是你用它来战斗的数值。只有你的等级才计入获胜条件。</p></details>
+    <details><summary>我的战力会是负数吗？</summary><p>可以。如果你的装备加成是负数，你的战力也会低于零：2 级，装备是 −3，战力就是 −1。</p></details>
+    <details><summary>我的等级会低于 1 级吗？</summary><p>不能。1 级是最低的。如果你在 1 级时掉级，你仍然保持在 1 级。</p></details>
+    <details><summary>我的帮手也会升一级吗？</summary><p>不会。只有参与击败怪物的玩家才能获得等级。帮手只贡献他的战力，就这么简单。</p></details>
+    <details><summary>我能用卡牌达到 10 级吗？</summary><p>通常不行：10 级只能靠击败怪物获得。唯一的例外是卡牌上明确说明你可以达到 10 级的。</p></details>
+    <details><summary>我死了会发生什么？</summary><p>你会失去装备，所以你的装备加成会归零。你的等级保持不变，游戏会继续进行。</p></details>
+    <details><summary>如果我同时和两个怪物对战怎么办？</summary><p>将两个怪物加起来：把它们的等级和加成都加在一起。如果你赢了，你可以获得两个怪物的所有等级。</p></details>
+    <details><summary>扩展包呢？</summary><p>这本指南只涵盖基础游戏；扩展包和其它的小白世纪套装会增加他们自己的种族、职业和规则（有的甚至可以玩到 20 级），所以请查阅它们的规则书。</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>不如把眼睛盯着怪物？</b><p>在 Score Night 里，大家的等级、装备和战力都会显示在一个屏幕上，战斗结果也会自动累加。而且应用不会允许你没有击杀就悄悄达到 10 级的哦。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">这是一个我们用自己的语言写的非官方指南，我们不隶属于 Munchkin 的出版商哦。所有的游戏名称都属于其所有者。完整的规则你可以查阅出版商的规则书。</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "等级 {v}",
+ "termGear": "装备 {v}",
+ "termOnce": "一次性 {v}",
+ "termHelper": "帮手 {v}",
+ "termBonuses": "加成 {v}",
+ "yourSide": "你这边：{expr} = {total}",
+ "monsterSum": "怪物：{expr} = {total}",
+ "monsterPlain": "怪物：{expr}",
+ "killMonster": "{you} 大于 {mon}，你打倒了怪物。",
+ "tieWarriorWins": "{you} 对 {mon}，平手。平手通常算怪物赢，但你这边有战士，所以你赢。",
+ "tieMonsterWins": "{you} 对 {mon}，平手，平手算怪物赢。再多 1 点战力，或者你这边有战士，就能赢。",
+ "monsterWins": {
+  "other": "{you} 小于 {mon}，怪物赢了。还差 {n} 点战力才能赢。"
+ },
+ "levelWin": "你升到 10 级，赢得游戏！",
+ "levelUpTo9": "你升到 9 级。如果怪物给 2 级，就到 10 级，赢得游戏！",
+ "levelUp": "你升到 {a} 级（如果怪物给 2 级，则到 {b} 级）。",
+ "helperNoLevel": "帮手不升级（精灵除外）。",
+ "runAway": "掷骰子逃跑：掷出 5 或 6 就逃掉了。否则按怪物卡上写的来。",
+ "headWin": "你赢了！",
+ "headLose": "怪物赢了"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../zh/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/zh/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/" class="current">中文</a></div></details>
+</div></footer>
+</body>
+</html>

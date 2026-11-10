@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Как считать очки в «Билете на поезд» — Bobr Studio</title>
+<meta name="description" content="Понятно и по шагам: как посчитать очки в базовом «Билете на поезд» на карте США.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top{display:grid;grid-template-columns:1.2fr 1fr;gap:26px;align-items:start;margin-top:22px}
+  .calc h3{margin-bottom:4px}.calc>p{margin:0 0 10px;color:var(--muted);font-size:15px}
+  .row{display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid var(--line)}
+  .row span.name{font-weight:500;line-height:1.25}.row small{display:block;color:var(--muted);font-size:13px;font-weight:400}
+  .ticket-entry{margin-top:12px}.ticket-remove{padding:8px 12px;border:0;border-radius:9px;background:var(--accent);color:#fff;font:600 14px Rubik,sans-serif;cursor:pointer}.ticket-list{margin:8px 0 0;padding:0;list-style:none}.ticket-list li{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:5px 0;border-bottom:1px solid var(--line);font-size:14px}.ticket-remove{padding:4px 8px;background:var(--river-2)}
+  .bonus-check{display:flex;align-items:center;gap:8px;margin-top:12px;font-size:15px}.bonus-check input{width:18px;height:18px;accent-color:var(--accent)}
+  .step{display:flex;align-items:center;gap:6px}.step button{width:44px;height:44px;border-radius:12px;border:2px solid var(--line);background:#fff;font:700 22px Rubik;color:var(--river);cursor:pointer}
+  .step output{min-width:28px;text-align:center;font:700 22px Fredoka,sans-serif}
+  .result{margin-top:14px;background:var(--river);color:var(--cream);border-radius:16px;padding:16px 20px}.result .pts{font:700 36px/1 Fredoka,sans-serif;color:var(--accent2);margin-bottom:8px}.result ul{margin:0;padding-left:18px;font-size:15px;line-height:1.5}
+  .side .cta{grid-template-columns:56px 1fr}.side .cta img{width:56px;height:56px}.side .cta .btn{grid-column:1/-1;justify-content:center}
+  .side ul{margin:12px 0 0;padding-left:20px;color:var(--muted);font-size:16px}.toc{margin-top:18px;background:#fff;border-radius:16px;padding:14px 20px;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  .toc b{color:var(--river)}.toc ol{margin:6px 0 0;padding-left:20px;columns:2;column-gap:30px}.toc li{margin:2px 0}
+  ol.steps{list-style:none;padding:0;margin:14px 0 0;counter-reset:s;display:grid;gap:12px}ol.steps li{counter-increment:s;background:#fff;border-radius:16px;padding:14px 18px 14px 62px;position:relative;box-shadow:0 4px 14px rgba(15,46,58,.06)}
+  ol.steps li::before{content:counter(s);position:absolute;left:16px;top:14px;width:32px;height:32px;border-radius:50%;background:var(--river);color:var(--cream);font:700 17px Fredoka;display:flex;align-items:center;justify-content:center}
+  ol.steps b,.card b{color:var(--river)}.tip,.warn{border-radius:10px;padding:12px 16px;margin-top:14px}.tip{background:#FBF1DE;border-left:4px solid var(--accent2)}.warn{background:#FDEDEA;border-left:4px solid #B13D2E}
+  .examples{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:12px}.examples .card{padding:16px 18px}.examples p{margin:6px 0 0;font-size:15px}.examples .big{font:700 25px Fredoka,sans-serif;color:var(--accent)}
+  .line{margin-top:14px}.line .card{padding:20px 22px}.line p{margin:8px 0 0}.line .where{color:var(--muted);font-size:14px}.line .ex{background:#F3F0E9;border-radius:10px;padding:8px 12px;font-size:15px;margin-top:10px}
+  .faq details{background:#fff;border-radius:14px;padding:12px 18px;margin-top:10px;box-shadow:0 4px 14px rgba(15,46,58,.06)}.faq summary{font:600 18px Fredoka,sans-serif;color:var(--river);cursor:pointer}.faq p{margin:8px 0 2px}
+  .walk{margin-top:12px}.walk ol{margin:0;padding-left:22px}.walk li{margin:6px 0}.walk .sum{font:700 22px Fredoka,sans-serif;color:var(--river);margin-top:10px}
+  :root{--river:#252C30;--river-2:#414B50;--cream:#F3EBDD;--ink:#252B2D;--muted:#5B605E;--line:#D2C5B0;--accent:#8B4528;--accent2:#B87543}
+  body{background:var(--cream) radial-gradient(circle at 20% 0,#FCF8EF,transparent 60%)}.studio{background:linear-gradient(180deg,#252C30,#414B50)}
+  h1,h2{letter-spacing:.3px}h2::before{content:"";display:inline-block;width:22px;height:4px;background:var(--accent2);border-radius:2px;vertical-align:middle;margin-right:10px}
+  .card,.line .card,ol.steps li,.faq details{border:1px solid #E1D2B8}.result{background:linear-gradient(135deg,#252A2C,#41484A)}.tip{background:#FBF1DE}
+  @media(max-width:720px){.top,.examples{grid-template-columns:1fr}.toc ol{columns:1}ol.steps li{padding-left:56px}}
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/ru/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/ticket-to-ride/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/ticket-to-ride/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../ru/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Правила игр</a><details class="langs"><summary>🌐 Русский</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/" class="current">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Правила игр</a> › Билет на поезд</div>
+<h1>Как считать очки в «Билете на поезд» <span class="hand">базовая игра, карта США</span></h1>
+<p class="lead">Очки за маршруты обычно начисляют сразу, когда маршрут занят. В конце пересчитайте их ещё раз по карте, чтобы пропущенный или неверно записанный маршрут не испортил итог. Потом прибавьте выполненные билеты, вычтите невыполненные и проверьте бонус за самый длинный путь.</p>
+<div class="top">
+  <div class="card calc"><h3>Посчитайте маршруты и билеты</h3><p>Посмотрите на свои вагоны на карте. За каждый занятый маршрут прибавьте единицу в строке его длины.</p>
+    <div class="row"><span class="name">Маршруты с 1 вагоном<small>Каждый даёт 1 очко</small></span><div class="step"><button data-k="1" data-d="-1" aria-label="Убрать один маршрут с 1 вагоном">−</button><output id="r1">0</output><button data-k="1" data-d="1" aria-label="Добавить один маршрут с 1 вагоном">+</button></div></div>
+    <div class="row"><span class="name">Маршруты с 2 вагонами<small>Каждый даёт 2 очка</small></span><div class="step"><button data-k="2" data-d="-1" aria-label="Убрать один маршрут с 2 вагонами">−</button><output id="r2">0</output><button data-k="2" data-d="1" aria-label="Добавить один маршрут с 2 вагонами">+</button></div></div>
+    <div class="row"><span class="name">Маршруты с 3 вагонами<small>Каждый даёт 4 очка</small></span><div class="step"><button data-k="3" data-d="-1" aria-label="Убрать один маршрут с 3 вагонами">−</button><output id="r3">0</output><button data-k="3" data-d="1" aria-label="Добавить один маршрут с 3 вагонами">+</button></div></div>
+    <div class="row"><span class="name">Маршруты с 4 вагонами<small>Каждый даёт 7 очков</small></span><div class="step"><button data-k="4" data-d="-1" aria-label="Убрать один маршрут с 4 вагонами">−</button><output id="r4">0</output><button data-k="4" data-d="1" aria-label="Добавить один маршрут с 4 вагонами">+</button></div></div>
+    <div class="row"><span class="name">Маршруты с 5 вагонами<small>Каждый даёт 10 очков</small></span><div class="step"><button data-k="5" data-d="-1" aria-label="Убрать один маршрут с 5 вагонами">−</button><output id="r5">0</output><button data-k="5" data-d="1" aria-label="Добавить один маршрут с 5 вагонами">+</button></div></div>
+    <div class="row"><span class="name">Маршруты с 6 вагонами<small>Каждый даёт 15 очков</small></span><div class="step"><button data-k="6" data-d="-1" aria-label="Убрать один маршрут с 6 вагонами">−</button><output id="r6">0</output><button data-k="6" data-d="1" aria-label="Добавить один маршрут с 6 вагонами">+</button></div></div>
+    <label for="ticket-value"><b>Билеты</b></label><div class="ticket-entry"><input id="ticket-value" type="number" min="1" max="30" value="8" aria-label="Номинал билета"><select id="ticket-status" aria-label="Статус билета"><option value="yes">Выполнен</option><option value="no">Не выполнен</option></select><button id="add-ticket" type="button">Добавить</button></div><ul class="ticket-list" id="ticket-list"></ul><label class="bonus-check"><input id="longest-bonus" type="checkbox"> У меня самый длинный путь, одного или поровну с кем-то (+10 очков)</label>
+    <div class="result"><div class="pts" id="pts" aria-live="polite">0 очков</div><ul id="how"></ul></div>
+  </div>
+  <div class="side"><div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Пусть Score Night посчитает весь стол</b><p>Введите маршруты, билеты и самый длинный путь каждого игрока — и сразу увидите итоги и победителя.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Скачать в Google Play</a></div>
+    <div class="toc"><b>На этой странице</b><ol><li><a href="#when-to-count">Когда считать</a></li><li><a href="#routes">Очки за маршруты</a></li><li><a href="#tickets">Билеты</a></li><li><a href="#longest">Самый длинный путь</a></li><li><a href="#mistakes">Частые ошибки</a></li><li><a href="#examples">Примеры билетов</a></li><li><a href="#winner">Кто победил</a></li><li><a href="#whole-game">Пример целой партии</a></li><li><a href="#faq">Вопросы</a></li></ol></div>
+  </div>
+</div>
+<section id="when-to-count"><h2>Когда считать</h2><ol class="steps"><li><b>В конце игры посмотрите на стол.</b> Проверьте вагоны, которые вы выставили на карту США, свои билеты и то, есть ли у вас самый длинный непрерывный путь.</li><li><b>Пересчитайте очки за маршруты по карте.</b> Обычно их начисляют во время игры, когда маршрут занят. Пересчитать каждый маршрут в конце — хорошая проверка: вдруг где-то пропустили нажатие или ошиблись в сумме.</li><li><b>Проверьте каждый билет.</b> Если два города на нём соединены вашими вагонами, прибавьте его номинал. Если нет — вычтите.</li><li><b>Добавьте бонус за самый длинный путь и сравните итоги.</b> Если самый длинный путь у нескольких игроков поровну, бонус получает каждый из них.</li></ol></section>
+<section id="routes"><h2>Очки за маршруты</h2><div class="line"><div class="card"><b>Начните с вагонов на карте.</b><p>Для каждого своего маршрута посчитайте, из скольких вагонов он состоит. Разложите маршруты по длине и посчитайте очки за каждую группу. Чем длиннее маршрут, тем дороже он стоит.</p><p class="where">Где смотреть: ваши вагоны на карте.</p><div class="ex">Например, два маршрута по четыре вагона дают по семь очков, вместе — четырнадцать.</div></div></div><div class="examples"><div class="card"><div class="big">1 вагон → 1 очко</div><p>Короткий маршрут из одного вагона даёт одно очко.</p></div><div class="card"><div class="big">3 вагона → 4 очка</div><p>Маршрут из трёх вагонов приносит четыре очка, а не три.</p></div><div class="card"><div class="big">6 вагонов → 15 очков</div><p>Маршрут из шести вагонов стоит пятнадцать очков.</p></div></div><div class="tip">Калькулятор выше считает маршруты по длине и расписывает каждую группу, так что его итог легко сверить со своим.</div></section>
+<section id="tickets"><h2>Билеты</h2><div class="line"><div class="card"><b>Возьмите свои билеты и проверьте каждый.</b><p>Выполненный билет прибавляет число, напечатанное на нём, невыполненный — вычитает это же число. Проверяйте по одному билету, потом сложите плюсы и минусы.</p><p class="where">Где смотреть: билеты, которые остались у вас на руках. Номинал напечатан на каждом.</p><div class="ex">Выполненный билет на 12 прибавляет 12 очков. Невыполненный билет на 9 отнимает 9, так что вместе они дают +3.</div><p><b>Как понять, что билет выполнен?</b> Найдите на карте два города с билета. Билет выполнен, только если от одного города до другого можно доехать по непрерывной цепочке ваших вагонов. Цепочка может петлять и проходить через другие города, и она не обязана быть кратчайшей, но в ней не должно быть разрывов и чужих маршрутов посередине. Если цепочка где-то прерывается, билет не выполнен, и его номинал вычитается.</p></div></div></section>
+<section id="longest"><h2>Самый длинный путь</h2><div class="line"><div class="card"><b>Посмотрите, у кого самый длинный путь.</b><p>Каждый, у кого самый длинный путь, получает десять бонусных очков.</p><p class="where">Где смотреть: вагоны каждого игрока на карте. Бонус проверяют в конце.</p><div class="ex">Если у двух игроков самый длинный путь по семь вагонов, оба получают по десять очков.</div><p><b>Как его измерить?</b> Каждый игрок ищет свою самую длинную непрерывную линию из своих вагонов и считает в ней вагоны (именно вагоны, а не маршруты и не города). Линия может несколько раз проходить через один город и даже замыкаться в кольцо, но каждый маршрут считается только один раз. Ответвления не считаются: выберите одну дорогу и считайте только по ней. У кого вагонов больше, получает 10 очков; если таких несколько, 10 очков получает каждый.</p></div></div></section>
+<section id="mistakes"><h2>Частые ошибки</h2><ul><li>Не путайте число вагонов с очками. Маршрут из трёх вагонов стоит четыре очка, а из шести — пятнадцать.</li><li>Не забудьте вычесть невыполненные билеты: они отнимают свой номинал.</li><li>Не отдавайте бонус за самый длинный путь кому-то одному, если самый длинный путь поровну у нескольких игроков.</li><li>Не считайте чужие вагоны в своих очках за маршруты.</li></ul></section>
+<section id="examples"><h2>Примеры билетов</h2><div class="examples"><div class="card"><div class="big">Выполнен: +8</div><p>Выполненный билет на восемь прибавляет восемь очков.</p></div><div class="card"><div class="big">Не выполнен: −8</div><p>Невыполненный билет на восемь отнимает восемь.</p></div><div class="card"><div class="big">Два билета: +12 − 9</div><p>Выполненный билет на 12 и невыполненный на 9 вместе дают плюс три очка.</p></div></div></section>
+<section id="winner"><h2>Кто победил?</h2><p>Сложите очки за маршруты, прибавьте выполненные билеты, вычтите невыполненные и добавьте бонус за самый длинный путь, если он есть. Побеждает тот, у кого больше очков. При равенстве сравните, кто выполнил больше билетов; если и тут поровну — у кого самый длинный путь. Если и это не помогло, победа общая.</p></section>
+<section id="whole-game"><h2>Пример целой партии</h2><div class="card walk"><p>Допустим, на карте у вас два маршрута из 1 вагона, три — из 2, два — из 3, два — из 4, один — из 5 и один — из 6 вагонов.</p><ol><li>Маршруты из 1 вагона дают вместе 2 очка.</li><li>Маршруты из 2 вагонов дают 6 очков: 3 маршрута по 2 очка.</li><li>Маршруты из 3 вагонов дают 8 очков: 2 маршрута по 4 очка.</li><li>Маршруты из 4 вагонов дают 14 очков: 2 маршрута по 7 очков.</li><li>Маршрут из 5 вагонов приносит 10 очков, из 6 вагонов — 15. Всего за маршруты 55 очков.</li><li>Ваши билеты на 12 и 8 выполнены, а билет на 9 — нет. Прибавьте 20, вычтите 9: билеты дают +11.</li><li>Самый длинный путь у вас поровну с соперником, так что прибавьте 10 очков.</li></ol><p class="sum">55 за маршруты, плюс 11 за билеты, плюс 10 за самый длинный путь: всего 76 очков.</p></div></section>
+<section id="faq" class="faq"><h2>Частые вопросы</h2><details><summary>Нужно ли пересчитывать маршруты, если очки за них уже начислили во время игры?</summary><p>Да. Обычно очки за маршрут начисляют сразу, когда его занимают, но пересчёт в конце помогает поймать ошибки.</p></details><details><summary>А если номинал билета больше, чем мои очки за маршруты?</summary><p>Всё равно вычитайте. Невыполненный билет отнимает свой номинал, и итог может уйти в минус.</p></details><details><summary>Может ли бонус за самый длинный путь получить больше одного игрока?</summary><p>Да. Каждый, у кого самый длинный путь поровну с другими, получает десять очков.</p></details><details><summary>Что, если очков поровну?</summary><p>Побеждает тот, кто выполнил больше билетов. Если и тут поровну, сравните самый длинный путь; если и он одинаковый, победа общая.</p></details><details><summary>А другие карты и дополнения?</summary><p>Эта страница — только про базовую игру на карте США. На других картах и в дополнениях очки могут считаться иначе.</p></details></section>
+<div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Не хочется складывать каждую строку вручную?</b><p>Score Night держит маршруты, билеты, бонусы и итоги всех игроков в одном месте, пока вы считаете.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dticket-to-ride">▶ Google Play</a></div>
+<p class="disclaimer">Неофициальная памятка, написана своими словами. Не связана с издателем «Билета на поезд». Названия игр принадлежат их владельцам. Полные правила — в книге правил от издателя.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} очко",
+  "few": "{n} очка",
+  "many": "{n} очков",
+  "other": "{n} очка"
+ },
+ "routes": {
+  "one": "{n} маршрут",
+  "few": "{n} маршрута",
+  "many": "{n} маршрутов",
+  "other": "{n} маршрута"
+ },
+ "trains": {
+  "one": "{n} вагона",
+  "few": "{n} вагонов",
+  "many": "{n} вагонов",
+  "other": "{n} вагона"
+ },
+ "routeLine": "{routes} из {trains}: {count} × {each} = {pts}",
+ "completedLine": {
+  "one": "{n} выполненный билет: +{pts}",
+  "few": "{n} выполненных билета: +{pts}",
+  "many": "{n} выполненных билетов: +{pts}",
+  "other": "{n} выполненного билета: +{pts}"
+ },
+ "unfinishedLine": {
+  "one": "{n} невыполненный билет: −{pts}",
+  "few": "{n} невыполненных билета: −{pts}",
+  "many": "{n} невыполненных билетов: −{pts}",
+  "other": "{n} невыполненного билета: −{pts}"
+ },
+ "longestBonus": "Бонус за самый длинный путь: +{pts}",
+ "emptyHint": "Добавьте свои маршруты выше, и здесь появятся очки.",
+ "ticketDone": {
+  "one": "Выполненный билет на {n} очко",
+  "few": "Выполненный билет на {n} очка",
+  "many": "Выполненный билет на {n} очков",
+  "other": "Выполненный билет на {n} очка"
+ },
+ "ticketOpen": {
+  "one": "Невыполненный билет на {n} очко",
+  "few": "Невыполненный билет на {n} очка",
+  "many": "Невыполненный билет на {n} очков",
+  "other": "Невыполненный билет на {n} очка"
+ },
+ "remove": "Убрать",
+ "removeAria": "Убрать билет {n}"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const esc = s => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/"/g, '&quot;');
+const points = { 1: 1, 2: 2, 3: 4, 4: 7, 5: 10, 6: 15 };
+const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0 };
+const tickets = [];
+const LONGEST = 10;
+function draw() {
+  let total = 0, lines = [];
+  for (const n of Object.keys(points)) {
+    const count = counts[n], each = points[n];
+    document.getElementById('r' + n).textContent = count;
+    total += count * each;
+    if (count) lines.push(f(T.routeLine, { routes: p(T.routes, count), trains: p(T.trains, +n), count, each, pts: p(T.points, count * each) }));
+  }
+  tickets.forEach(ticket => total += ticket.completed ? ticket.value : -ticket.value);
+  const done = tickets.filter(ticket => ticket.completed), open = tickets.filter(ticket => !ticket.completed);
+  const sum = list => list.reduce((s, ticket) => s + ticket.value, 0);
+  if (tickets.length) lines.push(p(T.completedLine, done.length, { pts: p(T.points, sum(done)) }));
+  if (open.length) lines.push(p(T.unfinishedLine, open.length, { pts: p(T.points, sum(open)) }));
+  if (document.getElementById('longest-bonus').checked) { total += LONGEST; lines.push(f(T.longestBonus, { pts: p(T.points, LONGEST) })); }
+  document.getElementById('pts').textContent = p(T.points, total);
+  if (!lines.length) lines = [T.emptyHint];
+  document.getElementById('how').innerHTML = lines.map(line => `<li>${line}</li>`).join('');
+  document.getElementById('ticket-list').innerHTML = tickets.map((ticket, index) => `<li>${p(ticket.completed ? T.ticketDone : T.ticketOpen, ticket.value)} <button type="button" class="ticket-remove" data-remove="${index}" aria-label="${esc(f(T.removeAria, { n: index + 1 }))}">${T.remove}</button></li>`).join('');
+  document.querySelectorAll('.ticket-remove').forEach(button => button.onclick = () => { tickets.splice(Number(button.dataset.remove), 1); draw(); });
+}
+document.querySelectorAll('.step button').forEach(button => button.onclick = () => { const n = button.dataset.k; counts[n] = Math.max(0, counts[n] + Number(button.dataset.d)); draw(); });
+document.getElementById('add-ticket').onclick = () => {
+  const value = Number(document.getElementById('ticket-value').value);
+  if (!Number.isInteger(value) || value < 1 || value > 30) return;
+  tickets.push({ value, completed: document.getElementById('ticket-status').value === 'yes' });
+  draw();
+};
+document.getElementById('longest-bonus').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../ru/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../ru/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/ru/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Русский</summary><div class="menu"><a href="../../../guides/ticket-to-ride/">English</a><a href="../../../ru/guides/ticket-to-ride/" class="current">Русский</a><a href="../../../uk/guides/ticket-to-ride/">Українська</a><a href="../../../pl/guides/ticket-to-ride/">Polski</a><a href="../../../cs/guides/ticket-to-ride/">Čeština</a><a href="../../../de/guides/ticket-to-ride/">Deutsch</a><a href="../../../fr/guides/ticket-to-ride/">Français</a><a href="../../../es/guides/ticket-to-ride/">Español</a><a href="../../../pt/guides/ticket-to-ride/">Português</a><a href="../../../tr/guides/ticket-to-ride/">Türkçe</a><a href="../../../ja/guides/ticket-to-ride/">日本語</a><a href="../../../ko/guides/ticket-to-ride/">한국어</a><a href="../../../zh/guides/ticket-to-ride/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

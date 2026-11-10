@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>如何计分《卡卡颂》— Bobr Studio</title>
+<meta name="description" content="一份用大白话讲解《卡卡颂》基础版计分指南：在游戏过程中和对局结束后，如何计算道路、城市、修道院和农田的得分。">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">规则指南</a><details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/" class="current">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">规则指南</a> › 卡卡颂</div>
+  <h1>卡卡颂怎么算分 <span class="hand">基础版，一步步来</span></h1>
+  <p class="lead">在《卡卡颂》中，你有两个计分时刻。在游戏过程中，每当道路、城市或修道院完成时，它就会立即计分，上面的米宝也会“回家”。当最后一个板块放完后，所有未完成的部分都会按照较低的得分规则计分，然后才是那些让几乎所有人都困惑的农田。本页面会用例子解释这两个阶段，计分器还会帮你计算终局得分。</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>你的终局得分计算</h3>
+      <p>在最后一个板块放完后，你只需要关注那些你米宝最多（或者平手）的未完成道路、城市和修道院，以及你农夫最多所在的农田。然后将所有这些地方的得分加起来。</p>
+      <div class="group">未完成的城市</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">城市板块<small>包含你未完成城市部分的小板块</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="比一个城市板块少">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="比一个城市板块多">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">盾徽<small>这些城市中的盾徽</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="比一个盾徽少">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="比一个盾徽多">+</button></div></div>
+      <div class="group">未完成的道路</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">道路板块<small>你的未完成道路所经过的小板块</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="比一个道路板块少">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="比一个道路板块多">+</button></div></div>
+      <div class="group">未完成的修道院</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">修道院<small>那些没有完全被周围板块包围的修道院</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="比一个修道院少">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="比一个修道院多">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">周围板块<small>所有 8 个邻居都会计算在内，包括角落；最多每个有 7 个</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="周围板块少一个">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="周围板块多一个">+</button></div></div>
+      <div class="group">农田</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">完成的城市<small>接触到农田，你将按农田一个个来计算这些完成的城市得分</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="比一个完成的城市少">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="比一个完成的城市多">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 分</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>把全部分数都记在手机里</b><p>Score Night 取代了计分板：每当道路、城市或修道院完成时，记录得分，然后在对局结束时，为每位玩家记录得分。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ 在 Google Play 获取</a></div>
+      <ul><li>无需互联网即可使用，支持 2 到 5 名玩家</li><li>再也不会有绕圈圈计算失误了</li><li>每款游戏可免费玩两局</li></ul>
+      <div class="toc"><b>本页内容</b><ol><li><a href="#when-to-count">什么时候算分</a></li><li><a href="#who-gets-points">谁拿分</a></li><li><a href="#roads">道路</a></li><li><a href="#cities">城市和盾徽</a></li><li><a href="#monasteries">修道院</a></li><li><a href="#fields">农田</a></li><li><a href="#field-examples">农田例子</a></li><li><a href="#mistakes">常见失误</a></li><li><a href="#who-wins">谁赢了</a></li><li><a href="#whole-game">一局结束后的计分</a></li><li><a href="#common-questions">常见问题</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">什么时候算分</h2>
+  <ol class="steps">
+    <li><b>在游戏中，只要有东西完成，就立刻算分。</b> 当一张板块封闭了一条道路、一座城市或一个修道院，这个部分就马上计分，即使现在不是你的回合。米宝最多的那位玩家把记分标记沿记分轨道往前移，然后该部分上的所有米宝都回到原主人手里，随时可以再放下去。</li>
+    <li><b>在游戏进行中，其他任何东西都不计分。</b> 未完成的部分等着，农田一直到结束才算。一个农夫躺在农田上，会待整局游戏。</li>
+    <li><b>最后一张板块放下去，游戏结束。</b> 你现在看看桌上还留着的每一个米宝。每个米宝都站在某个未完成的东西上：一条道路、一座城市或一个修道院。逐个计分，但比已完成的得分低（城市和修道院分值更低，道路的得分不变）。</li>
+    <li><b>农田最后计分。</b> 等你把所有未完成的特征都算完后，再给有农夫的农田计分。每块农田会为相邻的完成城市得分，所以要等到局势完全定下来、再也不会变化时才算它。</li>
+  </ol>
+  <div class="tip">你在进行计分时，最简单的方法是：计算一个特征，把上面米宝拿走，然后继续下一个。当只剩下农夫的时候，就是计算农田的时候了。</div>
+
+  <h2 id="who-gets-points">谁能获得分数？</h2>
+  <p>你不能把米宝放在道路、城市或农田上，如果上面已经有米宝了，即使是你的。但是，两个单独的带有米宝的板块以后可以增长和合并，然后一个特征上就可能有好几个米宝了。当它进行计分时，要计算每个玩家的米宝数量。米宝最多的玩家会获得所有分数。如果两名或多名玩家并列最多，<b>他们每个人都会获得全部分数</b>，不会分成。米宝数量较少的玩家什么也得不到。完全没有米宝的特征是没有任何得分的。</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>举例：</b> 一个完成的城市有 5 个板块和 2 个盾徽，所以它值 10 + 4 = 14 分。王芳在里面有 2 个米宝，李强有 2 个，而你有 1 个。王芳和李强各自得到 14 分。你什么也得不到，但你的米宝仍然会回来。</div></div></div>
+
+  <h2 id="roads">道路</h2>
+  <div class="line"><div class="card"><h3>你要计算什么</h3>
+    <p>沿着道路从一端走到另一端，计算它穿过的所有板块。当道路的两端都停止时，它就算完成的了：在交叉路口、在城市、在修道院，或者它形成一个环路回到自身时。</p>
+    <p><span class="when during">游戏期间</span>一个完成的道路每块 1 分。</p>
+    <p><span class="when end">游戏结束时</span>未完成的道路也每块 1 分。道路是唯一无论如何都值相同的特征。</p>
+    <p class="where">看哪里：那些站在道路上的米宝。</p>
+    <div class="ex"><b>举例：</b> 一条道路从交叉路口出发，经过 2 个普通板块，并在城市门口结束。计算交叉路口板块和城市板块，它接触了 4 个板块，所以得到 4 分。如果到游戏结束时，一条有 3 个板块的道路仍然有开放端，它就会得到 3 分。</div></div></div>
+
+  <h2 id="cities">城市与盾徽</h2>
+  <div class="line"><div class="card"><h3>你要计算什么</h3>
+    <p>算一下那些包含城市任何部分的板块，然后计算盾徽。盾徽是印在某些城市板块上的小纹章徽章。当城市的城墙完全封闭，没有缺口和开放边缘时，这个城市就算完成的了。</p>
+    <p><span class="when during">游戏期间</span>一个完成的城市每块给 2 分，每个盾徽再给 2 分。最小的城市，只有 2 个板块且没有盾徽，值 4 分。</p>
+    <p><span class="when end">游戏结束时</span>一个未完成的城市每块只给 1 分，每个盾徽也只给 1 分，这只有完成时价值的一半。</p>
+    <p class="where">看哪里：那些站在城市城墙内的米宝。</p>
+    <div class="ex"><b>举例：</b> 一个有 4 个板块和 1 个盾徽的完成的城市，板块值 4 × 2 = 8 分，盾徽值 2 分，总共 10 分。一个有 3 个板块和 1 个盾徽的未完成城市，在游戏结束时得到 3 + 1 = 4 分。</div></div></div>
+
+  <h2 id="monasteries">修道院</h2>
+  <div class="line"><div class="card"><h3>你要计算什么</h3>
+    <p>修道院位于其板块的中央。观察它周围的 8 个空间：左、右、上、下以及 4 个角落。当这 8 个空间全部被板块填满时，修道院就算完成的了。</p>
+    <p><span class="when during">游戏期间</span>一个完成的修道院给 9 分：修道院板块给 1 分，周围 8 个板块各给 1 分。</p>
+    <p><span class="when end">游戏结束时</span>一个未完成的修道院给修道院板块 1 分，以及周围存在的每个板块 1 分。所以它值在 1 到 8 分之间。</p>
+    <p class="where">看哪里：修道院上的米宝。修道院上只能有一个米宝，所以不会发生共享。</p>
+    <div class="ex"><b>举例：</b> 到游戏结束时，你的修道院周围有 5 个板块，有 3 个空位。那就是 1 + 5 = 6 分。</div></div></div>
+
+  <h2 id="fields">农田</h2>
+  <div class="line"><div class="card"><h3>你要计算什么</h3>
+    <p>农田是一片绿色的草地。它会跨越板块只要草地是连着的；道路、城市城墙和桌面上板块的边缘都会切断它，所以一片大草地可能会变成好几个独立的农田。在农田里躺着的米宝就是农夫。</p>
+    <p><span class="when during">游戏期间</span>什么都没有。农田在结束前永远不会计分，农夫们也保持在原来的位置。</p>
+    <p><span class="when end">游戏结束时</span>一次选取一块有农夫的农田。找出所有城墙接触该农田的<b>完成的</b>城市。在该农田拥有最多农夫的玩家，每座这样的城市得 3 分。未完成的城市不给农田得分。</p>
+    <p class="where">看哪里：躺在草地上的农夫，沿着他们的农田边缘走一圈，看看接触到的每一段城墙。</p>
+    <div class="ex"><b>例子：</b>你的农夫所在农田接触 3 座完成的城市和 1 座未完成的城市。即 3 × 3 = 9 分；未完成的城市不计分。</div>
+    <p>每块农田单独计分。如果一座城市接触两块不同的农田，它对两块都算数。如果同一玩家在两块农田都获胜，那座城市就给他们算两次，每次 3 分。</p></div></div>
+  <div class="tip"><b>找农田城市的实用方法：</b>把手指放在农夫上，沿着草地向外划，不跨过任何道路或城墙。手指划过的每一段完成的城墙，对这块农田算一次，不管城墙多长。</div>
+
+  <h2 id="field-examples">农田例子</h2>
+  <div class="examples num">
+    <div class="card"><b>一块田，多座城</b><p>你的农夫独自占据一大块农田。农田边缘有 4 座完成的城市和 2 座未完成的。只算完成的：4 × 3。</p><div class="big">12 分</div></div>
+    <div class="card"><b>一座城夹两块田</b><p>一条路把草地切成两半，两半都接触同一座完成的城市。你的农夫在北边田里，安娜的在南边。这是两块田，所以你们各得那座城的 3 分。</p><div class="big">各 3 分</div></div>
+    <div class="card"><b>共享一块田</b><p>游戏中两块有农夫的田连在一起了。现在你和安娜各有 2 个农夫在里面，田边接触 5 座完成的城市。平手，所以各得 5 × 3。</p><div class="big">各 15 分</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>人数劣势</b><p>还是这块田，但安娜有 2 个农夫，你只有 1 个。安娜最多，所以她拿走全部 15 分，你这块田得 0 分。</p><div class="big">你得 0 分</div></div>
+    <div class="card"><b>一名玩家，两块田</b><p>你在两块田里各有一个农夫，有一座完成的城市同时接触这两块田。每块田单独算，所以那座城给你 3 + 3。</p><div class="big">6 分</div></div>
+    <div class="card"><b>没有完成的城市</b><p>农夫所在农田只接触未完成的城市，或者完全没接触城市，不得分。农夫就躺在那儿。</p><div class="big">0 分</div></div>
+  </div>
+
+  <h2 id="mistakes">常见的错误</h2>
+  <div class="warn"><b>玩卡卡颂计分时常犯的错误</b><ul>
+    <li>终局时把未完成的城市当完成的算。完成的城市每块 2 分，未完成的只 1 分，盾徽也是一样。</li>
+    <li>忘了算修道院那块板块本身。周围有 5 块邻居的未完成修道院值 6 分，不是 5 分。</li>
+    <li>给农田算未完成的城市。农田只为完成的城市得分。</li>
+    <li>平手时分分数。并列米宝最多的每位玩家都拿满分。</li>
+    <li>给米宝较少的玩家得分。只有米宝最多的玩家（或并列最多的几位）才能得分。</li>
+    <li>游戏中给农田计分，或把农夫收回。农夫一直留到游戏彻底结束。</li>
+    <li>游戏中某地物得分后，忘了把米宝收回来。</li>
+    <li>数城市的城墙段数而不是板块数。每块板块算一次，不管上面有多少城市。</li>
+  </ul></div>
+
+  <h2 id="who-wins">谁获胜</h2>
+  <p>你的最终得分 = 游戏中在计分板上累积的分数，加上终局时的未完成地物和农田。得分最多的玩家获胜。如果总分相同，共享胜利。计分板比大多数最终得分短，所以如果你的标记绕了一圈，别忘了加上圈数。</p>
+
+  <h2 id="whole-game">一局终局计分示例</h2>
+  <div class="card walk"><p>最后一块板块刚放好，计分板上的你标记显示游戏中得了 64 分。桌上还剩这些：</p><ol>
+    <li><b>一个未完成的城市</b> 3 块板块、1 个盾徽，只有你的米宝在里面：3 + 1 = 4 分。</li>
+    <li><b>一条未完成的道路</b> 2 块板块，你的米宝在上面：2 分。</li>
+    <li><b>一个未完成的修道院</b> 周围 5 块板块：1 + 5 = 6 分。</li>
+    <li><b>你的第一块田</b>，只有你的农夫，接触 3 座完成的城市：3 × 3 = 9 分。</li>
+    <li><b>你的第二块田</b> 和安娜共享，各 1 个农夫，接触 2 座完成的城市。平手，所以各得 2 × 3 = 6 分。</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 分</div><p>要用上面的计算器检查的话，你输入 3 个城市板块，1 个盾徽，2 个道路板块，1 个周围有 5 个板块的修道院，以及 5 个用于农田的完成的城市（第一个农田 3 个，第二个农田 2 个）。它会显示你加上你的 64 分后总共是 27 分。</p></div>
+
+  <h2 id="common-questions">常见问题</h2>
+  <div class="faq">
+    <details open><summary>如果我在一个板块上没有米宝，我是可以得分吗？</summary><p>不可以。只有在某个板块上有最多米宝的玩家才能得分。一个没有米宝的完成的城市不会给任何人加分，不过它在对局结束时仍然可以帮助它旁边的农田里的农夫。</p></details>
+    <details><summary>如果我在同一回合完成了一个板块并放了米宝上去，会怎么样呢？</summary><p>它会立即计分，并且你会在同一回合拿回你的米宝。</p></details>
+    <details><summary>如果我们并列，我们会分摊得分吗？</summary><p>不会。所有米宝数量并列最多的玩家都会拿到全部的积分。</p></details>
+    <details><summary>一个城市可以给两个农田计分吗？</summary><p>可以。每个农田都是单独计分的，所以一个接触到多个农田的城市，会为每个农田各计分一次。</p></details>
+    <details><summary>农夫会返回吗？</summary><p>不会。农夫会留在它所在的农田直到对局结束，所以你在早期放置它之前得想仔细了。</p></details>
+    <details><summary>一个由 2 个板块组成的城市得分会少吗？</summary><p>不少，根据目前的规则，它就像其他城市一样是每块 2 分，所以完成时是 4 分。规则的旧版本在一些细节上有差异；如果你用的是旧的规则书，请遵循它。</p></details>
+    <details><summary>扩展包呢？</summary><p>本指南只涵盖基础游戏；像 旅馆与大教堂 或 修道院长 这样的扩展包会增加新组件并更改一些分数，我们会在单独的页面上解释它们。</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>不想手动计算所有这些吗？</b><p>在 Score Night 中，当道路、城市或修道院完成时，你只需点击它，选择谁得分，然后在最后输入剩余的分数。每项总分都会自动累加，并且都有每一分的记录。</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">这是用我们自己的话写成的非官方指南。它不隶属于卡卡颂的发行商。游戏名称归其所有者所有。完整的规则可以在发行商的规则书中找到。</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "other": "{n} 分"
+ },
+ "tiles": {
+  "other": "{n} 个板块"
+ },
+ "shields": {
+  "other": "{n} 个盾徽"
+ },
+ "finishedCities": {
+  "other": "{n} 座完成的城市"
+ },
+ "cityLine": "未完成的城市：{tiles}，每个 1 分 = {pts}",
+ "cityShieldLine": "未完成的城市：{tiles}和{shields}，每个 1 分 = {pts}",
+ "roadLine": "未完成的道路：{tiles}，每个 1 分 = {pts}",
+ "monasteryLine": {
+  "other": "{n} 座未完成的修道院：每座 1 分（{n}）+ 周围{tiles} = {pts}"
+ },
+ "fieldLine": "农田：{cities}，每座 3 分 = {pts}",
+ "addToTrack": "把这些分数加到计分轨上",
+ "emptyHint": "在上方输入桌上剩下的东西，分数会显示在这里"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../zh/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../zh/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/zh/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 中文</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/" class="current">中文</a></div></details>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak liczyć poziomy i walkę w Munchkinie — Bobr Studio</title>
+<meta name="description" content="Jak działają poziomy, ekwipunek i siła walki w podstawowym Munchkinie, z kalkulatorem walki, który wyjaśnia, kto wygrywa.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc h4 { font: 600 17px Fredoka, sans-serif; color: var(--accent); margin: 16px 0 0; }
+  .row { display: grid; grid-template-columns: 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 40px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .calc .bonus-check { display: flex; align-items: center; gap: 10px; margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; cursor: pointer; }
+  .bonus-check input { width: 22px; height: 22px; accent-color: var(--accent); flex: none; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 36px/1.05 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #FFF6DA; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FDEAF1; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 24px Fredoka, sans-serif; color: var(--accent); margin-top: 6px; }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #F1EBFA; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(59,31,107,.07); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } .step output { min-width: 34px; } }
+
+/* Настроение «весёлое фэнтези» для страницы Манчкина: свои цвета (фиолетовый плащ, малиновое зелье, золото, бирюза), не цвета коробки и логотипа. */
+:root { --river: #3B1F6B; --river-2: #5B2F9A; --cream: #FAF5FF; --ink: #2A1B3D; --muted: #5E4F72; --line: #E3D5F3; --accent: #B3185A; --accent2: #FFC94A; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #E4F7F3, transparent 55%); }
+.studio { background: linear-gradient(180deg, #3B1F6B, #5B2F9A); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: linear-gradient(90deg, var(--accent2), #2FB8A0); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details { border: 1px solid #E6DAF5; }
+.result { background: linear-gradient(135deg, #3B1F6B, #5B2F9A); }
+.result.lost { background: linear-gradient(135deg, #5A1236, #8A1F4E); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/munchkin/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/munchkin/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/munchkin/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/munchkin/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/munchkin/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/munchkin/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/munchkin/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/munchkin/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/munchkin/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/munchkin/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/munchkin/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/munchkin/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/munchkin/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/munchkin/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../pl/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Zasady gier</a><details class="langs"><summary>🌐 Polski</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/" class="current">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Zasady gier</a> › Munchkin</div>
+  <h1>Jak liczyć poziomy i walkę w Munchkinie <span class="hand">kto jest silniejszy i kto wygrywa</span></h1>
+  <p class="lead">W Munchkinie nie liczy się punktów na końcu. Zamiast tego przez całą grę pilnujesz dwóch liczb: swojego poziomu i siły walki. Kalkulator niżej rozstrzygnie każdą walkę w sekundę i powie po prostu, dlaczego wygrałeś albo przegrałeś. Niżej znajdziesz krok po kroku wyjaśnione poziomy, ekwipunek, walki i wyścig do 10 poziomu, z przykładami i pomyłkami, które zdarzają się przy prawie każdym stole.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Kto wygrywa tę walkę?</h3>
+      <p>Wpisz obie strony walki. Twoja siła to Twój poziom plus ekwipunek, a potwora to jego poziom plus ewentualne premie.</p>
+      <h4>Twoja strona</h4>
+      <div class="row"><span class="name">Twój poziom<small>od 1 do 10</small></span><div class="step"><button data-k="lvl" data-d="-1" aria-label="Zniż poziom">−</button><output id="lvl">5</output><button data-k="lvl" data-d="1" aria-label="Podnieś poziom">+</button></div></div>
+      <div class="row"><span class="name">Twój bonus z ekwipunku<small>wszystkie premie z używanego ekwipunku; może być poniżej zera</small></span><div class="step"><button data-k="gear" data-d="-1" aria-label="Mniejszy bonus ekwipunku">−</button><output id="gear">7</output><button data-k="gear" data-d="1" aria-label="Większy bonus ekwipunku">+</button></div></div>
+      <div class="row"><span class="name">Jednorazowe premie<small>mikstury i inne premie na jedną walkę po Twojej stronie</small></span><div class="step"><button data-k="once" data-d="-1" aria-label="Mniejsza jednorazowa premia">−</button><output id="once">0</output><button data-k="once" data-d="1" aria-label="Większa jednorazowa premia">+</button></div></div>
+      <div class="row"><span class="name">Siła pomocnika<small>ich poziom plus ich ekwipunek; zostaw 0, jeśli nikt nie pomaga</small></span><div class="step"><button data-k="help" data-d="-1" aria-label="Mniejsza siła pomocnika">−</button><output id="help">0</output><button data-k="help" data-d="1" aria-label="Większa siła pomocnika">+</button></div></div>
+      <label class="bonus-check"><input id="warrior" type="checkbox"> Wojownik walczy po naszej stronie (ty lub Twój pomocnik)</label>
+      <h4>Potwór</h4>
+      <div class="row"><span class="name">Poziom potwora<small>liczba nadrukowana na karcie potwora; dla dwóch potworów dodaj ich poziomy</small></span><div class="step"><button data-k="mlvl" data-d="-1" aria-label="Niższy poziom potwora">−</button><output id="mlvl">10</output><button data-k="mlvl" data-d="1" aria-label="Wyższy poziom potwora">+</button></div></div>
+      <div class="row"><span class="name">Premie potwora<small>wszystko, co zagrano, by go wzmocnić (albo osłabić)</small></span><div class="step"><button data-k="mbon" data-d="-1" aria-label="Mniejsza premia potwora">−</button><output id="mbon">0</output><button data-k="mbon" data-d="1" aria-label="Większa premia potwora">+</button></div></div>
+      <div class="result" id="box"><div class="pts" id="pts" aria-live="polite">Wygrałeś!</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Masz poziomy całego stołu w jednym miejscu</b><p>Score Night śledzi poziom, ekwipunek i siłę każdego gracza, rozstrzyga walki z pomocnikami i premiami, a nawet rzuca kostką, gdy uciekasz.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Pobierz na Google Play</a></div>
+      <ul><li>Działa bez internetu, dla 3–6 graczy</li><li>Dwie partie każdej gry za darmo</li></ul>
+      <div class="toc"><b>Na tej stronie</b><ol><li><a href="#what-you-track">Co pilnujesz</a></li><li><a href="#level">Twój poziom</a></li><li><a href="#strength">Ekwipunek i siła</a></li><li><a href="#fight">Walka krok po kroku</a></li><li><a href="#run-away">Przegrana i ucieczka</a></li><li><a href="#who-wins">Jak wygrywasz</a></li><li><a href="#mistakes">Typowe błędy</a></li><li><a href="#examples">Przykłady</a></li><li><a href="#whole-turn">Cała walka, policzona</a></li><li><a href="#common-questions">Częste pytania</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="what-you-track">Co pilnujesz</h2>
+  <p>W Munchkinie nie ma arkusza punktowego ani liczenia na końcu. Przez całą grę każdy gracz pilnuje kilku rzeczy na bieżąco, a one zmieniają się non-stop: po każdej walce, każdej klątwie i każdym nowym elemencie ekwipunku. Pomaga, jak każdy ma swoje cyfry gdzieś, gdzie wszyscy je widzą.</p>
+  <ol class="steps">
+    <li><b>Twój poziom.</b> Wszyscy zaczynają na 1 poziomie. Poziom to Twoja droga do zwycięstwa: pierwszy gracz, kto osiągnie 10 poziom, wygrywa grę.</li>
+    <li><b>Twój bonus z ekwipunku.</b> Każdy używany przedmiot daje premię. Zsumuj je i masz jedną liczbę — swój bonus z ekwipunku.</li>
+    <li><b>Twoja siła walki.</b> To liczba, z którą walczysz. To Twój poziom plus bonus z ekwipunku, i nie trzymasz jej osobno: zmienia się zawsze, gdy zmieni się którykolwiek z nich.</li>
+    <li><b>Twoja płeć i klasa.</b> Niektóre karty działają tylko na mężczyzn lub kobiety, więc wszyscy powinni wiedzieć, kim jesteś. A jeśli Twoja postać to Wojownik, zapamiętaj to: Wojownicy wygrywają walki zakończone remisem.</li>
+  </ol>
+  <div class="tip"><b>Poziom i siła to nie to samo.</b> Poziom to to, jak blisko jesteś zwycięstwa. Siła to to, jak mocno uderzasz. Bohater na 4 poziomie z bonusem 6 z ekwipunku walczy z siłą 10, ale nadal jest 6 poziomów od zwycięstwa.</div>
+
+  <h2 id="level">Twój poziom: w górę i w dół</h2>
+  <div class="line"><div class="card"><h3>Jak zmienia się Twój poziom</h3>
+    <p>Zaczynasz na 1 poziomie. Główny sposób, żeby podbić poziom, to pokonanie potwora: daje ci 1 poziom, a niektóre większe potwory dają 2. Karta potwora mówi, ile. Niektóre karty mogą też podbić lub obniżyć twój poziom bezpośrednio, a przegrana walka może kosztować cię poziom, jeśli karta potwora tak mówi.</p>
+    <p>Są dwa limity. Twój poziom <b>nigdy nie spada poniżej 1</b>: jeśli jesteś na 1 poziomie i coś odejmie ci poziom, zostajesz na 1. I <b>nigdy nie przekracza 10</b>, bo 10 to koniec gry.</p>
+    <p class="where">Na co patrzeć: to liczba, którą zachowujesz dla swojego poziomu. Liczy się tylko twój poziom, a nie twoja siła.</p>
+    <div class="ex"><b>Przykład:</b> masz 1 poziom i tracisz poziom przez potwora. Zostajesz na poziomie 1. Następną turę pokonujesz potwora, który daje 2 poziomy, więc idziesz na poziom 3.</div></div></div>
+
+  <h2 id="strength">Twój ekwipunek i siła w walce</h2>
+  <div class="line"><div class="card"><h3>Siła to poziom plus ekwipunek</h3>
+    <p>Żeby obliczyć swoją siłę w walce, weź swój poziom i dodaj premie ze wszystkich ekwipunków, których używasz. To twoja siła w każdej walce, dopóki coś się nie zmieni.</p>
+    <p>Premie ze sprzętu są zwykle dodatnie, ale suma może spaść poniżej zera. To jest dozwolone, i po prostu sprawia, że jesteś słabszy: bohater 2 poziomu z premią ekwipunku −3 ma siłę w walce wynoszącą −1. Tak, minus jeden. Czas schować się.</p>
+    <p class="where">Na co patrzeć: twój poziom plus numer premii na każdym przed Tobą elemencie ekwipunku.</p>
+    <div class="ex"><b>Przykład:</b> masz 4 poziomy, a ekwipunek jest wart 2 + 3 + 1. Premia z ekwipunku to 6, więc twoja siła wynosi 4 + 6 = 10.</div></div></div>
+
+  <div class="line"><div class="card"><h3>Jednorazowe premie</h3>
+    <p>Mikstury i podobne karty dają premię tylko na jedną walkę. Dodajesz je do siły swojej strony podczas tej walki, a gdy walka się skończy, znikają. Nie zmieniają to twojej premii ze sprzętu i nie przenoszą się na następną walkę.</p>
+    <div class="ex"><b>Przykład:</b> twoja siła wynosi 10 i wrzucasz miksturę wartą 3 do walki. Podczas tej walki twoja strona ma 13. W następnej walce wracasz do 10.</div></div></div>
+
+  <h2 id="fight">Walka krok po kroku</h2>
+  <ol class="steps">
+    <li><b>Policz swoją stronę.</b> Twoja siła (poziom plus ekwipunek) plus wszystkie jednorazowe premie, które zagrałeś dla siebie.</li>
+    <li><b>Dodaj pomocnika, jeśli masz.</b> Inny gracz może dołączyć do twojej walki. Cała jego siła, czyli poziom plus ekwipunek, jest dodawana do twojej.</li>
+    <li><b>Policz potwora.</b> Weź poziom wpisany na potworze i dodaj wszystkie premie, jakie zdobył podczas walki (premie mogą być też ujemne i osłabiać go). Jeśli jest dwóch potworów, dodaj ich obu razem.</li>
+    <li><b>Porównaj.</b> Jeśli twoja strona jest <b>silniejsza</b> niż potwór, wygrywasz. Równa sytuacja nie wystarcza: <b>remis — wygrywa potwór</b>, chyba że na twojej stronie walczy Wojownik (ty albo twój pomocnik). Wtedy remis jest twój.</li>
+    <li><b>Zbierz swoje poziomy.</b> Jeśli wygrasz, podbijasz poziom o liczbę poziomów, które daje potwór, zazwyczaj 1, czasem 2. Jeśli jest dwóch potworów, dostajesz poziomy za obydwu. Twój pomocnik nie dostaje poziomów za pomaganie, z jednym wyjątkiem: Elf podnosi poziom za każdego potwora, któremu pomaga inna osoba. Następnie jednorazowe premie są odrzucane.</li>
+  </ol>
+  <div class="tip"><b>Reguła remisu w jednym zdaniu:</b> równe liczby oznaczają, że wygrywa potwór, chyba że jest Wojownik po twojej stronie. To jest zasada, którą ludzie zapominają najczęściej, a ona decyduje o zaskakującej liczbie walk.</div>
+
+  <h2 id="run-away">Przegrana i ucieczka</h2>
+  <p>Jeśli potwór jest silniejszy, albo jest remis bez Wojownika, przegrywasz walkę. Ale jeszcze cię nie złapali: możesz uciec. Rzuć kostką. Jeśli wypadnie <b>5 lub 6</b>, uciekasz. Jeśli wypadnie 1, 2, 3 lub 4, nie uciekasz, a potwór zrobi z przegranych wszystko, co mówi jego karta. Może to kosztować cię poziom, część twojego ekwipunku lub coś gorszego, więc natychmiast zaktualizuj swoje liczby.</p>
+  <p>Najgorszym możliwym wynikiem jest to, że twój bohater umiera. W podstawowej wersji gry nikt nie jest nieprzytomny: tracisz ekwipunek, więc twoja premia ze sprzętu spada do 0, ale <b>twój poziom pozostaje taki, jaki był</b>. Potem kontynuujesz grę.</p>
+  <div class="tip">Po przegranej walce sprawdź dwie liczby: twój poziom i premię ze sprzętu. Twoja siła sam się naprawi, bo to po prostu suma tych dwóch.</div>
+
+  <h2 id="who-wins">Jak wygrywasz</h2>
+  <p>Pierwszy gracz, który osiągnie <b>poziom 10</b>, wygrywa. Jest jednak jeden haczyk: ostatni poziom, czyli przejście z 9 na 10, zazwyczaj <b>można zdobyć tylko zabiciem potwora</b>. Karta, która po prostu daje ci poziom, nie przeniesie cię z 9 na 10, chyba że karta tak mówi.</p>
+  <p>Twój poziom nigdy nie przekracza 10. Jeśli jesteś na 9 poziomie i pokonasz potwora dającego 2 poziomy, osiągniesz 10 poziom, a nie 11, i wygrasz tak samo.</p>
+  <div class="warn"><b>Błędy, które popełnia się na finiszu</b><ul>
+    <li>Przejście z 9 na 10 kartą zamiast walką. 10 poziom wymaga zabitego potwora, chyba że karta wyraźnie na to pozwala.</li>
+    <li>Dawanie pomocnikowi poziomu (tylko Elf dostaje jeden). Jeśli pomagasz komuś zabić potwora, będąc na 9 poziomie, nie awansujesz: tylko gracz, który walczył, dostaje poziomy.</li>
+  </ul></div>
+
+  <h2 id="mistakes">Częste błędy</h2>
+  <div class="warn"><ul>
+    <li>Mylenie poziomu ze siłą. Walczysz siłą, a grę wygrywasz poziomem.</li>
+    <li>Uznawanie remisu za wygraną. Równa siła oznacza, że wygrywa potwór, chyba że Wojownik jest po twojej stronie.</li>
+    <li>Zachowywanie bonusu z mikstury po walce. Jednorazowe premie trwają tylko jedną walkę.</li>
+    <li>Dodawanie tylko poziomu pomocnika. Pomocnik wnosi swój poziom i swój ekwipunek, czyli całą swoją siłę.</li>
+    <li>Spadanie poniżej 1 poziomu. 1 poziom to dno; utrata poziomu na 1 nic nie zmienia.</li>
+    <li>Tracenie poziomu przy śmierci. Śmierć zabiera ekwipunek, nie poziom.</li>
+  </ul></div>
+
+  <h2 id="examples">Przykłady</h2>
+  <div class="examples num">
+    <div class="card"><b>Czysta siła</b><p>4 poziom z bonusem ekwipunku 6. Twoja siła to 4 + 6.</p><div class="big">Siła 10</div></div>
+    <div class="card"><b>Remis</b><p>Siła 10 przeciwko potworowi z 10. Bez Wojownika wygrywa potwór. Jeśli jesteś Wojownikiem, wygrywasz ty.</p><div class="big">Potwór, albo Wojownik</div></div>
+    <div class="card"><b>Ekwipunek poniżej zera</b><p>2 poziom z bonusem ekwipunku −3. Twoja siła to 2 − 3.</p><div class="big">Siła −1</div></div>
+    <div class="card"><b>Z pomocnikiem</b><p>Twoje 10, plus pomocnik na 3 poziomie z ekwipunkiem 2 (razem 5), przeciwko potworowi z 10. 15 to więcej niż 10.</p><div class="big">Wygrywasz</div></div>
+    <div class="card"><b>Wielki finał</b><p>Jesteś na 9 poziomie i zabijasz potwora dającego 2 poziomy. Zatrzymujesz się na 10, a nie 11.</p><div class="big">10 poziom, wygrywasz grę</div></div>
+    <div class="card"><b>Ucieczka</b><p>Przegrałeś i rzucasz 4: pech, wykonaj to, co mówi karta potwora. 5 albo 6 pozwoliłyby ci uciec.</p><div class="big">5 albo 6, by uciec</div></div>
+  </div>
+
+  <h2 id="whole-turn">Cała walka, policzona</h2>
+  <div class="card walk"><ol>
+    <li><b>Twoja siła:</b> jesteś na 6 poziomie z bonusem ekwipunku 4. 6 + 4 = 10.</li>
+    <li><b>Potwór:</b> ma 12 poziomów i dostaje bonus +3 podczas walki. 12 + 3 = 15. Brakuje ci 5.</li>
+    <li><b>Mikstura:</b> używasz jednej wartej 2. Twoja strona ma teraz 10 + 2 = 12. Nadal brakuje 3.</li>
+    <li><b>Pomocnik:</b> inny gracz na 3 poziomie z ekwipunkiem 2 dołącza do ciebie. Jego siła to 3 + 2 = 5, więc twoja strona ma 12 + 5 = 17.</li>
+    <li><b>Porównujemy:</b> 17 przeciwko 15. Twoja strona jest silniejsza, więc wygrywasz. (Gdyby było 15 przeciwko 15, potrzebowałbyś Wojownika po swojej stronie, by wygrać.)</li>
+    <li><b>Poziomy:</b> potwór daje 1 poziom, więc idziesz z 6 na 7. Twój pomocnik zostaje na 3 poziomie.</li>
+    <li><b>Sprzątamy:</b> mikstura przepada. Twoja siła wraca do poziomu plus ekwipunek: 7 + 4 = 11.</li>
+  </ol><div class="sum num">17 przeciwko 15: wygrywasz, poziom 6 → 7, siła teraz 11</div></div>
+
+  <h2 id="common-questions">Częste pytania</h2>
+  <div class="faq">
+    <details open><summary>Kto wygrywa remis?</summary><p>Potwór, chyba że Wojownik walczy po twojej stronie. Jeśli ty albo twój pomocnik jesteście Wojownikiem, remis to twoja wygrana.</p></details>
+    <details><summary>Czy moja siła to to samo co mój poziom?</summary><p>Nie. Siła to twój poziom plus bonus ekwipunku, i to tym walczysz. Do wygranej liczy się tylko twój poziom.</p></details>
+    <details><summary>Czy moja siła może być ujemna?</summary><p>Tak. Jeśli bonus ekwipunku jest poniżej zera, twoja siła też może spaść poniżej zera: 2 poziom z ekwipunkiem −3 to siła −1.</p></details>
+    <details><summary>Czy mój poziom może spaść poniżej 1?</summary><p>Nie. 1 poziom to minimum. Jeśli stracisz poziom na 1, po prostu zostajesz na 1.</p></details>
+    <details><summary>Czy mój pomocnik też awansuje?</summary><p>Nie. Tylko gracz, który walczył z potworem, dostaje poziomy. Pomocnik dodaje swoją siłę i tyle.</p></details>
+    <details><summary>Czy mogę dotrzeć do 10 poziomu kartą?</summary><p>Normalnie nie: 10 poziom dostajesz tylko za zabicie potwora. Jedyny wyjątek to karta, która wyraźnie mówi, że może cię tam dowieźć.</p></details>
+    <details><summary>Co się dzieje, gdy umieram?</summary><p>Tracisz ekwipunek, więc bonus ekwipunku spada do 0. Twój poziom zostaje taki sam, i grasz dalej.</p></details>
+    <details><summary>Co jeśli walczę z dwoma potworami naraz?</summary><p>Dodaj oba potwory razem: ich poziomy i bonusy. Jeśli wygrasz, dostajesz poziomy od obu.</p></details>
+    <details><summary>A co z dodatkami?</summary><p>Ten poradnik dotyczy tylko gry podstawowej; dodatki i inne zestawy Munchkina dodają własne rasy, klasy i zasady (jeden nawet gra do 20 poziomu), więc sprawdź ich instrukcje.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Wolisz trzymać oko na potworach?</b><p>W Score Night poziom, ekwipunek i siła każdego gracza znajdują się na jednym ekranie, walki sumują się same, a aplikacja nie pozwoli nikomu podskoczyć do poziomu 10 bez zabicia.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dmunchkin">▶ Google Play</a></div>
+
+  <p class="disclaimer">Nieoficjalny przewodnik napisany naszymi własnymi słowami. Nie jesteśmy powiązani z wydawcą Munchkin. Nazwy gier należą do ich właścicieli. Pełne zasady znajdują się w podręczniku wydawcy.</p>
+<script type="application/json" id="guide-strings">
+{
+ "termLevel": "poziom {v}",
+ "termGear": "ekwipunek {v}",
+ "termOnce": "jednorazowa premia {v}",
+ "termHelper": "pomocnik {v}",
+ "termBonuses": "premie {v}",
+ "yourSide": "Twoja strona: {expr} = {total}",
+ "monsterSum": "Potwór: {expr} = {total}",
+ "monsterPlain": "Potwór: {expr}",
+ "killMonster": "{you} jest więcej niż {mon}, więc zabijasz potwora.",
+ "tieWarriorWins": "{you} kontra {mon} to remis. Remis wygrywa potwór, ale po twojej stronie walczy wojownik, więc wygrywasz.",
+ "tieMonsterWins": "{you} kontra {mon} to remis, a remis wygrywa potwór. O 1 więcej siły, albo wojownik po twojej stronie, by to wygrać.",
+ "monsterWins": {
+  "one": "{you} jest mniej niż {mon}, więc wygrywa potwór. Potrzebujesz o {n} więcej siły, aby wygrać.",
+  "few": "{you} jest mniej niż {mon}, więc wygrywa potwór. Potrzebujesz o {n} więcej siły, aby wygrać.",
+  "many": "{you} jest mniej niż {mon}, więc wygrywa potwór. Potrzebujesz o {n} więcej siły, aby wygrać.",
+  "other": "{you} jest mniej niż {mon}, więc wygrywa potwór. Potrzebujesz o {n} więcej siły, aby wygrać."
+ },
+ "levelWin": "Awansujesz na poziom 10 i wygrywasz grę!",
+ "levelUpTo9": "Awansujesz o poziom, do 9. Jeśli potwór daje 2 poziomy, osiągasz 10 i wygrywasz grę!",
+ "levelUp": "Awansujesz o poziom, do {a} (lub do {b}, jeśli potwór daje 2 poziomy).",
+ "helperNoLevel": "Twój pomocnik nie dostaje poziomu (chyba że jest elfem).",
+ "runAway": "Rzuć kostką, żeby uciec: 5 lub 6 pozwala ci uciec. W przeciwnym razie rób to, co mówi karta potwora.",
+ "headWin": "Wygrywasz!",
+ "headLose": "Wygrywa potwór"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { lvl: 5, gear: 7, once: 0, help: 0, mlvl: 10, mbon: 0 };
+const lim = { lvl: [1, 10], gear: [-20, 60], once: [-20, 40], help: [0, 60], mlvl: [1, 30], mbon: [-20, 40] };
+const num = x => x < 0 ? '−' + (-x) : String(x);
+function fight(s, warrior) {
+  const you = s.lvl + s.gear + s.once + s.help, mon = s.mlvl + s.mbon;
+  const side = [f(T.termLevel, { v: s.lvl }), f(T.termGear, { v: num(s.gear) })];
+  if (s.once) side.push(f(T.termOnce, { v: num(s.once) }));
+  if (s.help) side.push(f(T.termHelper, { v: num(s.help) }));
+  const monLevel = f(T.termLevel, { v: s.mlvl });
+  const lines = [f(T.yourSide, { expr: side.join(' + '), total: num(you) }),
+    s.mbon ? f(T.monsterSum, { expr: monLevel + ' + ' + f(T.termBonuses, { v: num(s.mbon) }), total: num(mon) }) : f(T.monsterPlain, { expr: monLevel })];
+  const won = you > mon || (you === mon && warrior);
+  const vs = { you: num(you), mon: num(mon) };
+  if (you > mon) lines.push(f(T.killMonster, vs));
+  else if (you === mon && warrior) lines.push(f(T.tieWarriorWins, vs));
+  else if (you === mon) lines.push(f(T.tieMonsterWins, vs));
+  else lines.push(p(T.monsterWins, mon - you + (warrior ? 0 : 1), vs));
+  if (won) {
+    lines.push(s.lvl >= 9 ? T.levelWin
+      : s.lvl === 8 ? T.levelUpTo9
+      : f(T.levelUp, { a: s.lvl + 1, b: s.lvl + 2 }));
+    if (s.help) lines.push(T.helperNoLevel);
+  } else lines.push(T.runAway);
+  return { won, head: won ? T.headWin : T.headLose, lines };
+}
+function draw() {
+  for (const k in v) document.getElementById(k).textContent = num(v[k]);
+  const r = fight(v, document.getElementById('warrior').checked);
+  document.getElementById('pts').textContent = r.head;
+  document.getElementById('box').classList.toggle('lost', !r.won);
+  document.getElementById('how').innerHTML = r.lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => { const k = b.dataset.k; v[k] = Math.max(lim[k][0], Math.min(lim[k][1], v[k] + +b.dataset.d)); draw(); });
+document.getElementById('warrior').onchange = draw;
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../pl/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../pl/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/pl/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Polski</summary><div class="menu"><a href="../../../guides/munchkin/">English</a><a href="../../../ru/guides/munchkin/">Русский</a><a href="../../../uk/guides/munchkin/">Українська</a><a href="../../../pl/guides/munchkin/" class="current">Polski</a><a href="../../../cs/guides/munchkin/">Čeština</a><a href="../../../de/guides/munchkin/">Deutsch</a><a href="../../../fr/guides/munchkin/">Français</a><a href="../../../es/guides/munchkin/">Español</a><a href="../../../pt/guides/munchkin/">Português</a><a href="../../../tr/guides/munchkin/">Türkçe</a><a href="../../../ja/guides/munchkin/">日本語</a><a href="../../../ko/guides/munchkin/">한국어</a><a href="../../../zh/guides/munchkin/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

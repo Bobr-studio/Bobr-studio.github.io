@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Як рахувати очки в Каркасоні — Bobr Studio</title>
+<meta name="description" content="Простими словами: як порахувати очки в базовому Каркасоні — дороги, міста, монастирі й поля, під час гри та наприкінці.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../uk/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Правила ігор</a><details class="langs"><summary>🌐 Українська</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/" class="current">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Правила ігор</a> › Каркасон</div>
+  <h1>Як рахувати очки в Каркасоні <span class="hand">базова гра, крок за кроком</span></h1>
+  <p class="lead">У Каркасоні очки нараховують у два різні моменти. Під час гри кожна добудована дорога, місто чи монастир одразу приносить очки, а піддані з нього повертаються до власників. Коли викладено останній тайл, усе недобудоване приносить менше очок, а потім ідуть поля, на яких плутаються майже всі. Тут обидва етапи пояснено з прикладами, а калькулятор порахує за вас підсумок кінця партії.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Ваш підрахунок наприкінці партії</h3>
+      <p>Коли викладено останній тайл, дивіться лише на недобудовані дороги, міста й монастирі, де ваших підданих найбільше (або порівну з лідером), і на поля, де найбільше ваших селян. Додайте все разом.</p>
+      <div class="group">Недобудовані міста</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">Тайли міст<small>тайли, на яких є частина ваших недобудованих міст</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="На один тайл міста менше">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="На один тайл міста більше">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Щити<small>герби всередині цих міст</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="На один щит менше">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="На один щит більше">+</button></div></div>
+      <div class="group">Недобудовані дороги</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Тайли доріг<small>тайли, через які проходять ваші недобудовані дороги</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="На один тайл дороги менше">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="На один тайл дороги більше">+</button></div></div>
+      <div class="group">Недобудовані монастирі</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Монастирі<small>ваші монастирі, оточені не повністю</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="На один монастир менше">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="На один монастир більше">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Тайли навколо них<small>рахуються всі 8 сусідів, разом із кутами; не більше 7 на монастир</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="На один тайл навколо менше">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="На один тайл навколо більше">+</button></div></div>
+      <div class="group">Поля</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Добудовані міста<small>поруч із полями, де ви лідируєте; рахуйте поле за полем</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="На одне добудоване місто менше">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="На одне добудоване місто більше">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 очок</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Увесь рахунок — у телефоні</b><p>Score Night замінює доріжку очок: позначайте кожну добудовану дорогу, місто й монастир, а наприкінці — фінальний підрахунок кожного гравця.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Завантажити в Google Play</a></div>
+      <ul><li>Працює без інтернету, для 2–5 гравців</li><li>Більше не треба пам'ятати, скільки кіл пройшла фішка</li><li>Дві партії кожної гри — безкоштовно</li></ul>
+      <div class="toc"><b>На цій сторінці</b><ol><li><a href="#when-to-count">Коли рахувати</a></li><li><a href="#who-gets-points">Хто отримує очки</a></li><li><a href="#roads">Дороги</a></li><li><a href="#cities">Міста та щити</a></li><li><a href="#monasteries">Монастирі</a></li><li><a href="#fields">Поля</a></li><li><a href="#field-examples">Приклади полів</a></li><li><a href="#mistakes">Часті помилки</a></li><li><a href="#who-wins">Хто переміг</a></li><li><a href="#whole-game">Приклад кінця партії</a></li><li><a href="#common-questions">Часті запитання</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Коли рахувати</h2>
+  <ol class="steps">
+    <li><b>Під час гри — щойно щось добудовано.</b> Коли тайл замикає дорогу, місто чи монастир, він одразу приносить очки, навіть якщо зараз хід іншого гравця. У кого там більше підданих, той пересуває свою фішку доріжкою очок, а потім усі піддані з цього об'єкта повертаються до власників і знову готові до справи.</li>
+    <li><b>Більше під час гри нічого не рахується.</b> Недобудоване чекає кінця, а поля до кінця не рахуються ніколи. Селянин, поставлений на поле, лишається там до кінця партії.</li>
+    <li><b>Викладено останній тайл — гру закінчено.</b> Тепер подивіться на всіх підданих, які ще стоять на столі. Кожен із них стоїть на чомусь недобудованому: дорозі, місті чи монастирі. Порахуйте їх по одному об'єкту, але менше, ніж за добудовані (міста й монастирі дешевші, дороги коштують стільки ж).</li>
+    <li><b>Поля — наприкінці.</b> Коли пораховано все недобудоване, рахуйте поля із селянами. Поле приносить очки за добудовані міста поруч, тому його рахують, лише коли вже нічого не може змінитися.</li>
+  </ol>
+  <div class="tip">Найпростіше прибирати пораховане: порахували об'єкт, зняли підданих, перейшли до наступного. Коли лишилися самі селяни — час рахувати поля.</div>
+
+  <h2 id="who-gets-points">Хто отримує очки</h2>
+  <p>Не можна поставити підданого на дорогу, місто чи поле, де вже хтось стоїть, навіть свій. Але два окремі шматки з підданими можуть розростися й з'єднатися, і тоді на одному об'єкті опиниться кілька підданих. Під час підрахунку рахують підданих кожного гравця. Усі очки отримує той, у кого їх більше. Якщо найбільше порівну у двох гравців чи більше, <b>кожен із них отримує очки повністю</b>, нічого не ділиться. Ті, у кого підданих менше, не отримують нічого. Об'єкт без підданих не приносить очок нікому.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Приклад:</b> добудоване місто з 5 тайлів із 2 щитами коштує 10 + 4 = 14 очок. В Анни там 2 піддані, у Максима 2, у вас 1. Анна й Максим отримують по 14 очок. Ви не отримуєте нічого, але підданий однаково повертається до вас.</div></div></div>
+
+  <h2 id="roads">Дороги</h2>
+  <div class="line"><div class="card"><h3>Що рахувати</h3>
+    <p>Пройдіть дорогою від одного кінця до іншого й порахуйте тайли, через які вона йде. Дорогу добудовано, коли обидва її кінці закриті: перехрестям, містом, монастирем, або коли вона замкнулася в кільце.</p>
+    <p><span class="when during">Під час гри</span>Добудована дорога дає 1 очко за кожен тайл.</p>
+    <p><span class="when end">Наприкінці гри</span>Недобудована дорога теж дає 1 очко за тайл. Дорога — єдиний об'єкт, що коштує однаково в обох випадках.</p>
+    <p class="where">Де дивитися: піддані на дорогах.</p>
+    <div class="ex"><b>Приклад:</b> дорога починається біля перехрестя, проходить через 2 звичайні тайли й упирається в ворота міста. Разом із тайлом перехрестя й тайлом міста це 4 тайли, тобто 4 очки. Якщо наприкінці гри в дороги з 3 тайлів один кінець досі відкритий, вона дає 3 очки.</div></div></div>
+
+  <h2 id="cities">Міста та щити</h2>
+  <div class="line"><div class="card"><h3>Що рахувати</h3>
+    <p>Порахуйте тайли, на яких є хоч шматочок міста, потім порахуйте щити. Щит — маленький герб, намальований на деяких тайлах міста. Місто добудоване, коли його стіни зімкнулися повністю, без дірок і відкритих країв.</p>
+    <p><span class="when during">Під час гри</span>Добудоване місто дає 2 очки за кожен тайл і ще 2 за кожен щит. Найменше місто — 2 тайли без щитів — коштує 4 очки.</p>
+    <p><span class="when end">Наприкінці гри</span>Недобудоване місто дає лише 1 очко за тайл і 1 за щит, тобто вдвічі менше за добудоване.</p>
+    <p class="where">Де дивитися: піддані всередині міських стін.</p>
+    <div class="ex"><b>Приклад:</b> добудоване місто з 4 тайлів з 1 щитом дає 4 × 2 = 8 очок за тайли й 2 за щит, разом 10 очок. Недобудоване місто з 3 тайлів з 1 щитом наприкінці гри дає 3 + 1 = 4 очки.</div></div></div>
+
+  <h2 id="monasteries">Монастирі</h2>
+  <div class="line"><div class="card"><h3>Що рахувати</h3>
+    <p>Монастир стоїть у центрі свого тайла. Подивіться на 8 сусідніх місць: ліворуч, праворуч, зверху, знизу й чотири кути. Монастир добудовано, коли всі 8 місць зайняті тайлами.</p>
+    <p><span class="when during">Під час гри</span>Добудований монастир дає 9 очок: 1 за свій тайл і по 1 за кожен із 8 тайлів навколо.</p>
+    <p><span class="when end">Наприкінці гри</span>Недобудований монастир дає 1 очко за свій тайл і по 1 за кожен тайл навколо, який уже викладено. Тобто від 1 до 8 очок.</p>
+    <p class="where">Де дивитися: піддані на монастирях. На монастирі може стояти лише один підданий, тож ділити тут нічого.</p>
+    <div class="ex"><b>Приклад:</b> наприкінці гри навколо вашого монастиря 5 тайлів і 3 порожні місця. Це 1 + 5 = 6 очок.</div></div></div>
+
+  <h2 id="fields">Поля</h2>
+  <div class="line"><div class="card"><h3>Що рахувати</h3>
+    <p>Поле — це зелена трава. Воно тягнеться тайлами, доки трава не переривається; дороги, міські стіни й край викладеної карти ділять його, тож одна велика галявина може виявитися кількома окремими полями. Підданий, що лежить на полі, — це селянин.</p>
+    <p><span class="when during">Під час гри</span>Нічого. Поля до кінця не рахуються, а селяни так і лежать на місці.</p>
+    <p><span class="when end">Наприкінці</span>Беріть поля із селянами по одному. Знайдіть усі <b>добудовані</b> міста, стіни яких торкаються цього поля. У кого на полі більше селян, той отримує по 3 очки за кожне таке місто. Недобудовані міста полям нічого не дають.</p>
+    <p class="where">Де дивитися: селяни, що лежать на траві; обійдіть край їхнього поля й подивіться на кожну міську стіну, якої воно торкається.</p>
+    <div class="ex"><b>Приклад:</b> поле вашого селянина торкається 3 добудованих міст і 1 недобудованого. Це 3 × 3 = 9 очок; недобудоване місто не рахується.</div>
+    <p>Кожне поле рахується окремо. Якщо місто торкається двох різних полів, воно зараховується обом. І якщо обидва поля виграв той самий гравець, це місто приносить йому 3 очки двічі.</p></div></div>
+  <div class="tip"><b>Як зручно знайти міста поля:</b> поставте палець на селянина й ведіть травою назовні, не переходячи через дороги й стіни. Кожне добудоване місто, вздовж стіни якого пройшов палець, рахується для цього поля один раз, хоч би якою довгою була стіна.</div>
+
+  <h2 id="field-examples">Приклади полів</h2>
+  <div class="examples num">
+    <div class="card"><b>Одне поле, багато міст</b><p>Ваш селянин сам на великому полі. По його краю 4 добудовані міста й 2 недобудовані. Рахуються лише добудовані: 4 × 3.</p><div class="big">12 очок</div></div>
+    <div class="card"><b>Місто між двома полями</b><p>Дорога ділить траву навпіл, і обидві половини торкаються одного й того самого добудованого міста. Ваш селянин на північному полі, селянин Анни — на південному. Це два різні поля, тож ви обоє отримуєте за це місто по 3.</p><div class="big">По 3 кожному</div></div>
+    <div class="card"><b>Спільне поле</b><p>Під час гри два поля із селянами з'єдналися. Тепер у вас і в Анни там по 2 селянина, і поле торкається 5 добудованих міст. Порівну — отже, обоє отримують по 5 × 3.</p><div class="big">По 15 кожному</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>Вас менше</b><p>Те саме поле, але в Анни 2 селяни, а у вас 1. В Анни більше, вона отримує всі 15, а ви за це поле нічого.</p><div class="big">Вам 0</div></div>
+    <div class="card"><b>Один гравець, два поля</b><p>У вас по селянину на двох полях, і одне добудоване місто торкається обох. Кожне поле рахує його окремо, тож місто дає вам 3 + 3.</p><div class="big">6 очок</div></div>
+    <div class="card"><b>Немає добудованих міст</b><p>Селянин на полі, яке торкається лише недобудованих міст або взагалі жодних, очок не приносить. Він просто лежить.</p><div class="big">0 очок</div></div>
+  </div>
+
+  <h2 id="mistakes">Часті помилки</h2>
+  <div class="warn"><b>Помилки, яких найчастіше припускаються під час підрахунку в Каркасоні</b><ul>
+    <li>Рахувати недобудовані міста наприкінці як добудовані. Тайл добудованого міста коштує 2, недобудованого — лише 1, і зі щитами так само.</li>
+    <li>Забувати тайл самого монастиря. Недобудований монастир із 5 сусідами коштує 6, а не 5.</li>
+    <li>Рахувати недобудовані міста для полів. Поля приносять очки лише за добудовані міста.</li>
+    <li>Ділити очки за нічиєї. Кожен, у кого найбільше підданих, отримує очки повністю.</li>
+    <li>Давати очки тому, у кого підданих менше. Очки отримує лише той (або ті), у кого найбільше.</li>
+    <li>Рахувати поля під час гри або забирати селян назад. Селяни лежать до самого кінця.</li>
+    <li>Забувати повернути підданих після того, як об'єкт порахували під час гри.</li>
+    <li>Рахувати шматки стін замість тайлів. Кожен тайл рахується один раз, хоч скільки шматочків міста на ньому було б.</li>
+  </ul></div>
+
+  <h2 id="who-wins">Хто переміг</h2>
+  <p>Ваш підсумок — усе, що ви набрали на доріжці очок під час гри, плюс недобудоване й поля наприкінці. Перемагає той, у кого більше очок. Якщо у двох порівну, перемога спільна. Доріжка коротша, ніж звичайний підсумковий рахунок, тож якщо ваша фішка пройшла коло, не забудьте додати кола.</p>
+
+  <h2 id="whole-game">Приклад кінця партії</h2>
+  <div class="card walk"><p>Щойно викладено останній тайл, і ваша фішка на доріжці показує 64 очки, набрані під час гри. Ось що лишилося на столі:</p><ol>
+    <li><b>Недобудоване місто</b> з 3 тайлів з 1 щитом, де стоїть лише ваш підданий: 3 + 1 = 4 очки.</li>
+    <li><b>Недобудована дорога</b> з 2 тайлів із вашим підданим: 2 очки.</li>
+    <li><b>Недобудований монастир</b>, навколо якого 5 тайлів: 1 + 5 = 6 очок.</li>
+    <li><b>Ваше перше поле</b>, де ваш селянин сам, торкається 3 добудованих міст: 3 × 3 = 9 очок.</li>
+    <li><b>Ваше друге поле</b> ви ділите з Анною, у кожного по 1 селянину, і воно торкається 2 добудованих міст. Порівну — отже, обоє отримуєте 2 × 3 = 6 очок.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 очко</div><p>Щоб перевірити це калькулятором вище, введіть 3 тайли міста, 1 щит, 2 тайли дороги, 1 монастир із 5 тайлами навколо й 5 добудованих міст для полів (3 з першого поля і 2 з другого). Він покаже 27 очок — їх ви додаєте до своїх 64.</p></div>
+
+  <h2 id="common-questions">Часті запитання</h2>
+  <div class="faq">
+    <details open><summary>Чи отримаю я очки за об'єкт, якщо на ньому немає мого підданого?</summary><p>Ні. Очки за об'єкт отримують лише ті, у кого на ньому найбільше підданих. Добудоване місто без підданих не приносить очок нікому, але наприкінці гри воно ще може допомогти селянам на сусідніх полях.</p></details>
+    <details><summary>Що, як я добудував об'єкт і того ж ходу поставив на нього підданого?</summary><p>Об'єкт одразу зараховується, і підданий повертається до вас того ж ходу.</p></details>
+    <details><summary>Чи ділимо ми очки, якщо підданих порівну?</summary><p>Ні. Кожен, у кого підданих порівну з лідером, отримує очки повністю.</p></details>
+    <details><summary>Чи може одне місто давати очки двом полям?</summary><p>Так. Кожне поле рахується окремо, тож місто, яке торкається кількох полів, зараховується кожному з них.</p></details>
+    <details><summary>Чи повертаються селяни?</summary><p>Ні. Селянин лежить на полі до кінця гри, тож подумайте двічі, перш ніж класти його рано.</p></details>
+    <details><summary>Місто з двох тайлів коштує менше?</summary><p>Ні, за нинішніми правилами це ті самі 2 очки за тайл, як у будь-якого міста, тобто 4 очки за добудоване. У старих виданнях правил були відмінності в дрібницях; якщо граєте за старою книгою правил, дотримуйтеся її.</p></details>
+    <details><summary>А доповнення?</summary><p>Тут лише базова гра; доповнення на кшталт «Таверн і соборів» чи абата додають нові фігурки й змінюють частину очок, про них розповімо на окремих сторінках.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Не хочеться рахувати вручну?</b><p>У Score Night ви натискаєте на дорогу, місто чи монастир, коли їх добудовано, обираєте, хто отримує очки, а наприкінці вводите, що лишилося. Усі суми додаються самі, і кожне нарахування лишається в журналі.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Неофіційна пам'ятка, написана своїми словами. Не пов'язана з видавцем Каркасона. Назви ігор належать їхнім власникам. Повні правила — у книзі правил від видавця.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} очко",
+  "few": "{n} очки",
+  "many": "{n} очок",
+  "other": "{n} очка"
+ },
+ "tiles": {
+  "one": "{n} тайл",
+  "few": "{n} тайли",
+  "many": "{n} тайлів",
+  "other": "{n} тайла"
+ },
+ "shields": {
+  "one": "{n} щит",
+  "few": "{n} щити",
+  "many": "{n} щитів",
+  "other": "{n} щита"
+ },
+ "finishedCities": {
+  "one": "{n} добудоване місто",
+  "few": "{n} добудовані міста",
+  "many": "{n} добудованих міст",
+  "other": "{n} добудованого міста"
+ },
+ "cityLine": "Недобудовані міста: {tiles}, по 1 очку = {pts}",
+ "cityShieldLine": "Недобудовані міста: {tiles} і {shields}, по 1 очку = {pts}",
+ "roadLine": "Недобудовані дороги: {tiles}, по 1 очку = {pts}",
+ "monasteryLine": {
+  "one": "{n} недобудований монастир: 1 очко за сам монастир + {tiles} навколо = {pts}",
+  "few": "{n} недобудовані монастирі: по 1 очку за кожен монастир ({n}) + {tiles} навколо = {pts}",
+  "many": "{n} недобудованих монастирів: по 1 очку за кожен монастир ({n}) + {tiles} навколо = {pts}",
+  "other": "{n} недобудованого монастиря: по 1 очку за кожен монастир ({n}) + {tiles} навколо = {pts}"
+ },
+ "fieldLine": "Поля: {cities}, по 3 очки = {pts}",
+ "addToTrack": "Додайте це до свого рахунку на доріжці очок",
+ "emptyHint": "Введіть вище, що лишилося на столі, і тут з'являться очки"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../uk/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../uk/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/uk/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Українська</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/" class="current">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

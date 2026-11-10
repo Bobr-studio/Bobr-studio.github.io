@@ -1,0 +1,302 @@
+<!doctype html>
+<html lang="cs">
+<head>
+<meta charset="utf-8">
+<script>if(location.hostname.endsWith('github.io'))location.replace('https://bobrstudio.dev'+location.pathname+location.search+location.hash)</script>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jak počítat body v Carcassonne — Bobr Studio</title>
+<meta name="description" content="Jednoduchý průvodce počítáním bodů ve základní hře Carcassonne: Cesty, Města, Kláštery, Pole, během hry a na konci.">
+<link rel="icon" href="../../../assets/score-night-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@700&family=Fredoka:wght@500;600;700&family=Rubik:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../../../assets/guides/guide-base.css">
+<style>
+  .top { display: grid; grid-template-columns: 1.25fr 1fr; gap: 26px; align-items: start; margin-top: 22px; }
+  .calc h3 { margin-bottom: 4px; } .calc > p { margin: 0 0 10px; color: var(--muted); font-size: 15px; }
+  .calc .group { margin: 14px 0 0; font: 600 15px Fredoka, sans-serif; color: var(--accent); text-transform: uppercase; letter-spacing: .6px; }
+  .row { display: grid; grid-template-columns: 34px 1fr auto; gap: 12px; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--line); }
+  .row span.name { font-weight: 500; line-height: 1.25; } .row small { display: block; color: var(--muted); font-size: 13px; font-weight: 400; }
+  .sym.ci { background: #6F6857; } .sym.sh { background: var(--accent); } .sym.rd { background: #80602F; } .sym.mo { background: #6B4232; } .sym.ar { background: #8A5A45; } .sym.fi { background: #4A7229; }
+  .step { display: flex; align-items: center; gap: 6px; }
+  .step button { width: 48px; height: 48px; border-radius: 14px; border: 2px solid var(--line); background: #fff; font: 700 24px Rubik; color: var(--river); cursor: pointer; }
+  .step output { min-width: 34px; text-align: center; font: 700 24px Fredoka, sans-serif; }
+  .result { margin-top: 14px; background: var(--river); color: var(--cream); border-radius: 16px; padding: 16px 20px; }
+  .result .pts { font: 700 40px/1 Fredoka, sans-serif; color: var(--accent2); margin-bottom: 8px; }
+  .result ul { margin: 0; padding-left: 18px; font-size: 15px; line-height: 1.5; opacity: .95; }
+  .side .cta { grid-template-columns: 56px 1fr; } .side .cta img { width: 56px; height: 56px; } .side .cta .btn { grid-column: 1 / -1; justify-content: center; }
+  .side ul { margin: 12px 0 0; padding-left: 20px; color: var(--muted); font-size: 16px; }
+  .toc { margin-top: 18px; background: #fff; border-radius: 16px; padding: 14px 20px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .toc b { color: var(--river); } .toc ol { margin: 6px 0 0; padding-left: 20px; columns: 2; column-gap: 30px; } .toc li { margin: 2px 0; }
+  ol.steps { list-style: none; padding: 0; margin: 14px 0 0; counter-reset: s; display: grid; gap: 12px; }
+  ol.steps li { counter-increment: s; background: #fff; border-radius: 16px; padding: 14px 18px 14px 62px; position: relative; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  ol.steps li::before { content: counter(s); position: absolute; left: 16px; top: 14px; width: 32px; height: 32px; border-radius: 50%; background: var(--river); color: var(--cream); font: 700 17px Fredoka; display: flex; align-items: center; justify-content: center; }
+  ol.steps b, .card b { color: var(--river); }
+  .tip { background: #F7EFD9; border-left: 4px solid var(--accent2); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn { background: #FBEAE5; border-left: 4px solid var(--accent); border-radius: 10px; padding: 12px 16px; margin-top: 14px; }
+  .warn ul, .tip ul { margin: 6px 0 0; padding-left: 20px; }
+  .examples { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 12px; }
+  .examples .card { padding: 16px 18px; } .examples p { margin: 6px 0 0; font-size: 15px; }
+  .examples .big { font: 700 26px Fredoka, sans-serif; color: var(--accent); }
+  .line { margin-top: 14px; } .line .card { padding: 20px 22px; }
+  .line p { margin: 8px 0 0; }
+  .line .when { display: inline-block; font: 600 13px Rubik, sans-serif; text-transform: uppercase; letter-spacing: .5px; border-radius: 8px; padding: 2px 9px; margin-right: 6px; }
+  .line .when.during { background: #E5EDDC; color: var(--river); } .line .when.end { background: #F6E3DC; color: #8E3322; }
+  .line .where { color: var(--muted); font-size: 14px; }
+  .line .ex { background: #EEF0E6; border-radius: 10px; padding: 8px 12px; font-size: 15px; margin-top: 10px; }
+  .faq details { background: #fff; border-radius: 14px; padding: 12px 18px; margin-top: 10px; box-shadow: 0 4px 14px rgba(46,75,35,.06); }
+  .faq summary { font: 600 18px Fredoka, sans-serif; color: var(--river); cursor: pointer; }
+  .faq p { margin: 8px 0 2px; }
+  .walk { margin-top: 12px; } .walk ol { margin: 0; padding-left: 22px; } .walk li { margin: 6px 0; } .walk > p { margin: 0 0 10px; }
+  .walk .sum { font: 700 22px Fredoka, sans-serif; color: var(--river); margin-top: 10px; }
+  @media (max-width: 720px) { .top, .examples { grid-template-columns: 1fr; } .toc ol { columns: 1; } ol.steps li { padding-left: 56px; } }
+
+/* Настроение «средневековый юг Франции» для страницы Каркассона: зелень полей, светлый камень стен, красная черепица. Свои цвета, не цвета коробки и логотипа. */
+:root { --river: #2E4B23; --river-2: #44652F; --cream: #F0ECE2; --ink: #26291F; --muted: #5A5E50; --line: #D9D2C1; --accent: #A93F2B; --accent2: #E0B25C; }
+body { background: var(--cream) radial-gradient(circle at 85% 0, #F8F5EE, transparent 60%); }
+.studio { background: linear-gradient(180deg, #2E4B23, #44652F); }
+h1, h2 { letter-spacing: .3px; }
+h2::before { content: ""; display: inline-block; width: 22px; height: 4px; background: var(--accent); border-radius: 2px; vertical-align: middle; margin-right: 10px; }
+.card, .line .card, ol.steps li, .faq details, .toc { border: 1px solid #E2DCCB; }
+.result { background: linear-gradient(135deg, #2E4B23, #3D5C2A); }
+</style>
+<link rel="canonical" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
+<link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
+<link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
+<style>
+.langs { position: relative; }
+.langs summary { list-style:none; cursor:pointer; padding:5px 14px; border-radius:999px; border:2px solid rgba(247,241,232,.35); color:#F7F1E8; font:500 15px Rubik,sans-serif; }
+.langs summary::-webkit-details-marker { display:none; }
+.langs[open] summary { background:rgba(247,241,232,.12); }
+.langs .menu { position:absolute; right:0; top:calc(100% + 8px); z-index:10; background:#fff; border-radius:16px; padding:8px; box-shadow:0 14px 34px rgba(0,0,0,.25); }
+.langs .menu a { display:block; padding:7px 12px; border-radius:10px; color:#1E2A2F; text-decoration:none; font:500 15px Rubik,sans-serif; white-space:nowrap; }
+.langs .menu a.current { background:#FFF0E0; color:#A85A0E; font-weight:700; }
+@media(max-width:720px){.studio nav a.guides-link{display:none}}
+</style>
+</head>
+<body>
+<header class="studio">
+  <div class="wrap">
+    <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+      <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+      <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+    </a>
+    <nav><a class="guides-link" href="../../../guides/">Pravidla her</a><details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/" class="current">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details></nav>
+  </div>
+</header>
+<main class="page"><div class="crumbs"><a href="../../../guides/">Pravidla her</a> › Carcassonne</div>
+  <h1>Jak počítat body v Carcassonne <span class="hand">základní hra, krok za krokem</span></h1>
+  <p class="lead">V Carcassonne bodujete ve dvou různých momentech. Během hry se každá Cesta, Město nebo Klášter boduje v okamžiku dokončení, a poddaní na nich se vracejí domů. Když padne poslední dílek, všechno, co je stále Nedokončené, se boduje méně, a pak přichází Pole, což zmatuje téměř každého. Tato stránka vysvětluje oba aspekty, se zobrazením příkladů, a kalkulátor počítá konec hry za vás.</p>
+
+  <div class="top">
+    <div class="card calc">
+      <h3>Vaše konečné počítání bodů</h3>
+      <p>Po posledním dílku se podívejte pouze na Nedokončené Cesty, Města a Kláštery, kde máte nejvíce poddaných (nebo je stejný počet), a na Pole, kde máte nejvíce sedláků. Sečtěte čísla z nich všech.</p>
+      <div class="group">Nedokončená města</div>
+      <div class="row"><span class="sym ci">C</span><span class="name">Dílky Města<small>dílky s částí vašich nedokončených měst</small></span><div class="step"><button data-k="ct" data-d="-1" aria-label="Odaný jeden dílek města">−</button><output id="ct">3</output><button data-k="ct" data-d="1" aria-label="Navíc jeden dílek města">+</button></div></div>
+      <div class="row"><span class="sym sh">S</span><span class="name">Erby<small>erby uvnitř těch měst</small></span><div class="step"><button data-k="sh" data-d="-1" aria-label="Odaný jeden erb">−</button><output id="sh">1</output><button data-k="sh" data-d="1" aria-label="Navíc jeden erb">+</button></div></div>
+      <div class="group">Nedokončené cesty</div>
+      <div class="row"><span class="sym rd">R</span><span class="name">Dílky Cesty<small>dílky, které procházejí vašimi nedokončenými cestami</small></span><div class="step"><button data-k="rd" data-d="-1" aria-label="Odaný jeden dílek cesty">−</button><output id="rd">0</output><button data-k="rd" data-d="1" aria-label="Navíc jeden dílek cesty">+</button></div></div>
+      <div class="group">Nedokončené kláštery</div>
+      <div class="row"><span class="sym mo">M</span><span class="name">Kláštery<small>vaši klášteri, které nejsou zcela obklopeny</small></span><div class="step"><button data-k="mo" data-d="-1" aria-label="Odaný jeden klášter">−</button><output id="mo">1</output><button data-k="mo" data-d="1" aria-label="Navíc jeden klášter">+</button></div></div>
+      <div class="row"><span class="sym ar">+</span><span class="name">Dílky kolem nich<small>počítají se všechny 8 sousedů, i rohy; maximálně 7 pro každý</small></span><div class="step"><button data-k="ar" data-d="-1" aria-label="Odaný jeden dílek kolem">−</button><output id="ar">5</output><button data-k="ar" data-d="1" aria-label="Navíc jeden dílek kolem">+</button></div></div>
+      <div class="group">Pole</div>
+      <div class="row"><span class="sym fi">F</span><span class="name">Dokončená města<small>dotýkající se polí, která vyhráváte, počítáno pole po poli</small></span><div class="step"><button data-k="fc" data-d="-1" aria-label="Odané jedno dokončené město">−</button><output id="fc">3</output><button data-k="fc" data-d="1" aria-label="Navíc jedno dokončené město">+</button></div></div>
+      <div class="result"><div class="pts num" id="pts" aria-live="polite">19 bodů</div><ul id="how"></ul></div>
+    </div>
+    <div class="side">
+      <div class="cta"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Udržujte celý výsledek ve svém telefonu</b><p>Score Night nahrazuje trajektorii bodování: zaznamte každou cestu, město nebo klášter při dokončení, a poté konec hry pro každého hráče.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Získejte na Google Play</a></div>
+      <ul><li>Funguje bez internetu, pro 2 až 5 hráčů</li><li>Už žádné ztracené kola kolem tratě</li><li>Dvě partie každé hry zdarma</li></ul>
+      <div class="toc"><b>Na této stránce</b><ol><li><a href="#when-to-count">Kdy počítat</a></li><li><a href="#who-gets-points">Kdo dostane body</a></li><li><a href="#roads">Cesty</a></li><li><a href="#cities">Města a erby</a></li><li><a href="#monasteries">Kláštery</a></li><li><a href="#fields">Pole</a></li><li><a href="#field-examples">Příklady polí</a></li><li><a href="#mistakes">Časté chyby</a></li><li><a href="#who-wins">Kdo vyhrává</a></li><li><a href="#whole-game">Konec hry, vyčíslený</a></li><li><a href="#common-questions">Časté otázky</a></li></ol></div>
+    </div>
+  </div>
+
+  <h2 id="when-to-count">Kdy počítat</h2>
+  <ol class="steps">
+    <li><b>Během hry, v okamžiku dokončení něčeho.</b> Když dílek uzavře Cestu, Město nebo Klášter, ten prvek je ihned bodován, i když je to kolo jiného hráče. Hráč s nejvíce poddaných na něm posune svůj značku po trajektorii bodování, a pak každý poddaný na tomto prvku se vrátí svému majiteli, připravený být umístěn znovu.</li>
+    <li><b>Nic jiného během hry se neboduje.</b> Nedokončené prvky čekají a Pole se nikdy nepočítají před koncem. Sedlák ležící na poli zůstane tam po celou hru.</li>
+    <li><b>Když je umístěn poslední dílek, hra skončí.</b> Nyní se podívejte na každý poddaný, který je stále na stole. Každý stojí na něčem Nedokončeném: na cestě, městě nebo klášteri. Bodujte je po jednom, ale méně bodů než dokončené prvky (města a kláštery stojí méně, cesty zůstávají stejné).</li>
+    <li><b>Pole jsou naposledy.</b> Jakmile jsou spočítány všechny nedokončené prvky, bodujte pole se sedláky. Pole přináší body za dokončená města vedle něj, proto ho bodujete teprve, když se už nic nemůže změnit.</li>
+  </ol>
+  <div class="tip">Nejjednodušší je stůl uklízet postupně: bodujte prvek, sundejte jeho poddany, pokračujte k dalšímu. Když zůstanou jen sedláci, je čas na pole.</div>
+
+  <h2 id="who-gets-points">Kdo dostane body</h2>
+  <p>Nemůžete položit poddaného na cestu, do města nebo na pole, které už poddaného má, ani na své vlastní. Ale dva oddělené díly s poddany mohou včas růst a spojit se, a pak jeden prvek má několik poddaných. Když se boduje, spočítejte poddany každého hráče tam. Hráč s nejvíce poddany dostane všechny body. Pokud jsou dva nebo více hráčů shodně s nejvíce, <b>každý z nich dostane plný počet bodů</b>, nikdo nic nedělí. Hráči s menším počtem poddaných nedostanou nic. Prvek bez poddaných vůbec nedává body nikomu.</p>
+  <div class="line"><div class="card"><div class="ex" style="margin-top:0"><b>Příklad:</b> dokončené město má 5 dílků a 2 erby, tedy je hodno 10 + 4 = 14 bodů. Anna má v něm 2 poddany, Michal má 2 a vy máte 1. Anna a Michal dostanou každý 14 bodů. Vy nedostanete nic, ale váš poddaný se vrátí.</div></div></div>
+
+  <h2 id="roads">Cesty</h2>
+  <div class="line"><div class="card"><h3>Co počítáte</h3>
+    <p>Sledujte cestu od jednoho konce k druhému a počítejte dílky, kterými prochází. Cesta je dokončená, když oba konce končí: na křižovatce, v městě, v klášteře, nebo když se zastaví do smyčky.</p>
+    <p><span class="when during">Během hry</span>Dokončená cesta dává 1 bod za každý dílek.</p>
+    <p><span class="when end">Na konci</span>Nedokončená cesta také dává 1 bod za každý dílek. Cesty jsou jediný prvek, který je v obou případech hodný stejně.</p>
+    <p class="where">Kde hledat: poddani stojící na cestách.</p>
+    <div class="ex"><b>Příklad:</b> cesta vychází z křižovatky, vede 2 prostými dílky a končí u městské brány. Počítáme-li křižovatkový dílek a městský dílek, dotýká se 4 dílků, tedy 4 body. Pokud na konci hry cesta ze 3 dílků stále má otevřený konec, dává 3 body.</div></div></div>
+
+  <h2 id="cities">Města a erby</h2>
+  <div class="line"><div class="card"><h3>Co počítáte</h3>
+    <p>Počítejte dílky, které mají jakoukoliv část města, a pak spočítejte erby. Erb je malý erbovní znak vytištěný na některých městských dílcích. Město je dokončené, když se jeho hradby uzavřou úplně bez mezery a otevřeného okraje.</p>
+    <p><span class="when during">Během hry</span>Dokončené město dává 2 body za každý dílek a 2 body navíc za každý erb. Nejmenší město, 2 dílky bez erbu, je hodno 4.</p>
+    <p><span class="when end">Na konci</span>Nedokončené město dává jen 1 bod za každý dílek a 1 za každý erb, tedy polovinu toho, co by bylo hodno dokončené.</p>
+    <p class="where">Kde hledat: poddani stojící uvnitř městských hradeb.</p>
+    <div class="ex"><b>Příklad:</b> dokončené město z 4 dílků s 1 erbem dává 4 × 2 = 8 za dílky a 2 za erb, spolu 10 bodů. Nedokončené město z 3 dílků s 1 erbem na konci hry dává 3 + 1 = 4 body.</div></div></div>
+
+  <h2 id="monasteries">Kláštery</h2>
+  <div class="line"><div class="card"><h3>Co počítáte</h3>
+    <p>Klášter sedí uprostřed svého dílku. Podívejte se na 8 políček kolem něj: vlevo, vpravo, nahoře, dole a 4 rohy. Klášter je dokončený, když jsou všechna 8 zaplněná dílky.</p>
+    <p><span class="when during">Během hry</span>Dokončený klášter dává 9 bodů: 1 za klášterní dílek a 1 za každý z 8 dílků kolem něj.</p>
+    <p><span class="when end">Na konci</span>Nedokončený klášter dává 1 bod za klášterní dílek a 1 za každý dílek kolem něj, který tam je. Takže je hodno 1 až 8 bodů.</p>
+    <p class="where">Kde hledat: poddani na klášterech. Na klášter může být maximálně jeden poddaný, takže žádné sdílení neexistuje.</p>
+    <div class="ex"><b>Příklad:</b> na konci hry váš klášter má 5 dílků kolem sebe a 3 prázdná místa. To je 1 + 5 = 6 bodů.</div></div></div>
+
+  <h2 id="fields">Pole</h2>
+  <div class="line"><div class="card"><h3>Co počítáte</h3>
+    <p>Pole je úsek zelené trávy. Rozkládá se přes dílky, dokud je tráva spojená; cesty, městské hradby a okraje dílků na stole ji přerušují, takže jeden velký louka může skončit jako několik oddělených polí. Poddaný ležící v poli je sedlák.</p>
+    <p><span class="when during">Během hry</span>Nic. Pole se nikdy nebodují před koncem, a sedláci zůstávají, kde jsou.</p>
+    <p><span class="when end">Na konci</span>Berte jedno pole se sedláky najednou. Najděte každé <b>dokončené</b> město, jehož hradby se dotýkají toho pole. Hráč s nejvíce sedláky v tom poli dostane 3 body za každé z těch měst. Nedokončená města polím nedávají nic.</p>
+    <p class="where">Kde hledat: sedláci ležící v trávě, pak obejděte okraj jejich pole a podívejte se na každou hradbu města, kterou se dotýká.</p>
+    <div class="ex"><b>Příklad:</b> vaše pole sedláka se dotýká 3 dokončených měst a 1 nedokončeného. To je 3 × 3 = 9 bodů; nedokončené město se nepočítá.</div>
+    <p>Každé pole se boduje zvlášť. Pokud se jedno město dotýká dvou různých polí, počítá se pro obě. A pokud stejný hráč vyhraje obě pole, to město mu přinese 3 body dvakrát.</p></div></div>
+  <div class="tip"><b>Užitečný způsob, jak najít města pole:</b> položte prst na sedláka a přehlaďujte trávu ven bez překračování žádné cesty nebo hradby. Každá hradba dokončeného města, po které váš prst projde, se počítá jednou pro toto pole, bez ohledu na to, jak je hradba dlouhá.</div>
+
+  <h2 id="field-examples">Příklady polí</h2>
+  <div class="examples num">
+    <div class="card"><b>Jedno pole, mnoho měst</b><p>Váš sedlák je sám v velkém poli. Okolem jeho okraje jsou 4 dokončená města a 2 nedokončená. Počítají se jen dokončená: 4 × 3.</p><div class="big">12 bodů</div></div>
+    <div class="card"><b>Město mezi dvěma poli</b><p>Cesta rozdělí trávu na dvě poloviny, a obě se dotýkají stejného dokončeného města. Váš sedlák je v severním poli, Annin v jižním. Jsou to dvě pole, takže obojí dostanete 3 za to město.</p><div class="big">3 každému</div></div>
+    <div class="card"><b>Sdílené pole</b><p>Dvě pole se sedláky se spojila během hry. Teď máte vy i Anna v něm každý 2 sedláky, a dotýká se 5 dokončených měst. Jste v remíze, takže obojí dostanete 5 × 3.</p><div class="big">15 každému</div></div>
+  </div>
+  <div class="examples num">
+    <div class="card"><b>Přečísleni</b><p>Stejné pole, ale Anna má 2 sedláky a vy 1. Anna má nejvíce, takže dostane všech 15 a vy za toto pole nic.</p><div class="big">0 pro vás</div></div>
+    <div class="card"><b>Jeden hráč, dvě pole</b><p>Máte sedláka v každém z dvou polí, a jedno dokončené město se dotýká obou. Každé pole ho počítá samostatně, takže to město vám dává 3 + 3.</p><div class="big">6 bodů</div></div>
+    <div class="card"><b>Žádná dokončená města</b><p>Sedlák v poli, které se dotýká jen nedokončených měst, nebo žádných měst, nezdobude nic. Sedlák tam jen leží.</p><div class="big">0 bodů</div></div>
+  </div>
+
+  <h2 id="mistakes">Časté chyby</h2>
+  <div class="warn"><b>Chyby, které lidé dělají při bodování Carcassonne</b><ul>
+    <li>Bodování nedokončených měst jako dokončených na konci. Dílek dokončeného města stojí 2, nedokončený jen 1, a to samé platí pro erby.</li>
+    <li>Zapomenutí na dílek kláštera sám o sobě. Nedokončený klášter se 5 sousedy stojí 6, ne 5.</li>
+    <li>Počítání nedokončených měst pro pole. Pole dostávají body jen za dokončená města.</li>
+    <li>Rozdělování bodů v remíze. Každý hráč v remíze o nejvíce poddaných dostane plné body.</li>
+    <li>Dávání bodů hráči s méně poddanými. Jen hráč nebo hráči s nejvíce dostanou cokoliv.</li>
+    <li>Bodování polí během hry, nebo vzít sedláky zpět. Sedláci zůstavají do samotného konce.</li>
+    <li>Zapomenutí vzít poddany zpět po bodování prvku během hry.</li>
+    <li>Počítání kusů hradby města místo jeho dílků. Počítejte každý dílek jednou, bez ohledu na to, kolik města na něm je.</li>
+  </ul></div>
+
+  <h2 id="who-wins">Kdo vyhrává</h2>
+  <p>Vaše finální skóre je všechno, co jste nasbírali na bodovacím pruhu během hry, plus nedokončené prvky a pole z konce. Hráč s nejvíce body vyhraje. Pokud dva hráči mají stejný celkový počet, sdílejí víťazství. Pruhy je kratší než většina finálních skór, takže pokud váš marker udělal kolo, nezapomeňte připočítat kola.</p>
+
+  <h2 id="whole-game">Konec hry, sečtený</h2>
+  <div class="card walk"><p>Poslední dílek byl právě položen, a váš marker na pruhu ukazuje, že jste během hry nasbírali 64 bodů. Tady je to, co je stále na stole:</p><ol>
+    <li><b>Nedokončené město</b> z 3 dílků s 1 erbem, kde máte jediného poddaného: 3 + 1 = 4 body.</li>
+    <li><b>Nedokončená cesta</b> přes 2 dílky s vaším poddaným: 2 body.</li>
+    <li><b>Nedokončený klášter</b> s 5 dílky kolem něj: 1 + 5 = 6 bodů.</li>
+    <li><b>Vaše první pole</b>, kde je váš sedlák sám, se dotýká 3 dokončených měst: 3 × 3 = 9 bodů.</li>
+    <li><b>Vaše druhé pole</b> je sdíleno s Annou, 1 sedlák každý, a dotýká se 2 dokončených měst. Jste v remíze, takže obojí dostanete 2 × 3 = 6 bodů.</li>
+  </ol><div class="sum num">64 + 4 + 2 + 6 + 9 + 6 = 91 bodů</div><p>Chcete-li zkontrolovat toto pomocí kalkulačky výše, zadejte 3 dlaždice města, 1 erb, 2 dlaždice cesty, 1 klášter s 5 dílkami kolem něj a 5 dokončených měst pro pole (3 z prvního pole a 2 z druhého). Ukáže 27 bodů, které přidáte ke svým 64.</p></div>
+
+  <h2 id="common-questions">Časté otázky</h2>
+  <div class="faq">
+    <details open><summary>Získám body za funkci, pokud na ní nemám poddaného?</summary><p>Ne. Body za funkci získají pouze hráči s největším počtem poddaných na ní. Dokončené město bez poddaného nikomu body nedá, ale může stále pomoci sedlákům v polích vedle něj na konci.</p></details>
+    <details><summary>Co když dokončím funkci a umístím na ni poddaného ve stejném tahu?</summary><p>Body se počítají okamžitě a poddaný se vám vrátí ve stejném tahu.</p></details>
+    <details><summary>Dělíme body, když jsme na prvním místě?</summary><p>Ne. Každý hráč, který je na prvním místě s největším počtem poddaných, získá plné body.</p></details>
+    <details><summary>Může jedno město dát body dvěma polím?</summary><p>Ano. Každé pole se počítá samostatně, takže město, které se dotýká několika polí, se počítá jednou pro každé z nich.</p></details>
+    <details><summary>Vrací se sedlák někdy?</summary><p>Ne. Sedlák zůstává v poli až do konce hry, takže se dvakrát rozmyslete, než ho položíte brzy.</p></details>
+    <details><summary>Získá město o dvou dílcích méně bodů?</summary><p>Ne, podle současných pravidel je to 2 body za každý dílek, jako u každého jiného města, takže 4 body, když je dokončeno. Starší verze pravidel se liší v některých detailech; pokud hrajete podle starého pravidla, postupujte podle něj.</p></details>
+    <details><summary>A co ty rozšíření?</summary><p>Tento průvodce pokrývá pouze základní hru; rozšíření, jako jsou Hostince a katedrály nebo Opat, přidávají nové kousky a mění některé skóre, a my je vysvětlíme na samostatných stránkách.</p></details>
+  </div>
+
+  <div class="cta" style="margin-top:30px"><img src="../../../assets/score-night-icon.png" alt=""><div><b>Nechcete si všechno počítat ručně?</b><p>V Score Night klepnete na cestu, město nebo klášter, když je dokončeno, zvolíte, kdo získá body, a na konci zadáte, co zbylo. Každý součet se sám sčítá, s záznamem každého skóre.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
+
+  <p class="disclaimer">Neoficiální průvodce napsaný našimi vlastními slovy. Není spojen s vydavatelem Carcassonne. Názvy her patří jejich vlastníkům. Plná pravidla jsou v pravidlové knize od vydavatele.</p>
+<script type="application/json" id="guide-strings">
+{
+ "points": {
+  "one": "{n} bod",
+  "few": "{n} body",
+  "many": "{n} body",
+  "other": "{n} bodů"
+ },
+ "tiles": {
+  "one": "{n} dílek",
+  "few": "{n} dílky",
+  "many": "{n} dílky",
+  "other": "{n} dílků"
+ },
+ "shields": {
+  "one": "{n} erb",
+  "few": "{n} erby",
+  "many": "{n} erby",
+  "other": "{n} erbů"
+ },
+ "finishedCities": {
+  "one": "{n} dokončené město",
+  "few": "{n} dokončená města",
+  "many": "{n} dokončená města",
+  "other": "{n} dokončených měst"
+ },
+ "cityLine": "Nedokončená města: {tiles}, 1 bod za každé = {pts}",
+ "cityShieldLine": "Nedokončená města: {tiles} a {shields}, 1 bod za každé = {pts}",
+ "roadLine": "Nedokončené cesty: {tiles}, 1 bod za každé = {pts}",
+ "monasteryLine": {
+  "one": "{n} nedokončený klášter: 1 bod za klášter sám + {tiles} kolem něj = {pts}",
+  "few": "{n} nedokončené kláštery: 1 bod za každý klášter ({n}) + {tiles} kolem nich = {pts}",
+  "many": "{n} nedokončené kláštery: 1 bod za každý klášter ({n}) + {tiles} kolem nich = {pts}",
+  "other": "{n} nedokončených klášterů: 1 bod za každý klášter ({n}) + {tiles} kolem nich = {pts}"
+ },
+ "fieldLine": "Pole: {cities}, 3 body za každé = {pts}",
+ "addToTrack": "Přidejte toto k vašemu skóre na stopě",
+ "emptyHint": "Přidejte, co je ještě na stole výše, a body se zobrazí zde"
+}
+</script>
+<script>
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
+</script></main>
+<footer class="studio"><div class="wrap">
+  <a class="bobr" translate="no" href="../../../cs/index.html">bobr
+    <svg width="98" height="20" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
+    <svg class="teeth" width="12" height="9" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
+  </a>
+  <span>© 2026 <span translate="no">Bobr Studio</span></span>
+  <a href="../../../cs/index.html#apps">All apps</a>
+  <a href="https://bobrstudio.dev/legal/score-night/cs/">Privacy · <span translate="no">Score Night</span></a>
+  <details class="langs"><summary>🌐 Čeština</summary><div class="menu"><a href="../../../guides/carcassonne/">English</a><a href="../../../ru/guides/carcassonne/">Русский</a><a href="../../../uk/guides/carcassonne/">Українська</a><a href="../../../pl/guides/carcassonne/">Polski</a><a href="../../../cs/guides/carcassonne/" class="current">Čeština</a><a href="../../../de/guides/carcassonne/">Deutsch</a><a href="../../../fr/guides/carcassonne/">Français</a><a href="../../../es/guides/carcassonne/">Español</a><a href="../../../pt/guides/carcassonne/">Português</a><a href="../../../tr/guides/carcassonne/">Türkçe</a><a href="../../../ja/guides/carcassonne/">日本語</a><a href="../../../ko/guides/carcassonne/">한국어</a><a href="../../../zh/guides/carcassonne/">中文</a></div></details>
+</div></footer>
+</body>
+</html>

@@ -60,7 +60,18 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
 </style>
 <link rel="canonical" href="https://bobrstudio.dev/guides/carcassonne/">
 <link rel="alternate" hreflang="en" href="https://bobrstudio.dev/guides/carcassonne/">
+<link rel="alternate" hreflang="ru" href="https://bobrstudio.dev/ru/guides/carcassonne/">
+<link rel="alternate" hreflang="uk" href="https://bobrstudio.dev/uk/guides/carcassonne/">
+<link rel="alternate" hreflang="pl" href="https://bobrstudio.dev/pl/guides/carcassonne/">
+<link rel="alternate" hreflang="cs" href="https://bobrstudio.dev/cs/guides/carcassonne/">
 <link rel="alternate" hreflang="de" href="https://bobrstudio.dev/de/guides/carcassonne/">
+<link rel="alternate" hreflang="fr" href="https://bobrstudio.dev/fr/guides/carcassonne/">
+<link rel="alternate" hreflang="es" href="https://bobrstudio.dev/es/guides/carcassonne/">
+<link rel="alternate" hreflang="pt" href="https://bobrstudio.dev/pt/guides/carcassonne/">
+<link rel="alternate" hreflang="tr" href="https://bobrstudio.dev/tr/guides/carcassonne/">
+<link rel="alternate" hreflang="ja" href="https://bobrstudio.dev/ja/guides/carcassonne/">
+<link rel="alternate" hreflang="ko" href="https://bobrstudio.dev/ko/guides/carcassonne/">
+<link rel="alternate" hreflang="zh" href="https://bobrstudio.dev/zh/guides/carcassonne/">
 <link rel="alternate" hreflang="x-default" href="https://bobrstudio.dev/guides/carcassonne/">
 <style>
 .langs { position: relative; }
@@ -80,7 +91,7 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
       <svg width="130" height="26" viewBox="0 0 210 46" aria-hidden="true"><path d="M6,14 C60,22 120,20 158,14" stroke="#F7F1E8" stroke-width="5" fill="none" stroke-linecap="round"/><g transform="rotate(-10 180 20)"><ellipse cx="180" cy="20" rx="24" ry="13" fill="#C98B4E"/></g></svg>
       <svg class="teeth" width="16" height="12" viewBox="0 0 24 18" aria-hidden="true"><rect x="2" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/><rect x="13" y="1" width="9" height="15" rx="2" fill="#fff" stroke="#5D3A22" stroke-width="2"/></svg>
     </a>
-    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/carcassonne/" class="current">English</a><a href="../../de/guides/carcassonne/">Deutsch</a></div></details></nav>
+    <nav><a class="guides-link" href="../../guides/">Scoring guides</a><details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/carcassonne/" class="current">English</a><a href="../../ru/guides/carcassonne/">Русский</a><a href="../../uk/guides/carcassonne/">Українська</a><a href="../../pl/guides/carcassonne/">Polski</a><a href="../../cs/guides/carcassonne/">Čeština</a><a href="../../de/guides/carcassonne/">Deutsch</a><a href="../../fr/guides/carcassonne/">Français</a><a href="../../es/guides/carcassonne/">Español</a><a href="../../pt/guides/carcassonne/">Português</a><a href="../../tr/guides/carcassonne/">Türkçe</a><a href="../../ja/guides/carcassonne/">日本語</a><a href="../../ko/guides/carcassonne/">한국어</a><a href="../../zh/guides/carcassonne/">中文</a></div></details></nav>
   </div>
 </header>
 <main class="page"><div class="crumbs"><a href="../../guides/">Scoring guides</a> › Carcassonne</div>
@@ -207,35 +218,50 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
   <div class="cta" style="margin-top:30px"><img src="../../assets/score-night-icon.png" alt=""><div><b>Rather not count all this by hand?</b><p>In Score Night you tap a road, city or monastery when it's finished, pick who gets the points, and at the end enter what's left. Every total adds up by itself, with a log of every score.</p></div><a class="btn" href="https://play.google.com/store/apps/details?id=com.bobr.scorenight&referrer=utm_source%3Dsite%26utm_medium%3Dguide%26utm_campaign%3Dcarcassonne">▶ Google Play</a></div>
 
   <p class="disclaimer">Unofficial guide written in our own words. Not affiliated with the publisher of Carcassonne. Game names belong to their owners. The full rules are in the rulebook from the publisher.</p>
+<script type="application/json" id="guide-strings">
+{
+  "points": {"one": "{n} point", "other": "{n} points"},
+  "tiles": {"one": "{n} tile", "other": "{n} tiles"},
+  "shields": {"one": "{n} shield", "other": "{n} shields"},
+  "finishedCities": {"one": "{n} finished city", "other": "{n} finished cities"},
+  "cityLine": "Unfinished cities: {tiles}, 1 point each = {pts}",
+  "cityShieldLine": "Unfinished cities: {tiles} and {shields}, 1 point each = {pts}",
+  "roadLine": "Unfinished roads: {tiles}, 1 point each = {pts}",
+  "monasteryLine": {"one": "{n} unfinished monastery: 1 point for the monastery itself + {tiles} around it = {pts}", "other": "{n} unfinished monasteries: 1 point for each monastery ({n}) + {tiles} around them = {pts}"},
+  "fieldLine": "Fields: {cities}, 3 points each = {pts}",
+  "addToTrack": "Add this to your score on the track",
+  "emptyHint": "Add what is still on the table above, and the points will appear here"
+}
+</script>
 <script>
-  const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
-  const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
-  const s = (n, one, many) => `${n} ${n === 1 ? one : (many || one + 's')}`;
-  const pts = n => s(n, 'point');
-  function score() {
-    const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
-    return { city, road, mon, field, total: city + road + mon + field };
-  }
-  function draw() {
-    v.ar = Math.min(v.ar, 7 * v.mo);
-    for (const k in v) document.getElementById(k).textContent = v[k];
-    const r = score(), lines = [];
-    if (v.ct || v.sh) lines.push(`Unfinished cities: ${s(v.ct, 'tile')}` + (v.sh ? ` and ${s(v.sh, 'shield')}` : '') + `, 1 point each = ${pts(r.city)}`);
-    if (v.rd) lines.push(`Unfinished roads: ${s(v.rd, 'tile')}, 1 point each = ${pts(r.road)}`);
-    if (v.mo) lines.push(v.mo === 1
-      ? `1 unfinished monastery: 1 point for the monastery itself + ${s(v.ar, 'tile')} around it = ${pts(r.mon)}`
-      : `${v.mo} unfinished monasteries: 1 point for each monastery (${v.mo}) + ${s(v.ar, 'tile')} around them = ${pts(r.mon)}`);
-    if (v.fc) lines.push(`Fields: ${s(v.fc, 'finished city', 'finished cities')}, 3 points each = ${pts(r.field)}`);
-    if (lines.length) lines.push('Add this to your score on the track');
-    else lines.push('Add what is still on the table above, and the points will appear here');
-    document.getElementById('pts').textContent = pts(r.total);
-    document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
-  }
-  document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
-    const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
-    v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
-  });
-  draw();
+const T = JSON.parse(document.getElementById('guide-strings').textContent);
+const PR = new Intl.PluralRules(document.documentElement.lang || 'en');
+const f = (s, v = {}) => s.replace(/\{(\w+)\}/g, (m, k) => (k in v ? v[k] : m));
+const p = (forms, n, v = {}) => f(forms[PR.select(n)] ?? forms.other, { n, ...v });
+
+const v = { ct: 3, sh: 1, rd: 0, mo: 1, ar: 5, fc: 3 };
+const max = { ct: 60, sh: 30, rd: 60, mo: 9, fc: 40 };
+function score() {
+  const city = v.ct + v.sh, road = v.rd, mon = v.mo + v.ar, field = 3 * v.fc;
+  return { city, road, mon, field, total: city + road + mon + field };
+}
+function draw() {
+  v.ar = Math.min(v.ar, 7 * v.mo);
+  for (const k in v) document.getElementById(k).textContent = v[k];
+  const r = score(), lines = [];
+  if (v.ct || v.sh) lines.push(f(v.sh ? T.cityShieldLine : T.cityLine, { tiles: p(T.tiles, v.ct), shields: p(T.shields, v.sh), pts: p(T.points, r.city) }));
+  if (v.rd) lines.push(f(T.roadLine, { tiles: p(T.tiles, v.rd), pts: p(T.points, r.road) }));
+  if (v.mo) lines.push(p(T.monasteryLine, v.mo, { tiles: p(T.tiles, v.ar), pts: p(T.points, r.mon) }));
+  if (v.fc) lines.push(f(T.fieldLine, { cities: p(T.finishedCities, v.fc), pts: p(T.points, r.field) }));
+  lines.push(lines.length ? T.addToTrack : T.emptyHint);
+  document.getElementById('pts').textContent = p(T.points, r.total);
+  document.getElementById('how').innerHTML = lines.map(l => `<li>${l}</li>`).join('');
+}
+document.querySelectorAll('.step button').forEach(b => b.onclick = () => {
+  const k = b.dataset.k, top = k === 'ar' ? 7 * v.mo : max[k];
+  v[k] = Math.max(0, Math.min(top, v[k] + +b.dataset.d)); draw();
+});
+draw();
 </script></main>
 <footer class="studio"><div class="wrap">
   <a class="bobr" translate="no" href="../../index.html">bobr
@@ -245,7 +271,7 @@ h2::before { content: ""; display: inline-block; width: 22px; height: 4px; backg
   <span>© 2026 <span translate="no">Bobr Studio</span></span>
   <a href="../../index.html#apps">All apps</a>
   <a href="https://bobrstudio.dev/legal/score-night/">Privacy · <span translate="no">Score Night</span></a>
-  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/carcassonne/" class="current">English</a><a href="../../de/guides/carcassonne/">Deutsch</a></div></details>
+  <details class="langs"><summary>🌐 English</summary><div class="menu"><a href="../../guides/carcassonne/" class="current">English</a><a href="../../ru/guides/carcassonne/">Русский</a><a href="../../uk/guides/carcassonne/">Українська</a><a href="../../pl/guides/carcassonne/">Polski</a><a href="../../cs/guides/carcassonne/">Čeština</a><a href="../../de/guides/carcassonne/">Deutsch</a><a href="../../fr/guides/carcassonne/">Français</a><a href="../../es/guides/carcassonne/">Español</a><a href="../../pt/guides/carcassonne/">Português</a><a href="../../tr/guides/carcassonne/">Türkçe</a><a href="../../ja/guides/carcassonne/">日本語</a><a href="../../ko/guides/carcassonne/">한국어</a><a href="../../zh/guides/carcassonne/">中文</a></div></details>
 </div></footer>
 </body>
 </html>
